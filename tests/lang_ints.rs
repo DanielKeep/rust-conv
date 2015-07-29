@@ -7,10 +7,6 @@ use conv::Overflow as Of;
 use conv::RangeError::Underflow as RU;
 use conv::RangeError::Overflow as RO;
 
-macro_rules! as_expr {
-    ($e:expr) => {$e};
-}
-
 macro_rules! check {
     (@ $from:ty, $to:ty; $(;)*) => {};
 
