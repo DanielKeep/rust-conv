@@ -329,3 +329,38 @@ fn test_usize() {
         unimplemented!()
     }
 }
+
+#[test]
+fn test_i_to_f() {
+    check!(i8,  f32; sident; qv: *);
+    check!(i16, f32; sident; qv: *);
+    check!(i32, f32; sident; qv: (+-16_777_216); qa: *;
+        v: -16_777_217, !RU; v: 16_777_217, !RO;
+    );
+    check!(i64, f32; sident; qv: (+-16_777_216); qa: *;
+        v: -16_777_217, !RU; v: 16_777_217, !RO;
+    );
+
+    check!(u8,  f32; uident; qv: *);
+    check!(u16, f32; uident; qv: *);
+    check!(u32, f32; uident; qv: (, 16_777_216); qa: *;
+        v: 16_777_217, !Of;
+    );
+    check!(u64, f32; uident; qv: (, 16_777_216); qa: *;
+        v: 16_777_217, !Of;
+    );
+
+    check!(i8,  f64; sident; qv: *);
+    check!(i16, f64; sident; qv: *);
+    check!(i32, f64; sident; qv: *);
+    check!(i64, f64; sident; qv: (+-9_007_199_254_740_992); qa: *;
+        v: -9_007_199_254_740_993, !RU; v: 9_007_199_254_740_993, !RO;
+    );
+
+    check!(u8,  f64; uident; qv: *);
+    check!(u16, f64; uident; qv: *);
+    check!(u32, f64; uident; qv: *);
+    check!(u64, f64; uident; qv: (, 9_007_199_254_740_992); qa: *;
+        v: 9_007_199_254_740_993, !Of;
+    );
+}

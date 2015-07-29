@@ -54,7 +54,7 @@ macro_rules! check {
         {
             let src: $from = $src;
             let dst: Result<$to, _> = src.value_into();
-            assert_eq!(dst, Ok($src));
+            assert_eq!(dst, Ok($src as $to));
         }
         check!(@ $from, $to; $($tail)*);
     };
@@ -66,6 +66,52 @@ macro_rules! check {
             fn property(v: $from) -> bool {
                 let dst: Result<$to, _> = v.value_into();
                 dst == Ok(v as $to)
+            }
+
+            let mut qc = quickcheck::QuickCheck::new();
+            match qc.quicktest(property as fn($from) -> bool) {
+                Ok(_) => (),
+                Err(err) => panic!("{:?}", err)
+            }
+        }
+        check!(@ $from, $to; $($tail)*);
+    };
+
+    (@ $from:ty, $to:ty; qv: (+-$bound:expr); $($tail:tt)*) => {
+        {
+            extern crate quickcheck;
+
+            fn property(v: $from) -> bool {
+                let dst: Result<$to, conv::FloatError> = v.value_into().map_err(From::from);
+                if !(-$bound as $from <= v) {
+                    dst == Err(conv::FloatError::Underflow)
+                } else if !(v <= $bound as $from) {
+                    dst == Err(conv::FloatError::Overflow)
+                } else {
+                    dst == Ok(v as $to)
+                }
+            }
+
+            let mut qc = quickcheck::QuickCheck::new();
+            match qc.quicktest(property as fn($from) -> bool) {
+                Ok(_) => (),
+                Err(err) => panic!("{:?}", err)
+            }
+        }
+        check!(@ $from, $to; $($tail)*);
+    };
+
+    (@ $from:ty, $to:ty; qv: (, $bound:expr); $($tail:tt)*) => {
+        {
+            extern crate quickcheck;
+
+            fn property(v: $from) -> bool {
+                let dst: Result<$to, conv::FloatError> = v.value_into().map_err(From::from);
+                if !(v <= $bound as $from) {
+                    dst == Err(conv::FloatError::Overflow)
+                } else {
+                    dst == Ok(v as $to)
+                }
             }
 
             let mut qc = quickcheck::QuickCheck::new();
