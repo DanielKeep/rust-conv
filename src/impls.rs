@@ -93,10 +93,10 @@ macro_rules! num_conv {
             $($attrs)*
             impl<Scheme> ::ApproxFrom<$src, Scheme> for $dst
             where Scheme: ::ApproxScheme {
-                type Err = ::errors::RangeError;
+                type Err = ::errors::Overflow;
                 fn approx_from(src: $src) -> Result<$dst, Self::Err> {
                     if !(src <= max_of!($dst) as $src) {
-                        return Err(::errors::RangeError::Overflow);
+                        return Err(::errors::Overflow);
                     }
                     Ok(src as $dst)
                 }
@@ -104,10 +104,10 @@ macro_rules! num_conv {
 
             $($attrs)*
             impl ::ValueFrom<$src> for $dst {
-                type Err = ::errors::RangeError;
+                type Err = ::errors::Overflow;
                 fn value_from(src: $src) -> Result<$dst, Self::Err> {
                     if !(src <= max_of!($dst) as $src) {
-                        return Err(::errors::RangeError::Overflow);
+                        return Err(::errors::Overflow);
                     }
                     Ok(src as $dst)
                 }
@@ -288,7 +288,7 @@ mod lang_ints {
     num_conv! { i16; n i8, w i32, w i64, n+u8, w+u16, w+u32, w+u64, w isize, w+usize }
     num_conv! { i32; n i8, n i16, w i64, n+u8, n+u16, w+u32, w+u64 }
     num_conv! { i64; n i8, n i16, n i32, n+u8, n+u16, n+u32, w+u64 }
-    num_conv! { i32; #[32] e isize, #[64] w isize, #[32] n+usize, #[64] w+usize }
+    num_conv! { i32; #[32] e isize, #[64] w isize, w+usize }
     num_conv! { i64; #[32] n isize, #[64] e isize, n+usize }
 
     num_conv! { u8; n-i8, w i16, w i32, w i64, w u16, w u32, w u64, w isize, w usize }
@@ -297,6 +297,14 @@ mod lang_ints {
     num_conv! { u64; n-i8, n-i16, n-i32, n-i64, n-u8, n-u16, n-u32 }
     num_conv! { u32; #[32] n-isize, #[64] w isize, #[32] e usize, #[64] w usize }
     num_conv! { u64; n-isize, #[32] n-usize, #[64] e usize }
+
+    num_conv! { isize; n i8, n i16, #[32] e i32, #[32] w i64, #[64] n i32, #[64] e i64 }
+    num_conv! { isize; n+u8, n+u16, #[32] w+u32, #[32] w+u64, #[64] n+u32, #[64] w+u64 }
+    num_conv! { isize; w+usize }
+
+    num_conv! { usize; n-i8, n-i16, #[32] n-i32, #[32] w i64, #[64] n-i32, #[64] n-i64 }
+    num_conv! { usize; n-u8, n-u16, #[32] e u32, #[32] w u64, #[64] n-u32, #[64] e u64 }
+    num_conv! { usize; n-isize }
 }
 
 mod lang_floats {

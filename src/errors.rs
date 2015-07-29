@@ -5,17 +5,33 @@ This module defines the various error types that can be produced by a failed con
 use misc::{Saturated, InvalidSentinel, SignedInfinity};
 
 /// Indicates that it is not possible for the conversion to fail.
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
 pub struct NoError;
 
 /// Indicates that the conversion failed due to an underflow.
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
 pub struct Underflow;
 
+impl From<NoError> for Underflow {
+    fn from(_: NoError) -> Underflow {
+        panic!("cannot convert NoError into Underflow");
+    }
+}
+
 /// Indicates that the conversion failed due to an overflow.
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
 pub struct Overflow;
+
+impl From<NoError> for Overflow {
+    fn from(_: NoError) -> Overflow {
+        panic!("cannot convert NoError into Overflow");
+    }
+}
 
 /**
 Indicates that a conversion from a floating point type failed.
 */
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
 pub enum FloatError {
     /// Input underflowed the target type.
     Underflow,
@@ -27,15 +43,63 @@ pub enum FloatError {
     NotANumber,
 }
 
+impl From<NoError> for FloatError {
+    fn from(_: NoError) -> FloatError {
+        panic!("cannot convert NoError into FloatError");
+    }
+}
+
+impl From<Underflow> for FloatError {
+    fn from(_: Underflow) -> FloatError {
+        FloatError::Underflow
+    }
+}
+
+impl From<Overflow> for FloatError {
+    fn from(_: Overflow) -> FloatError {
+        FloatError::Overflow
+    }
+}
+
+impl From<RangeError> for FloatError {
+    fn from(e: RangeError) -> FloatError {
+        use self::RangeError as R;
+        use self::FloatError as F;
+        match e {
+            R::Underflow => F::Underflow,
+            R::Overflow => F::Overflow,
+        }
+    }
+}
+
 /**
 Indicates that a conversion failed due to a range error.
 */
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
 pub enum RangeError {
     /// Input underflowed the target type.
     Underflow,
 
     /// Input overflowed the target type.
     Overflow,
+}
+
+impl From<NoError> for RangeError {
+    fn from(_: NoError) -> RangeError {
+        panic!("cannot convert NoError into RangeError");
+    }
+}
+
+impl From<Underflow> for RangeError {
+    fn from(_: Underflow) -> RangeError {
+        RangeError::Underflow
+    }
+}
+
+impl From<Overflow> for RangeError {
+    fn from(_: Overflow) -> RangeError {
+        RangeError::Overflow
+    }
 }
 
 /**

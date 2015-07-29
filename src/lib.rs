@@ -7,7 +7,7 @@ This crate provides a number of conversion traits with more specific semantics t
 pub use errors::{
     NoError, Underflow, Overflow,
     FloatError, RangeError,
-    UnwrapOrInf, UnwrapOrInvalid,
+    UnwrapOrInf, UnwrapOrInvalid, UnwrapOrSaturate,
 };
 
 pub mod errors;

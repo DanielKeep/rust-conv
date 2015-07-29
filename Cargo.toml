@@ -2,3 +2,6 @@
 name = "conv"
 version = "0.1.0"
 authors = ["Daniel Keep <daniel.keep@gmail.com>"]
+
+[dev-dependencies]
+quickcheck = "0.2.21"
