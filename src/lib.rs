@@ -10,6 +10,17 @@ pub use errors::{
     UnwrapOrInf, UnwrapOrInvalid, UnwrapOrSaturate,
 };
 
+/**
+Publicly re-exports the most generally useful set of items.
+*/
+pub mod prelude {
+    pub use super::{
+        ApproxFrom, ApproxInto,
+        ValueFrom, ValueInto,
+        UnwrapOrInf, UnwrapOrInvalid, UnwrapOrSaturate,
+    };
+}
+
 pub mod errors;
 pub mod misc;
 
