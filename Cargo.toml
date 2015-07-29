@@ -1,0 +1,4 @@
+[package]
+name = "conv"
+version = "0.1.0"
+authors = ["Daniel Keep <daniel.keep@gmail.com>"]
