@@ -7,7 +7,7 @@ This crate provides a number of conversion traits with more specific semantics t
 pub use errors::{
     NoError, Underflow, Overflow,
     FloatError, RangeError,
-    UnwrapOrInf, UnwrapOrInvalid, UnwrapOrSaturate,
+    UnwrapOk, UnwrapOrInf, UnwrapOrInvalid, UnwrapOrSaturate,
 };
 
 /**
@@ -17,7 +17,7 @@ pub mod prelude {
     pub use super::{
         ApproxFrom, ApproxInto, ApproxWith,
         ValueFrom, ValueInto,
-        UnwrapOrInf, UnwrapOrInvalid, UnwrapOrSaturate,
+        UnwrapOk, UnwrapOrInf, UnwrapOrInvalid, UnwrapOrSaturate,
     };
 }
 

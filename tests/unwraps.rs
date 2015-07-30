@@ -26,4 +26,6 @@ fn test_unwraps() {
     assert_eq!(cty!(16_777_216i32.value_into().unwrap_or_invalid(), f32), 16_777_216.0);
     assert!(cty!(16_777_217i32.value_into().unwrap_or_invalid(), f32).is_nan());
     assert!(cty!((-16_777_217i32).value_into().unwrap_or_invalid(), f32).is_nan());
+
+    assert_eq!(cty!(0u8.value_into().unwrap_ok(), u16), 0);
 }

@@ -103,6 +103,27 @@ impl From<Overflow> for RangeError {
 }
 
 /**
+Safely unwrap a `Result` that cannot contain an error.
+*/
+pub trait UnwrapOk<T> {
+    /**
+    Unwraps a `Result` without possibility of failing.
+
+    Technically, this is not necessary; it's provided simply to make user code a little clearer.
+    */
+    fn unwrap_ok(self) -> T;
+}
+
+impl<T> UnwrapOk<T> for Result<T, NoError> {
+    fn unwrap_ok(self) -> T {
+        match self {
+            Ok(v) => v,
+            Err(..) => loop {},
+        }
+    }
+}
+
+/**
 Unwrap a conversion by saturating to infinity.
 */
 pub trait UnwrapOrInf {
