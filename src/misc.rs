@@ -15,6 +15,17 @@ pub trait Saturated {
     fn saturated_min() -> Self;
 }
 
+item_for_each! {
+    (i8), (i16), (i32), (i64), (u8), (u16), (u32), (u64), (isize), (usize) => {
+        ($ity:ident) => {
+            impl Saturated for $ity {
+                fn saturated_max() -> Self { ::std::$ity::MAX }
+                fn saturated_min() -> Self { ::std::$ity::MIN }
+            }
+        };
+    }
+}
+
 /**
 This trait indicates that a type has an "invalid" sentinel value.
 
@@ -23,6 +34,16 @@ This is used by the `errors::UnwrapOrInvalid` extension trait.
 pub trait InvalidSentinel {
     /// Returns the type's "invalid" sentinel value.
     fn invalid_sentinel() -> Self;
+}
+
+item_for_each! {
+    (f32), (f64) => {
+        ($ity:ident) => {
+            impl InvalidSentinel for $ity {
+                fn invalid_sentinel() -> Self { ::std::$ity::NAN }
+            }
+        };
+    }
 }
 
 /**
@@ -36,4 +57,15 @@ pub trait SignedInfinity {
 
     /// Returns the type's negative infinity value.
     fn pos_infinity() -> Self;
+}
+
+item_for_each! {
+    (f32), (f64) => {
+        ($ity:ident) => {
+            impl SignedInfinity for $ity {
+                fn neg_infinity() -> Self { ::std::$ity::NEG_INFINITY }
+                fn pos_infinity() -> Self { ::std::$ity::INFINITY }
+            }
+        };
+    }
 }

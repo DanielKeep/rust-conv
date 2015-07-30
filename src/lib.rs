@@ -21,6 +21,24 @@ pub mod prelude {
     };
 }
 
+macro_rules! as_item {
+    ($($i:item)*) => {$($i)*};
+}
+
+macro_rules! item_for_each {
+    (
+        $( ($($arg:tt)*) ),* $(,)* => { $($exp:tt)* }
+    ) => {
+        macro_rules! body {
+            $($exp)*
+        }
+
+        $(
+            body! { $($arg)* }
+        )*
+    };
+}
+
 pub mod errors;
 pub mod misc;
 

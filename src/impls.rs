@@ -1,7 +1,3 @@
-macro_rules! as_item {
-    ($($i:item)*) => {$($i)*};
-}
-
 macro_rules! max_of {
     ($name:ident) => { ::std::$name::MAX };
 }
@@ -343,8 +339,6 @@ mod lang_floats {
     use ValueFrom;
     use errors::{NoError, RangeError};
 
-    use misc::{InvalidSentinel, SignedInfinity};
-
     // f32 -> f64: strictly widening
     impl<Scheme> ApproxFrom<f32, Scheme> for f64
     where Scheme: ApproxScheme {
@@ -359,15 +353,6 @@ mod lang_floats {
         fn value_from(src: f32) -> Result<f64, Self::Err> {
             Ok(src as f64)
         }
-    }
-
-    impl InvalidSentinel for f32 {
-        fn invalid_sentinel() -> f32 { ::std::f32::NAN }
-    }
-
-    impl SignedInfinity for f32 {
-        fn neg_infinity() -> f32 { ::std::f32::NEG_INFINITY }
-        fn pos_infinity() -> f32 { ::std::f32::INFINITY }
     }
 
     // f64 -> f32: narrowing, approximate
@@ -385,15 +370,6 @@ mod lang_floats {
             }
             Ok(src as f32)
         }
-    }
-
-    impl InvalidSentinel for f64 {
-        fn invalid_sentinel() -> f64 { ::std::f64::NAN }
-    }
-
-    impl SignedInfinity for f64 {
-        fn neg_infinity() -> f64 { ::std::f64::NEG_INFINITY }
-        fn pos_infinity() -> f64 { ::std::f64::INFINITY }
     }
 }
 

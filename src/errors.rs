@@ -141,12 +141,12 @@ pub trait UnwrapOrSaturate {
     fn unwrap_or_saturate(self) -> Self::Output;
 }
 
-impl<T> UnwrapOrInf for Result<T, RangeError>
-where T: SignedInfinity {
+impl<T, E> UnwrapOrInf for Result<T, E>
+where T: SignedInfinity, E: Into<RangeError> {
     type Output = T;
     fn unwrap_or_inf(self) -> T {
         use self::RangeError::*;
-        match self {
+        match self.map_err(Into::into) {
             Ok(v) => v,
             Err(Underflow) => T::neg_infinity(),
             Err(Overflow) => T::pos_infinity(),
@@ -154,91 +154,25 @@ where T: SignedInfinity {
     }
 }
 
-impl<T> UnwrapOrInf for Result<T, Underflow>
-where T: SignedInfinity {
-    type Output = T;
-    fn unwrap_or_inf(self) -> T {
-        match self {
-            Ok(v) => v,
-            Err(Underflow) => T::neg_infinity(),
-        }
-    }
-}
-
-impl<T> UnwrapOrInf for Result<T, Overflow>
-where T: SignedInfinity {
-    type Output = T;
-    fn unwrap_or_inf(self) -> T {
-        match self {
-            Ok(v) => v,
-            Err(Overflow) => T::pos_infinity(),
-        }
-    }
-}
-
-impl<T> UnwrapOrInvalid for Result<T, RangeError>
+impl<T, E> UnwrapOrInvalid for Result<T, E>
 where T: InvalidSentinel {
     type Output = T;
     fn unwrap_or_invalid(self) -> T {
         match self {
             Ok(v) => v,
-            Err(_) => T::invalid_sentinel(),
+            Err(..) => T::invalid_sentinel(),
         }
     }
 }
 
-impl<T> UnwrapOrInvalid for Result<T, Underflow>
-where T: InvalidSentinel {
-    type Output = T;
-    fn unwrap_or_invalid(self) -> T {
-        match self {
-            Ok(v) => v,
-            Err(_) => T::invalid_sentinel(),
-        }
-    }
-}
-
-impl<T> UnwrapOrInvalid for Result<T, Overflow>
-where T: InvalidSentinel {
-    type Output = T;
-    fn unwrap_or_invalid(self) -> T {
-        match self {
-            Ok(v) => v,
-            Err(_) => T::invalid_sentinel(),
-        }
-    }
-}
-
-impl<T> UnwrapOrSaturate for Result<T, RangeError>
-where T: Saturated {
+impl<T, E> UnwrapOrSaturate for Result<T, E>
+where T: Saturated, E: Into<RangeError> {
     type Output = T;
     fn unwrap_or_saturate(self) -> T {
         use self::RangeError::*;
-        match self {
+        match self.map_err(Into::into) {
             Ok(v) => v,
             Err(Underflow) => T::saturated_min(),
-            Err(Overflow) => T::saturated_max(),
-        }
-    }
-}
-
-impl<T> UnwrapOrSaturate for Result<T, Underflow>
-where T: Saturated {
-    type Output = T;
-    fn unwrap_or_saturate(self) -> T {
-        match self {
-            Ok(v) => v,
-            Err(Underflow) => T::saturated_min(),
-        }
-    }
-}
-
-impl<T> UnwrapOrSaturate for Result<T, Overflow>
-where T: Saturated {
-    type Output = T;
-    fn unwrap_or_saturate(self) -> T {
-        match self {
-            Ok(v) => v,
             Err(Overflow) => T::saturated_max(),
         }
     }
