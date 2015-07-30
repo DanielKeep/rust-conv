@@ -6,7 +6,7 @@ use misc::{Saturated, InvalidSentinel, SignedInfinity};
 
 /// Indicates that it is not possible for the conversion to fail.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
-pub struct NoError;
+pub enum NoError {}
 
 /// Indicates that the conversion failed due to an underflow.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
