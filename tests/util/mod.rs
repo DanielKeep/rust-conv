@@ -71,7 +71,7 @@ macro_rules! check {
             let mut qc = quickcheck::QuickCheck::new();
             match qc.quicktest(property as fn($from) -> bool) {
                 Ok(_) => (),
-                Err(err) => panic!("{:?}", err)
+                Err(err) => panic!("qv {:?}", err)
             }
         }
         check!(@ $from, $to; $($tail)*);
@@ -95,7 +95,7 @@ macro_rules! check {
             let mut qc = quickcheck::QuickCheck::new();
             match qc.quicktest(property as fn($from) -> bool) {
                 Ok(_) => (),
-                Err(err) => panic!("{:?}", err)
+                Err(err) => panic!("qv {:?}", err)
             }
         }
         check!(@ $from, $to; $($tail)*);
@@ -117,7 +117,7 @@ macro_rules! check {
             let mut qc = quickcheck::QuickCheck::new();
             match qc.quicktest(property as fn($from) -> bool) {
                 Ok(_) => (),
-                Err(err) => panic!("{:?}", err)
+                Err(err) => panic!("qv {:?}", err)
             }
         }
         check!(@ $from, $to; $($tail)*);
@@ -139,7 +139,7 @@ macro_rules! check {
             let mut qc = quickcheck::QuickCheck::new();
             match qc.quicktest(property as fn($from) -> bool) {
                 Ok(_) => (),
-                Err(err) => panic!("{:?}", err)
+                Err(err) => panic!("qv {:?}", err)
             }
         }
         check!(@ $from, $to; $($tail)*);
@@ -161,7 +161,7 @@ macro_rules! check {
             let mut qc = quickcheck::QuickCheck::new();
             match qc.quicktest(property as fn($from) -> bool) {
                 Ok(_) => (),
-                Err(err) => panic!("{:?}", err)
+                Err(err) => panic!("qv {:?}", err)
             }
         }
         check!(@ $from, $to; $($tail)*);
@@ -185,7 +185,7 @@ macro_rules! check {
             let mut qc = quickcheck::QuickCheck::new();
             match qc.quicktest(property as fn($from) -> bool) {
                 Ok(_) => (),
-                Err(err) => panic!("{:?}", err)
+                Err(err) => panic!("qv {:?}", err)
             }
         }
         check!(@ $from, $to; $($tail)*);
@@ -209,7 +209,7 @@ macro_rules! check {
             let mut qc = quickcheck::QuickCheck::new();
             match qc.quicktest(property as fn($from) -> bool) {
                 Ok(_) => (),
-                Err(err) => panic!("{:?}", err)
+                Err(err) => panic!("qv {:?}", err)
             }
         }
         check!(@ $from, $to; $($tail)*);
@@ -218,7 +218,7 @@ macro_rules! check {
     (@ $from:ty, $to:ty; a: $src:expr, !$dst:expr; $($tail:tt)*) => {
         {
             let src: $from = $src;
-            let dst: Result<$to, _> = src.approx_into();
+            let dst: Result<$to, _> = src.approx();
             assert_eq!(dst, Err($dst));
         }
         check!(@ $from, $to; $($tail)*);
@@ -227,7 +227,7 @@ macro_rules! check {
     (@ $from:ty, $to:ty; a: $src:expr; $($tail:tt)*) => {
         {
             let src: $from = $src;
-            let dst: Result<$to, _> = src.approx_into();
+            let dst: Result<$to, _> = src.approx();
             assert_eq!(dst, Ok($src as $to));
         }
         check!(@ $from, $to; $($tail)*);
@@ -238,14 +238,58 @@ macro_rules! check {
             extern crate quickcheck;
 
             fn property(v: $from) -> bool {
-                let dst: Result<$to, _> = v.approx_into();
+                let dst: Result<$to, _> = v.approx();
                 dst == Ok(v as $to)
             }
 
             let mut qc = quickcheck::QuickCheck::new();
             match qc.quicktest(property as fn($from) -> bool) {
                 Ok(_) => (),
-                Err(err) => panic!("{:?}", err)
+                Err(err) => panic!("qa {:?}", err)
+            }
+        }
+        check!(@ $from, $to; $($tail)*);
+    };
+
+    (@ $from:ty, $to:ty; qa: +; $($tail:tt)*) => {
+        {
+            extern crate quickcheck;
+
+            fn property(v: $from) -> bool {
+                let dst: Result<$to, conv::FloatError> = v.approx().map_err(From::from);
+                if !(0 <= v) {
+                    dst == Err(conv::FloatError::Underflow)
+                } else {
+                    dst == Ok(v as $to)
+                }
+            }
+
+            let mut qc = quickcheck::QuickCheck::new();
+            match qc.quicktest(property as fn($from) -> bool) {
+                Ok(_) => (),
+                Err(err) => panic!("qa {:?}", err)
+            }
+        }
+        check!(@ $from, $to; $($tail)*);
+    };
+
+    (@ $from:ty, $to:ty; qa: +$max:ty; $($tail:tt)*) => {
+        {
+            extern crate quickcheck;
+
+            fn property(v: $from) -> bool {
+                let dst: Result<$to, conv::FloatError> = v.approx().map_err(From::from);
+                if !(v <= <$max>::max_value() as $from) {
+                    dst == Err(conv::FloatError::Overflow)
+                } else {
+                    dst == Ok(v as $to)
+                }
+            }
+
+            let mut qc = quickcheck::QuickCheck::new();
+            match qc.quicktest(property as fn($from) -> bool) {
+                Ok(_) => (),
+                Err(err) => panic!("qa {:?}", err)
             }
         }
         check!(@ $from, $to; $($tail)*);
@@ -256,7 +300,7 @@ macro_rules! check {
             extern crate quickcheck;
 
             fn property(v: $from) -> bool {
-                let dst: Result<$to, conv::FloatError> = v.approx_into().map_err(From::from);
+                let dst: Result<$to, conv::FloatError> = v.approx().map_err(From::from);
                 if !(<$bound>::min_value() as $from <= v) {
                     dst == Err(conv::FloatError::Underflow)
                 } else if !(v <= <$bound>::max_value() as $from) {
@@ -269,7 +313,25 @@ macro_rules! check {
             let mut qc = quickcheck::QuickCheck::new();
             match qc.quicktest(property as fn($from) -> bool) {
                 Ok(_) => (),
-                Err(err) => panic!("{:?}", err)
+                Err(err) => panic!("qa {:?}", err)
+            }
+        }
+        check!(@ $from, $to; $($tail)*);
+    };
+
+    (@ $from:ty, $to:ty; qaW: *; $($tail:tt)*) => {
+        {
+            extern crate quickcheck;
+
+            fn property(v: $from) -> bool {
+                let dst: Result<$to, _> = v.approx_with::<Wrapping>();
+                dst == Ok(v as $to)
+            }
+
+            let mut qc = quickcheck::QuickCheck::new();
+            match qc.quicktest(property as fn($from) -> bool) {
+                Ok(_) => (),
+                Err(err) => panic!("qaW {:?}", err)
             }
         }
         check!(@ $from, $to; $($tail)*);

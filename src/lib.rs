@@ -15,7 +15,7 @@ Publicly re-exports the most generally useful set of items.
 */
 pub mod prelude {
     pub use super::{
-        ApproxFrom, ApproxInto,
+        ApproxFrom, ApproxInto, ApproxWith,
         ValueFrom, ValueInto,
         UnwrapOrInf, UnwrapOrInvalid, UnwrapOrSaturate,
     };
@@ -77,6 +77,32 @@ where
 }
 
 /**
+This extension trait exists to simplify using approximation implementations.
+
+If there is more than one `ApproxFrom` implementation for a given type, a simple call to `approx_into` may not be uniquely resolvable.  Due to the position of the scheme parameter (on the trait itself), it is cumbersome to specify which scheme you wanted.
+
+Hence this trait.
+*/
+pub trait ApproxWith<Dst> {
+    /// Approximate the subject with the default scheme.
+    fn approx(self) -> Result<Dst, Self::Err>
+    where Self: Sized + ApproxInto<Dst> {
+        self.approx_into()
+    }
+
+    /// Approximate the subject with a specific scheme.
+    fn approx_with<Scheme=DefaultApprox>(self) -> Result<Dst, Self::Err>
+    where
+        Self: Sized + ApproxInto<Dst, Scheme>,
+        Scheme: ApproxScheme,
+    {
+        self.approx_into()
+    }
+}
+
+impl<T, Dst> ApproxWith<Dst> for T {}
+
+/**
 This trait is used to mark approximation scheme types.
 */
 pub trait ApproxScheme {}
@@ -88,6 +114,14 @@ This is a double-edged sword: it has the loosest semantics, but is far more like
 */
 pub enum DefaultApprox {}
 impl ApproxScheme for DefaultApprox {}
+
+/**
+This scheme is used to convert a value by "wrapping" it into a narrower range.
+
+In abstract, this can be viewed as the opposite of rounding: rather than preserving the most significant bits of a value, it preserves the *least* significant bits of a value.
+*/
+pub enum Wrapping {}
+impl ApproxScheme for Wrapping {}
 
 // TODO: RoundToNearest, RoundToPosInf, RoundToNegInf, RoundToZero
 
