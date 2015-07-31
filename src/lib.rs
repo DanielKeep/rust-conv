@@ -144,6 +144,42 @@ impl ApproxScheme for Wrapping {}
 // TODO: RoundToNearest, RoundToPosInf, RoundToNegInf, RoundToZero
 
 /**
+This trait is used to perform a conversion between different semantic types which might fail.
+*/
+pub trait TryFrom<Src> {
+    /// The error type produced by a failed conversion.
+    type Err;
+
+    /// Convert the given value into the subject type.
+    fn try_from(src: Src) -> Result<Self, Self::Err>;
+}
+
+impl<Src> TryFrom<Src> for Src {
+    type Err = NoError;
+    fn try_from(src: Src) -> Result<Self, Self::Err> {
+        Ok(src)
+    }
+}
+
+/**
+This is the dual of `TryFrom`; see that trait for information.
+*/
+pub trait TryInto<Dst> {
+    /// The error type produced by a failed conversion.
+    type Err;
+
+    /// Convert the subject into the destination type.
+    fn try_into(self) -> Result<Dst, Self::Err>;
+}
+
+impl<Src, Dst> TryInto<Dst> for Src where Dst: TryFrom<Src> {
+    type Err = Dst::Err;
+    fn try_into(self) -> Result<Dst, Self::Err> {
+        TryFrom::try_from(self)
+    }
+}
+
+/**
 This trait is used to perform an exact, value-preserving conversion.
 
 Implementations of this trait should be reflexive, associative and commutative (in the absence of conversion errors).  That is, all possible cycles of `ValueFrom` conversions (for which each "step" has a defined implementation) should produce the same result, with a given value either being "round-tripped" exactly, or an error being produced.
