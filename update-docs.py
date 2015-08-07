@@ -23,11 +23,13 @@ def sh(cmd):
         msg_trace('FAILED!')
         raise
 
-def sh_eval(cmd, codec='utf-8'):
+def sh_eval(cmd, codec='utf-8', dont_strip=False):
     msg_trace('sh_eval(%r)' % cmd)
     result = None
     try:
-        result = subprocess.check_output(cmd, shell=True).decode(codec).strip()
+        result = subprocess.check_output(cmd, shell=True).decode(codec)
+        if not dont_strip:
+            result = result.strip()
     except:
         msg_trace('FAILED!')
         raise
@@ -128,7 +130,9 @@ def main():
     if sh_eval('git symbolic-ref --short HEAD') != u'master': return 0
 
     # Sanity check: does the doc branch exist at all?
-    if DOC_TARGET_BRANCH not in [b[2:].strip() for b in sh_eval('git branch').splitlines()]:
+    branches = {b[2:].strip() for b in sh_eval('git branch', dont_strip=True).splitlines()}
+    msg_trace('branches = %r' % branches)
+    if DOC_TARGET_BRANCH not in branches:
         init_doc_branch()
 
     last_rev = sh_eval('git rev-parse HEAD')
