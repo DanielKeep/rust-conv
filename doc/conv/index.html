@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `conv` crate.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, conv">
+
+    <title>conv - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <section class="sidebar">
+        
+        <p class='location'></p><script>window.sidebarCurrent = {name: 'conv', ty: 'mod', relpath: '../'};</script>
+    </section>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content mod">
+<h1 class='fqn'><span class='in-band'>Crate <a class='mod' href=''>conv</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-0' class='srclink' href='../src/conv/lib.rs.html#1-261' title='goto source code'>[src]</a></span></h1>
+<div class='docblock'><p>This crate provides a number of conversion traits with more specific semantics than those provided by <code>as</code> or <code>From</code>/<code>Into</code>.</p>
+
+<p>The goal with the traits provided here is to be more specific about what generic code can rely on, as well as provide reasonably self-describing alternatives to the standard <code>From</code>/<code>Into</code> traits.  For example, the although <code>T: From&lt;U&gt;</code> might be satisfied in generic code, this says nothing about what <em>kind</em> of conversion that represents.</p>
+
+<p>In addition, <code>From</code>/<code>Into</code> provide no facility for a conversion failing, meaning that implementations may need to choose between conversions that may not be valid, or panicking; neither option is appealing in general.</p>
+
+<h1 id="api-stability-notice" class='section-header'><a
+                           href="#api-stability-notice">API Stability Notice</a></h1>
+<p>The API of this crate is still not entirely decided.  In particular, errors may change in the future to carry the value that failed to convert (allowing it to be recovered).</p>
+
+<h1 id="overview" class='section-header'><a
+                           href="#overview">Overview</a></h1>
+<p>The following traits are used to define various conversion semantics:</p>
+
+<ul>
+<li><a href="./trait.ApproxFrom.html"><code>ApproxFrom</code></a>/<a href="./trait.ApproxInto.html"><code>ApproxInto</code></a> - approximate conversions, with selectable approximation scheme (see <a href="./trait.ApproxScheme.html"><code>ApproxScheme</code></a>).</li>
+<li><a href="./trait.TryFrom.html"><code>TryFrom</code></a>/<a href="./trait.TryInto.html"><code>TryInto</code></a> - general, potentially failing value conversions.</li>
+<li><a href="./trait.ValueFrom.html"><code>ValueFrom</code></a>/<a href="./trait.ValueInto.html"><code>ValueInto</code></a> - exact, value-preserving conversions.</li>
+</ul>
+
+<p>These extension methods are used to make working with potentially failing conversions simpler:</p>
+
+<ul>
+<li><a href="./errors/trait.UnwrapOk.html#tymethod.unwrap_ok"><code>UnwrapOk::unwrap_ok</code></a> - unwraps results from conversions that cannot fail.</li>
+<li><a href="./errors/trait.UnwrapOrInf.html#tymethod.unwrap_or_inf"><code>UnwrapOrInf::unwrap_or_inf</code></a> - saturates to ±∞ on failure.</li>
+<li><a href="./errors/trait.UnwrapOrInvalid.html#tymethod.unwrap_or_invalid"><code>UnwrapOrInvalid::unwrap_or_invalid</code></a> - substitutes the target type&#39;s &quot;invalid&quot; sentinel value on failure.</li>
+<li><a href="./errors/trait.UnwrapOrSaturate.html#tymethod.unwrap_or_saturate"><code>UnwrapOrSaturate::unwrap_or_saturate</code></a> - saturates to the maximum or minimum value of the target type on failure.</li>
+</ul>
+
+<p>A macro is provided to assist in implementing conversions:</p>
+
+<ul>
+<li><a href="./macros/index.html#tryfrom!"><code>TryFrom!</code></a> - derives an implementation of <a href="./trait.TryFrom.html"><code>TryFrom</code></a>.</li>
+</ul>
+
+<p>If you are implementing your own types, you may also be interested in the traits contained in the <a href="./misc/index.html"><code>misc</code></a> module.</p>
+</div><h2 id='reexports' class='section-header'><a href="#reexports">Reexports</a></h2>
+<table><tr><td><code>pub use errors::{<a class='enum' href='../conv/errors/enum.NoError.html' title='conv::errors::NoError'>NoError</a>, <a class='enum' href='../conv/errors/enum.GeneralError.html' title='conv::errors::GeneralError'>GeneralError</a>, <a class='struct' href='../conv/errors/struct.Unrepresentable.html' title='conv::errors::Unrepresentable'>Unrepresentable</a>, <a class='struct' href='../conv/errors/struct.Underflow.html' title='conv::errors::Underflow'>Underflow</a>, <a class='struct' href='../conv/errors/struct.Overflow.html' title='conv::errors::Overflow'>Overflow</a>, <a class='enum' href='../conv/errors/enum.FloatError.html' title='conv::errors::FloatError'>FloatError</a>, <a class='enum' href='../conv/errors/enum.RangeError.html' title='conv::errors::RangeError'>RangeError</a>, <a class='trait' href='../conv/errors/trait.UnwrapOk.html' title='conv::errors::UnwrapOk'>UnwrapOk</a>, <a class='trait' href='../conv/errors/trait.UnwrapOrInf.html' title='conv::errors::UnwrapOrInf'>UnwrapOrInf</a>, <a class='trait' href='../conv/errors/trait.UnwrapOrInvalid.html' title='conv::errors::UnwrapOrInvalid'>UnwrapOrInvalid</a>, <a class='trait' href='../conv/errors/trait.UnwrapOrSaturate.html' title='conv::errors::UnwrapOrSaturate'>UnwrapOrSaturate</a>};</code></td></tr></table><h2 id='modules' class='section-header'><a href="#modules">Modules</a></h2>
+<table>
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='errors/index.html'
+                               title='conv::errors'>errors</a></td>
+                        <td class='docblock short'>
+                             <p>This module defines the various error types that can be produced by a failed conversion.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='macros/index.html'
+                               title='conv::macros'>macros</a></td>
+                        <td class='docblock short'>
+                             <p>This module provides convenience macros to help with implementing the conversion traits.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='misc/index.html'
+                               title='conv::misc'>misc</a></td>
+                        <td class='docblock short'>
+                             <p>This module defines some additional traits not <em>directly</em> tied to conversions.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='prelude/index.html'
+                               title='conv::prelude'>prelude</a></td>
+                        <td class='docblock short'>
+                             <p>Publicly re-exports the most generally useful set of items.</p>
+
+                        </td>
+                    </tr>
+                </table><h2 id='macros' class='section-header'><a href="#macros">Macros</a></h2>
+<table>
+                    <tr class=' module-item'>
+                        <td><a class='macro' href='macro.TryFrom!.html'
+                               title='conv::TryFrom!'>TryFrom!</a></td>
+                        <td class='docblock short'>
+                             <p>See the documentation for the <a href="./macros/index.html#tryfrom!"><code>macros</code></a> module for details.</p>
+
+                        </td>
+                    </tr>
+                </table><h2 id='enums' class='section-header'><a href="#enums">Enums</a></h2>
+<table>
+                    <tr class=' module-item'>
+                        <td><a class='enum' href='enum.DefaultApprox.html'
+                               title='conv::DefaultApprox'>DefaultApprox</a></td>
+                        <td class='docblock short'>
+                             <p>The &quot;default&quot; approximation scheme.  This scheme does whatever would generally be expected of a lossy conversion, assuming no additional context or instruction is given.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='enum' href='enum.Wrapping.html'
+                               title='conv::Wrapping'>Wrapping</a></td>
+                        <td class='docblock short'>
+                             <p>This scheme is used to convert a value by &quot;wrapping&quot; it into a narrower range.</p>
+
+                        </td>
+                    </tr>
+                </table><h2 id='traits' class='section-header'><a href="#traits">Traits</a></h2>
+<table>
+                    <tr class=' module-item'>
+                        <td><a class='trait' href='trait.ApproxFrom.html'
+                               title='conv::ApproxFrom'>ApproxFrom</a></td>
+                        <td class='docblock short'>
+                             <p>This trait is used to perform a conversion that is permitted to approximate the result, but <em>not</em> to wrap or saturate the result to fit into the destination type&#39;s representable range.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='trait' href='trait.ApproxInto.html'
+                               title='conv::ApproxInto'>ApproxInto</a></td>
+                        <td class='docblock short'>
+                             <p>This is the dual of <code>ApproxFrom</code>; see that trait for information.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='trait' href='trait.ApproxScheme.html'
+                               title='conv::ApproxScheme'>ApproxScheme</a></td>
+                        <td class='docblock short'>
+                             <p>This trait is used to mark approximation scheme types.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='trait' href='trait.ApproxWith.html'
+                               title='conv::ApproxWith'>ApproxWith</a></td>
+                        <td class='docblock short'>
+                             <p>This extension trait exists to simplify using approximation implementations.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='trait' href='trait.TryFrom.html'
+                               title='conv::TryFrom'>TryFrom</a></td>
+                        <td class='docblock short'>
+                             <p>This trait is used to perform a conversion between different semantic types which might fail.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='trait' href='trait.TryInto.html'
+                               title='conv::TryInto'>TryInto</a></td>
+                        <td class='docblock short'>
+                             <p>This is the dual of <code>TryFrom</code>; see that trait for information.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='trait' href='trait.ValueFrom.html'
+                               title='conv::ValueFrom'>ValueFrom</a></td>
+                        <td class='docblock short'>
+                             <p>This trait is used to perform an exact, value-preserving conversion.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='trait' href='trait.ValueInto.html'
+                               title='conv::ValueInto'>ValueInto</a></td>
+                        <td class='docblock short'>
+                             <p>This is the dual of <code>ValueFrom</code>; see that trait for information.</p>
+
+                        </td>
+                    </tr>
+                </table></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <div id="help" class="hidden">
+        <div>
+            <div class="shortcuts">
+                <h1>Keyboard Shortcuts</h1>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h1>Search Tricks</h1>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>typedef</code> (or
+                    <code>tdef</code>).
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code>)
+                </p>
+            </div>
+        </div>
+    </div>
+
+    
+
+    <script>
+        window.rootPath = "../";
+        window.currentCrate = "conv";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../jquery.js"></script>
+    <script src="../main.js"></script>
+    
+    <script async src="../search-index.js"></script>
+</body>
+</html>
