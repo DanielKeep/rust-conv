@@ -41,5 +41,5 @@ fn test_try_from() {
     assert_eq!(GottaGo::try_from(8999u16), Err(8999u16));
     assert_eq!(GottaGo::try_from(9000u16), Ok(GottaGo::Fast));
     assert_eq!(GottaGo::try_from(9001u16), Ok(GottaGo::Faster));
-    assert_eq!(GottaGo::try_from(9002u16), Err(8999u16));
+    assert_eq!(GottaGo::try_from(9002u16), Err(9002u16));
 }
