@@ -3,67 +3,67 @@ macro_rules! as_expr {
 }
 
 macro_rules! check {
-    (@ $from:ty, $to:ty; $(;)*) => {};
+    (@ $from:ty, $to:ty=> $(;)*) => {};
 
-    (@ $from:ty, $to:ty; uident; $($tail:tt)*) => {
-        check!(@ $from, $to; v: 0;);
-        check!(@ $from, $to; v: 1;);
-        check!(@ $from, $to; $($tail)*);
+    (@ $from:ty, $to:ty=> uident; $($tail:tt)*) => {
+        check!(@ $from, $to=> v: 0;);
+        check!(@ $from, $to=> v: 1;);
+        check!(@ $from, $to=> $($tail)*);
     };
 
-    (@ $from:ty, $to:ty; sident; $($tail:tt)*) => {
-        check!(@ $from, $to; v: -1;);
-        check!(@ $from, $to; v: 0;);
-        check!(@ $from, $to; v: 1;);
-        check!(@ $from, $to; $($tail)*);
+    (@ $from:ty, $to:ty=> sident; $($tail:tt)*) => {
+        check!(@ $from, $to=> v: -1;);
+        check!(@ $from, $to=> v: 0;);
+        check!(@ $from, $to=> v: 1;);
+        check!(@ $from, $to=> $($tail)*);
     };
 
-    (@ $from:ty, $to:ty; fident; $($tail:tt)*) => {
-        check!(@ $from, $to; v: -1.0;);
-        check!(@ $from, $to; v:  0.0;);
-        check!(@ $from, $to; v:  1.0;);
-        check!(@ $from, $to; $($tail)*);
+    (@ $from:ty, $to:ty=> fident; $($tail:tt)*) => {
+        check!(@ $from, $to=> v: -1.0;);
+        check!(@ $from, $to=> v:  0.0;);
+        check!(@ $from, $to=> v:  1.0;);
+        check!(@ $from, $to=> $($tail)*);
     };
 
-    (@ $from:ty, $to:ty; uidenta; $($tail:tt)*) => {
-        check!(@ $from, $to; a: 0.0;);
-        check!(@ $from, $to; a: 1.0;);
-        check!(@ $from, $to; $($tail)*);
+    (@ $from:ty, $to:ty=> uidenta; $($tail:tt)*) => {
+        check!(@ $from, $to=> a: 0.0;);
+        check!(@ $from, $to=> a: 1.0;);
+        check!(@ $from, $to=> $($tail)*);
     };
 
-    (@ $from:ty, $to:ty; sidenta; $($tail:tt)*) => {
-        check!(@ $from, $to; a: -1.0;);
-        check!(@ $from, $to; a:  0.0;);
-        check!(@ $from, $to; a:  1.0;);
-        check!(@ $from, $to; $($tail)*);
+    (@ $from:ty, $to:ty=> sidenta; $($tail:tt)*) => {
+        check!(@ $from, $to=> a: -1.0;);
+        check!(@ $from, $to=> a:  0.0;);
+        check!(@ $from, $to=> a:  1.0;);
+        check!(@ $from, $to=> $($tail)*);
     };
 
-    (@ $from:ty, $to:ty; fidenta; $($tail:tt)*) => {
-        check!(@ $from, $to; a: -1.0;);
-        check!(@ $from, $to; a:  0.0;);
-        check!(@ $from, $to; a:  1.0;);
-        check!(@ $from, $to; $($tail)*);
+    (@ $from:ty, $to:ty=> fidenta; $($tail:tt)*) => {
+        check!(@ $from, $to=> a: -1.0;);
+        check!(@ $from, $to=> a:  0.0;);
+        check!(@ $from, $to=> a:  1.0;);
+        check!(@ $from, $to=> $($tail)*);
     };
 
-    (@ $from:ty, $to:ty; v: $src:expr, !$dst:expr; $($tail:tt)*) => {
+    (@ $from:ty, $to:ty=> v: $src:expr, !$dst:expr; $($tail:tt)*) => {
         {
             let src: $from = $src;
             let dst: Result<$to, _> = src.value_into();
             assert_eq!(dst, Err($dst));
         }
-        check!(@ $from, $to; $($tail)*);
+        check!(@ $from, $to=> $($tail)*);
     };
 
-    (@ $from:ty, $to:ty; v: $src:expr; $($tail:tt)*) => {
+    (@ $from:ty, $to:ty=> v: $src:expr; $($tail:tt)*) => {
         {
             let src: $from = $src;
             let dst: Result<$to, _> = src.value_into();
             assert_eq!(dst, Ok($src as $to));
         }
-        check!(@ $from, $to; $($tail)*);
+        check!(@ $from, $to=> $($tail)*);
     };
 
-    (@ $from:ty, $to:ty; qv: *; $($tail:tt)*) => {
+    (@ $from:ty, $to:ty=> qv: *; $($tail:tt)*) => {
         {
             extern crate quickcheck;
 
@@ -78,10 +78,10 @@ macro_rules! check {
                 Err(err) => panic!("qv {:?}", err)
             }
         }
-        check!(@ $from, $to; $($tail)*);
+        check!(@ $from, $to=> $($tail)*);
     };
 
-    (@ $from:ty, $to:ty; qv: (+-$bound:expr); $($tail:tt)*) => {
+    (@ $from:ty, $to:ty=> qv: (+-$bound:expr); $($tail:tt)*) => {
         {
             extern crate quickcheck;
 
@@ -102,10 +102,10 @@ macro_rules! check {
                 Err(err) => panic!("qv {:?}", err)
             }
         }
-        check!(@ $from, $to; $($tail)*);
+        check!(@ $from, $to=> $($tail)*);
     };
 
-    (@ $from:ty, $to:ty; qv: (, $bound:expr); $($tail:tt)*) => {
+    (@ $from:ty, $to:ty=> qv: (, $bound:expr); $($tail:tt)*) => {
         {
             extern crate quickcheck;
 
@@ -124,10 +124,10 @@ macro_rules! check {
                 Err(err) => panic!("qv {:?}", err)
             }
         }
-        check!(@ $from, $to; $($tail)*);
+        check!(@ $from, $to=> $($tail)*);
     };
 
-    (@ $from:ty, $to:ty; qv: +; $($tail:tt)*) => {
+    (@ $from:ty, $to:ty=> qv: +; $($tail:tt)*) => {
         {
             extern crate quickcheck;
 
@@ -146,10 +146,10 @@ macro_rules! check {
                 Err(err) => panic!("qv {:?}", err)
             }
         }
-        check!(@ $from, $to; $($tail)*);
+        check!(@ $from, $to=> $($tail)*);
     };
 
-    (@ $from:ty, $to:ty; qv: +$max:ty; $($tail:tt)*) => {
+    (@ $from:ty, $to:ty=> qv: +$max:ty=> $($tail:tt)*) => {
         {
             extern crate quickcheck;
 
@@ -168,10 +168,10 @@ macro_rules! check {
                 Err(err) => panic!("qv {:?}", err)
             }
         }
-        check!(@ $from, $to; $($tail)*);
+        check!(@ $from, $to=> $($tail)*);
     };
 
-    (@ $from:ty, $to:ty; qv: $bound:ty; $($tail:tt)*) => {
+    (@ $from:ty, $to:ty=> qv: $bound:ty=> $($tail:tt)*) => {
         {
             extern crate quickcheck;
 
@@ -192,10 +192,10 @@ macro_rules! check {
                 Err(err) => panic!("qv {:?}", err)
             }
         }
-        check!(@ $from, $to; $($tail)*);
+        check!(@ $from, $to=> $($tail)*);
     };
 
-    (@ $from:ty, $to:ty; qv: $min:ty, $max:ty; $($tail:tt)*) => {
+    (@ $from:ty, $to:ty=> qv: $min:ty, $max:ty=> $($tail:tt)*) => {
         {
             extern crate quickcheck;
 
@@ -216,28 +216,28 @@ macro_rules! check {
                 Err(err) => panic!("qv {:?}", err)
             }
         }
-        check!(@ $from, $to; $($tail)*);
+        check!(@ $from, $to=> $($tail)*);
     };
 
-    (@ $from:ty, $to:ty; a: $src:expr, !$dst:expr; $($tail:tt)*) => {
+    (@ $from:ty, $to:ty=> a: $src:expr, !$dst:expr; $($tail:tt)*) => {
         {
             let src: $from = $src;
             let dst: Result<$to, _> = src.approx();
             assert_eq!(dst, Err($dst));
         }
-        check!(@ $from, $to; $($tail)*);
+        check!(@ $from, $to=> $($tail)*);
     };
 
-    (@ $from:ty, $to:ty; a: $src:expr; $($tail:tt)*) => {
+    (@ $from:ty, $to:ty=> a: $src:expr; $($tail:tt)*) => {
         {
             let src: $from = $src;
             let dst: Result<$to, _> = src.approx();
             assert_eq!(dst, Ok($src as $to));
         }
-        check!(@ $from, $to; $($tail)*);
+        check!(@ $from, $to=> $($tail)*);
     };
 
-    (@ $from:ty, $to:ty; qa: *; $($tail:tt)*) => {
+    (@ $from:ty, $to:ty=> qa: *; $($tail:tt)*) => {
         {
             extern crate quickcheck;
 
@@ -252,10 +252,10 @@ macro_rules! check {
                 Err(err) => panic!("qa {:?}", err)
             }
         }
-        check!(@ $from, $to; $($tail)*);
+        check!(@ $from, $to=> $($tail)*);
     };
 
-    (@ $from:ty, $to:ty; qa: +; $($tail:tt)*) => {
+    (@ $from:ty, $to:ty=> qa: +; $($tail:tt)*) => {
         {
             extern crate quickcheck;
 
@@ -274,10 +274,10 @@ macro_rules! check {
                 Err(err) => panic!("qa {:?}", err)
             }
         }
-        check!(@ $from, $to; $($tail)*);
+        check!(@ $from, $to=> $($tail)*);
     };
 
-    (@ $from:ty, $to:ty; qa: +$max:ty; $($tail:tt)*) => {
+    (@ $from:ty, $to:ty=> qa: +$max:ty=> $($tail:tt)*) => {
         {
             extern crate quickcheck;
 
@@ -296,10 +296,10 @@ macro_rules! check {
                 Err(err) => panic!("qa {:?}", err)
             }
         }
-        check!(@ $from, $to; $($tail)*);
+        check!(@ $from, $to=> $($tail)*);
     };
 
-    (@ $from:ty, $to:ty; qa: $bound:ty; $($tail:tt)*) => {
+    (@ $from:ty, $to:ty=> qa: $bound:ty=> $($tail:tt)*) => {
         {
             extern crate quickcheck;
 
@@ -320,10 +320,10 @@ macro_rules! check {
                 Err(err) => panic!("qa {:?}", err)
             }
         }
-        check!(@ $from, $to; $($tail)*);
+        check!(@ $from, $to=> $($tail)*);
     };
 
-    (@ $from:ty, $to:ty; qaW: *; $($tail:tt)*) => {
+    (@ $from:ty, $to:ty=> qaW: *; $($tail:tt)*) => {
         {
             extern crate quickcheck;
 
@@ -338,11 +338,11 @@ macro_rules! check {
                 Err(err) => panic!("qaW {:?}", err)
             }
         }
-        check!(@ $from, $to; $($tail)*);
+        check!(@ $from, $to=> $($tail)*);
     };
 
-    ($from:ty, $to:ty; $($tail:tt)*) => {
-        check! { @ $from, $to; $($tail)*; }
+    ($from:ty, $to:ty=> $($tail:tt)*) => {
+        check! { @ $from, $to=> $($tail)*; }
     };
 }
 
