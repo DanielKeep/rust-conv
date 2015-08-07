@@ -11,7 +11,7 @@ macro_rules! TryFrom {
 
 This macro attempts to derive an implementation of the [`TryFrom`](../trait.TryFrom.html) trait.  Specifically, it supports `enum`s consisting entirely of unitary variants, with or without explicit values.  The source type can be any integer type which the variants of the enumeration can be explicitly cast to (*i.e.* using `as`).
 
-If a conversion fails (due to there being no matching variant for the specified integer value `src`), then the conversion returns `Err(src)`.
+If a conversion fails (due to there being no matching variant for the specified integer value `src`), then the conversion returns `Err(Unrepresentable(src))` (see [`Unrepresentable`](../errors/struct.Unrepresentable.html)).
 
 It is compatible with the [`custom_derive!`](https://crates.io/crates/custom_derive) macro.
 
@@ -33,13 +33,13 @@ custom_derive! {
 }
 
 fn main() {
-    use conv::TryFrom;
+    use conv::{TryFrom, Unrepresentable};
 
     assert_eq!(Colours::try_from(0), Ok(Colours::Red));
-    assert_eq!(Colours::try_from(1), Err(1));
+    assert_eq!(Colours::try_from(1), Err(Unrepresentable(1)));
     assert_eq!(Colours::try_from(5), Ok(Colours::Green));
     assert_eq!(Colours::try_from(6), Ok(Colours::Blue));
-    assert_eq!(Colours::try_from(7), Err(7));
+    assert_eq!(Colours::try_from(7), Err(Unrepresentable(7)));
 }
 ```
 
@@ -81,14 +81,14 @@ macro_rules! TryFrom {
         ($(,)*) -> ($($var_names:ident,)*)
     ) => {
         impl $crate::TryFrom<$prim> for $name {
-            type Err = $prim;
-            fn try_from(src: $prim) -> Result<$name, $prim> {
+            type Err = $crate::errors::Unrepresentable<$prim>;
+            fn try_from(src: $prim) -> Result<$name, Self::Err> {
                 $(
                     if src == $name::$var_names as $prim {
                         return Ok($name::$var_names);
                     }
                 )*
-                Err(src)
+                Err($crate::errors::Unrepresentable(src))
             }
         }
     };

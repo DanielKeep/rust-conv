@@ -12,7 +12,8 @@ In addition, `From`/`Into` provide no facility for a conversion failing, meaning
 pub mod macros;
 
 pub use errors::{
-    NoError, Underflow, Overflow,
+    NoError, GeneralError, Unrepresentable,
+    Underflow, Overflow,
     FloatError, RangeError,
     UnwrapOk, UnwrapOrInf, UnwrapOrInvalid, UnwrapOrSaturate,
 };
