@@ -7,7 +7,11 @@ use std::error::Error;
 use std::fmt::{self, Debug, Display};
 use misc::{Saturated, InvalidSentinel, SignedInfinity};
 
-/// A general error enumeration that subsumes all of the below.
+/**
+A general error enumeration that subsumes all other conversion errors.
+
+This exists primarily as a "catch-all" for reliably unifying various different kinds of conversion errors.
+*/
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
 pub enum GeneralError {
     /// Input underflowed the target type.
