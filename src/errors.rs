@@ -1,5 +1,7 @@
 /*!
 This module defines the various error types that can be produced by a failed conversion.
+
+In addition, it also defines some extension traits to make working with failable conversions more ergonomic (see the `Unwrap*` traits).
 */
 
 use std::any::Any;
@@ -88,7 +90,11 @@ impl From<FloatError> for GeneralError {
     }
 }
 
-/// Indicates that it is not possible for the conversion to fail.
+/**
+Indicates that it is not possible for the conversion to fail.
+
+You can use the [`UnwrapOk::unwrap_ok`](./trait.UnwrapOk.html#tymethod.unwrap_ok) method to discard the (statically impossible) `Err` case from a `Result<_, NoError>`, without using `Result::unwrap` (which is typically viewed as a "code smell").
+*/
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
 pub enum NoError {}
 

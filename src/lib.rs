@@ -8,6 +8,27 @@ In addition, `From`/`Into` provide no facility for a conversion failing, meaning
 # API Stability Notice
 
 The API of this crate is still not entirely decided.  In particular, errors may change in the future to carry the value that failed to convert (allowing it to be recovered).
+
+# Overview
+
+The following traits are used to define various conversion semantics:
+
+- [`ApproxFrom`](./trait.ApproxFrom.html)/[`ApproxInto`](./trait.ApproxInto.html) - approximate conversions, with selectable approximation scheme (see [`ApproxScheme`](./trait.ApproxScheme.html)).
+- [`TryFrom`](./trait.TryFrom.html)/[`TryInto`](./trait.TryInto.html) - general, potentially failing value conversions.
+- [`ValueFrom`](./trait.ValueFrom.html)/[`ValueInto`](./trait.ValueInto.html) - exact, value-preserving conversions.
+
+These extension methods are used to make working with potentially failing conversions simpler:
+
+- [`UnwrapOk::unwrap_ok`](./errors/trait.UnwrapOk.html#tymethod.unwrap_ok) - unwraps results from conversions that cannot fail.
+- [`UnwrapOrInf::unwrap_or_inf`](./errors/trait.UnwrapOrInf.html#tymethod.unwrap_or_inf) - saturates to ±∞ on failure.
+- [`UnwrapOrInvalid::unwrap_or_invalid`](./errors/trait.UnwrapOrInvalid.html#tymethod.unwrap_or_invalid) - substitutes the target type's "invalid" sentinel value on failure.
+- [`UnwrapOrSaturate::unwrap_or_saturate`](./errors/trait.UnwrapOrSaturate.html#tymethod.unwrap_or_saturate) - saturates to the maximum or minimum value of the target type on failure.
+
+A macro is provided to assist in implementing conversions:
+
+- [`TryFrom!`](./macros/index.html#tryfrom!) - derives an implementation of [`TryFrom`](./trait.TryFrom.html).
+
+If you are implementing your own types, you may also be interested in the traits contained in the [`misc`](./misc/index.html) module.
 */
 
 #![deny(missing_docs)]
