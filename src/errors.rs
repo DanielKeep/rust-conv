@@ -2,15 +2,41 @@
 This module defines the various error types that can be produced by a failed conversion.
 */
 
+use std::error::Error;
+use std::fmt::{self, Debug, Display};
 use misc::{Saturated, InvalidSentinel, SignedInfinity};
 
 /// Indicates that it is not possible for the conversion to fail.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
 pub enum NoError {}
 
+impl Display for NoError {
+    fn fmt(&self, _: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+        unreachable!()
+    }
+}
+
+impl Error for NoError {
+    fn description(&self) -> &str {
+        unreachable!()
+    }
+}
+
 /// Indicates that the conversion failed due to an underflow.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
 pub struct Underflow;
+
+impl Display for Underflow {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+        write!(fmt, "{}", self.description())
+    }
+}
+
+impl Error for Underflow {
+    fn description(&self) -> &str {
+        "conversion resulted in underflow"
+    }
+}
 
 impl From<NoError> for Underflow {
     fn from(_: NoError) -> Underflow {
@@ -21,6 +47,18 @@ impl From<NoError> for Underflow {
 /// Indicates that the conversion failed due to an overflow.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
 pub struct Overflow;
+
+impl Display for Overflow {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+        write!(fmt, "{}", self.description())
+    }
+}
+
+impl Error for Overflow {
+    fn description(&self) -> &str {
+        "conversion resulted in overflow"
+    }
+}
 
 impl From<NoError> for Overflow {
     fn from(_: NoError) -> Overflow {
@@ -41,6 +79,23 @@ pub enum FloatError {
 
     /// Input was not-a-number, which the target type could not represent.
     NotANumber,
+}
+
+impl Display for FloatError {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+        write!(fmt, "{}", self.description())
+    }
+}
+
+impl Error for FloatError {
+    fn description(&self) -> &str {
+        use self::FloatError::*;
+        match *self {
+            Underflow => "conversion resulted in underflow",
+            Overflow => "conversion resulted in overflow",
+            NotANumber => "conversion target does not support not-a-number",
+        }
+    }
 }
 
 impl From<NoError> for FloatError {
@@ -82,6 +137,22 @@ pub enum RangeError {
 
     /// Input overflowed the target type.
     Overflow,
+}
+
+impl Display for RangeError {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+        write!(fmt, "{}", self.description())
+    }
+}
+
+impl Error for RangeError {
+    fn description(&self) -> &str {
+        use self::RangeError::*;
+        match *self {
+            Underflow => "conversion resulted in underflow",
+            Overflow => "conversion resulted in overflow",
+        }
+    }
 }
 
 impl From<NoError> for RangeError {
