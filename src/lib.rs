@@ -5,7 +5,7 @@ This crate provides a number of conversion traits with more specific semantics t
 #![deny(missing_docs)]
 
 // Exported macros.
-mod macros;
+pub mod macros;
 
 pub use errors::{
     NoError, Underflow, Overflow,
