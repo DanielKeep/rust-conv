@@ -48,9 +48,9 @@
         </span><a id='src-0' class='srclink' href='../src/conv/lib.rs.html#1-361' title='goto source code'>[src]</a></span></h1>
 <div class='docblock'><p>This crate provides a number of conversion traits with more specific semantics than those provided by <code>as</code> or <code>From</code>/<code>Into</code>.</p>
 
-<p>The goal with the traits provided here is to be more specific about what generic code can rely on, as well as provide reasonably self-describing alternatives to the standard <code>From</code>/<code>Into</code> traits.  For example, the although <code>T: From&lt;U&gt;</code> might be satisfied in generic code, this says nothing about what <em>kind</em> of conversion that represents.</p>
+<p>The goal with the traits provided here is to be more specific about what generic code can rely on, as well as provide reasonably self-describing alternatives to the standard <code>From</code>/<code>Into</code> traits.  For example, the although <code>T: From&lt;U&gt;</code> might be satisfied, it imposes no restrictions on the <em>kind</em> of conversion being implemented.  As such, the traits in this crate try to be very specific about what conversions are allowed.  This makes them less generally applicable, but more useful where they <em>do</em> apply.</p>
 
-<p>In addition, <code>From</code>/<code>Into</code> provide no facility for a conversion failing, meaning that implementations may need to choose between conversions that may not be valid, or panicking; neither option is appealing in general.</p>
+<p>In addition, <code>From</code>/<code>Into</code> requires all conversions to succeed or panic.  All conversion traits in this crate define an associated error type, allowing code to react to failed conversions as appropriate.</p>
 
 <h1 id="api-stability-notice" class='section-header'><a
                            href="#api-stability-notice">API Stability Notice</a></h1>
