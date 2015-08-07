@@ -17,8 +17,10 @@ The following traits are used to define various conversion semantics:
 - [`TryFrom`](./trait.TryFrom.html)/[`TryInto`](./trait.TryInto.html) - general, potentially failing value conversions.
 - [`ValueFrom`](./trait.ValueFrom.html)/[`ValueInto`](./trait.ValueInto.html) - exact, value-preserving conversions.
 
-These extension methods are used to make working with potentially failing conversions simpler:
+These extension methods are provided to help with some common cases:
 
+- [`ApproxWith::approx`](./trait.ApproxWith.html#method.approx) - calls `ApproxInto::approx_into` with the `DefaultApprox` scheme.
+- [`ApproxWith::approx_with<S>`](./trait.ApproxWith.html#method.approx_with) - calls `ApproxInto::approx_into` with the `S` approximation scheme.
 - [`UnwrapOk::unwrap_ok`](./errors/trait.UnwrapOk.html#tymethod.unwrap_ok) - unwraps results from conversions that cannot fail.
 - [`UnwrapOrInf::unwrap_or_inf`](./errors/trait.UnwrapOrInf.html#tymethod.unwrap_or_inf) - saturates to ±∞ on failure.
 - [`UnwrapOrInvalid::unwrap_or_invalid`](./errors/trait.UnwrapOrInvalid.html#tymethod.unwrap_or_invalid) - substitutes the target type's "invalid" sentinel value on failure.
@@ -29,6 +31,102 @@ A macro is provided to assist in implementing conversions:
 - [`TryFrom!`](./macros/index.html#tryfrom!) - derives an implementation of [`TryFrom`](./trait.TryFrom.html).
 
 If you are implementing your own types, you may also be interested in the traits contained in the [`misc`](./misc/index.html) module.
+
+## Provided Implementations
+
+The crate provides several blanket implementations:
+
+- `*From<A> for A` (all types can be converted from and into themselves).
+- `*Into<Dst> for Src where Dst: *From<Src>` (`*From` implementations imply a matching `*Into` implementation).
+
+Conversions for the builtin numeric (integer and floating point) types are provided.  In general, `ValueFrom` conversions exist for all pairs except for float → integer (since such a conversion is generally unlikely to *exactly* succeed) and `f64 → f32` (for the same reason).  `ApproxFrom` conversions with the `DefaultApprox` scheme exist between all pairs.  `ApproxFrom` with the `Wrapping` scheme exist between integers.
+
+## Errors
+
+A number of error types are defined in the [`errors`](./errors/index.html) module.  Generally, conversions use whichever error type most *narrowly* defines the kinds of failures that can occur.  For example:
+
+- `ValueFrom<u8> for u16` cannot possibly fail, and as such it uses `NoError`.
+- `ValueFrom<i8> for u16` can *only* fail with an underflow, thus it uses the `Underflow` type.
+- `ValueFrom<i32> for u16` can underflow *or* overflow, hence it uses `RangeError`.
+- Finally, `ApproxFrom<f32> for u16` can underflow, overflow, or attempt to convert NaN; `FloatError` covers those three cases.
+
+Because there are *numerous* error types, the `GeneralError` enum is provided.  `From<E> for GeneralError` exists for each error type `E` defined by this crate (even for `NoError`!), allowing errors to be translated automatically by `try!`.  In fact, all errors can be "expanded" to *all* more general forms (*e.g.* `NoError` → `Underflow`, `Overflow` → `RangeError` → `FloatError`).
+
+The reason for not just using `GeneralError` in the first place is to statically reduce the number of potential error cases you need to deal with.  It also allows the `Unwrap*` extension traits to be defined *without* the possibility for runtime failure (*e.g.* you cannot use `unwrap_or_saturate` with a `FloatError`, because what do you do if the error is `NotANumber`; saturate to max or to min?  Or panic?).
+
+# Examples
+
+```
+# extern crate conv;
+# use conv::*;
+# fn main() {
+// This *cannot* fail, so we can use `unwrap_ok` to discard the `Result`.
+assert_eq!(u8::value_from(0u8).unwrap_ok(), 0u8);
+
+// This *can* fail.  Specifically, it can underflow.
+assert_eq!(u8::value_from(0i8),     Ok(0u8));
+assert_eq!(u8::value_from(-1i8),    Err(Underflow));
+
+// This can underflow *and* overflow; hence the change to `RangeError`.
+assert_eq!(u8::value_from(-1i16),   Err(RangeError::Underflow));
+assert_eq!(u8::value_from(0i16),    Ok(0u8));
+assert_eq!(u8::value_from(256i16),  Err(RangeError::Overflow));
+
+// We can use the extension traits to simplify this a little.
+assert_eq!(u8::value_from(-1i16).unwrap_or_saturate(),  0u8);
+assert_eq!(u8::value_from(0i16).unwrap_or_saturate(),   0u8);
+assert_eq!(u8::value_from(256i16).unwrap_or_saturate(), 255u8);
+
+// Obviously, all integers can be "approximated" using the default scheme (it
+// doesn't *do* anything), but they can *also* be approximated with the
+// `Wrapping` scheme.
+assert_eq!(
+    <u8 as ApproxFrom<_, DefaultApprox>>::approx_from(400u16),
+    Err(Overflow));
+assert_eq!(
+    <u8 as ApproxFrom<_, Wrapping>>::approx_from(400u16),
+    Ok(144u8));
+
+// This is rather inconvenient; as such, provided the return type can be
+// inferred, you can use `ApproxWith::approx` (for the default scheme) and
+// `ApproxWith::approx_with`.
+assert_eq!(400u16.approx(),                  Err::<u8, _>(Overflow));
+assert_eq!(400u16.approx_with::<Wrapping>(), Ok::<u8, _>(144u8));
+
+// Integer -> float conversions *can* fail due to limited precision.
+// Once the continuous range of exactly representable integers is exceeded, the
+// provided implementations fail with over/underflow errors.
+assert_eq!(f32::value_from(16_777_216i32), Ok(16_777_216.0f32));
+assert_eq!(f32::value_from(16_777_217i32), Err(RangeError::Overflow));
+
+// Float -> integer conversions have to be done using approximations.  Although
+// exact conversions are *possible*, "advertising" this with an implementation
+// is misleading.
+//
+// Note that `DefaultApprox` for float -> integer uses whatever rounding
+// mode is currently active (*i.e.* whatever `as` would do).
+assert_eq!(41.0f32.approx(), Ok(41u8));
+assert_eq!(41.3f32.approx(), Ok(41u8));
+assert_eq!(41.5f32.approx(), Ok(41u8));
+assert_eq!(41.8f32.approx(), Ok(41u8));
+assert_eq!(42.0f32.approx(), Ok(42u8));
+
+assert_eq!(255.0f32.approx(), Ok(255u8));
+assert_eq!(256.0f32.approx(), Err::<u8, _>(FloatError::Overflow));
+
+// If you really don't care about the specific kind of error, you can just rely
+// on automatic conversion to `GeneralError`.
+fn too_many_errors() -> Result<(), GeneralError> {
+    assert_eq!({let r: u8 = try!(0u8.value_into()); r},  0u8);
+    assert_eq!({let r: u8 = try!(0i8.value_into()); r},  0u8);
+    assert_eq!({let r: u8 = try!(0i16.value_into()); r}, 0u8);
+    assert_eq!({let r: u8 = try!(0.0f32.approx()); r},   0u8);
+    Ok(())
+}
+# let _ = too_many_errors();
+# }
+```
+
 */
 
 #![deny(missing_docs)]
@@ -137,6 +235,8 @@ This extension trait exists to simplify using approximation implementations.
 If there is more than one `ApproxFrom` implementation for a given type, a simple call to `approx_into` may not be uniquely resolvable.  Due to the position of the scheme parameter (on the trait itself), it is cumbersome to specify which scheme you wanted.
 
 Hence this trait.
+
+> **Note**: There appears to be a bug in `rustdoc`'s output.  This trait is implemented *for all* types.
 */
 pub trait ApproxWith<Dst> {
     /// Approximate the subject with the default scheme.
