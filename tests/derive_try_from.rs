@@ -5,7 +5,16 @@ use conv::TryFrom;
 #[derive(Debug, PartialEq)]
 enum Get { Up, Down, AllAround }
 
-TryFrom! { (u8) enum Get { Up, Down, AllAround } }
+TryFrom! { (u8)
+    enum Get {
+        /// The +Z direction
+        Up,
+        /// The -Z direction
+        Down,
+        /// Just... everywhere
+        AllAround
+    }
+}
 
 #[test]
 fn test_try_from() {
