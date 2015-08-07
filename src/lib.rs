@@ -1,5 +1,9 @@
 /*!
 This crate provides a number of conversion traits with more specific semantics than those provided by `as` or `From`/`Into`.
+
+The goal with the traits provided here is to be more specific about what generic code can rely on, as well as provide reasonably self-describing alternatives to the standard `From`/`Into` traits.  For example, the although `T: From<U>` might be satisfied in generic code, this says nothing about what *kind* of conversion that represents.
+
+In addition, `From`/`Into` provide no facility for a conversion failing, meaning that implementations may need to choose between conversions that may not be valid, or panicking; neither option is appealing in general.
 */
 
 #![deny(missing_docs)]
@@ -15,6 +19,8 @@ pub use errors::{
 
 /**
 Publicly re-exports the most generally useful set of items.
+
+Usage of the prelude should be considered **unstable**.  Although items will likely *not* be removed without bumping the major version, new items *may* be added, which could potentially cause name conflicts in user code.
 */
 pub mod prelude {
     pub use super::{
@@ -48,7 +54,9 @@ pub mod misc;
 mod impls;
 
 /**
-This trait is used to perform a conversion that is permitted to approximate the result.
+This trait is used to perform a conversion that is permitted to approximate the result, but *not* to wrap or saturate the result to fit into the destination type's representable range.
+
+# Details
 
 All implementations of this trait must provide a conversion that can be separated into two logical steps: an approximation transform, and a representation transform.
 
@@ -148,6 +156,10 @@ impl ApproxScheme for Wrapping {}
 
 /**
 This trait is used to perform a conversion between different semantic types which might fail.
+
+# Details
+
+Typically, this should be used in cases where you are converting between values whose ranges and/or representations only partially overlap.  That the conversion may fail should be a reasonably expected outcome.  A standard example of this is converting from integers to enums of unitary variants.
 */
 pub trait TryFrom<Src> {
     /// The error type produced by a failed conversion.
@@ -184,6 +196,8 @@ impl<Src, Dst> TryInto<Dst> for Src where Dst: TryFrom<Src> {
 
 /**
 This trait is used to perform an exact, value-preserving conversion.
+
+# Details
 
 Implementations of this trait should be reflexive, associative and commutative (in the absence of conversion errors).  That is, all possible cycles of `ValueFrom` conversions (for which each "step" has a defined implementation) should produce the same result, with a given value either being "round-tripped" exactly, or an error being produced.
 */
