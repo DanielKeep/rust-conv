@@ -1,3 +1,7 @@
+macro_rules! as_expr {
+    ($e:expr) => {$e};
+}
+
 macro_rules! check {
     (@ $from:ty, $to:ty; $(;)*) => {};
 
@@ -339,5 +343,25 @@ macro_rules! check {
 
     ($from:ty, $to:ty; $($tail:tt)*) => {
         check! { @ $from, $to; $($tail)*; }
+    };
+}
+
+macro_rules! for_bitness {
+    (32 {$($bits32:tt)*} 64 {$($bits64:tt)*}) => {
+        as_expr!(
+            {
+                #[cfg(target_pointer_width="32")]
+                fn for_bitness() {
+                    $($bits32)*
+                }
+
+                #[cfg(target_pointer_width="64")]
+                fn for_bitness() {
+                    $($bits64)*
+                }
+
+                for_bitness()
+            }
+        )
     };
 }

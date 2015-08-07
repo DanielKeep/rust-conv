@@ -81,13 +81,16 @@ fn test_i32() {
     check!(i32, u64; uident; qv: +; qa: +; qaW: *;
         v: -1, !Uf;
     );
-    if cfg!(target_pointer_width = "32") {
-        check!(i32, isize; sident; qv: *; qa: *; qaW: *);
-        check!(i32, usize; uident; qv: +; qa: +; qaW: *;
-            v: -1, !Uf;
-        );
-    } else {
-        unimplemented!()
+    for_bitness! {
+        32 {
+            check!(i32, isize; sident; qv: *; qa: *; qaW: *);
+            check!(i32, usize; uident; qv: +; qa: +; qaW: *;
+                v: -1, !Uf;
+            );
+        }
+        64 {
+            unimplemented!()
+        }
     }
 }
 
@@ -116,15 +119,18 @@ fn test_i64() {
     check!(i64, u64; uident; qv: +; qa: +; qaW: *;
         v: -1, !Uf;
     );
-    if cfg!(target_pointer_width = "32") {
-        check!(i64, isize; sident; qv: isize; qa: isize; qaW: *;
-            v: -2_147_483_649, !RU; v: 2_147_483_648, !RO;
-        );
-        check!(i64, usize; uident; qv: usize; qa: usize; qaW: *;
-            v: -1, !RU; v: 4_294_967_296, !RO;
-        );
-    } else {
-        unimplemented!();
+    for_bitness! {
+        32 {
+            check!(i64, isize; sident; qv: isize; qa: isize; qaW: *;
+                v: -2_147_483_649, !RU; v: 2_147_483_648, !RO;
+            );
+            check!(i64, usize; uident; qv: usize; qa: usize; qaW: *;
+                v: -1, !RU; v: 4_294_967_296, !RO;
+            );
+        }
+        64 {
+            unimplemented!();
+        }
     }
 }
 
@@ -184,13 +190,16 @@ fn test_u32() {
     );
     check!(u32, u32; uident; qv: *; qa: *; qaW: *);
     check!(u32, u64; uident; qv: *; qa: *; qaW: *);
-    if cfg!(target_pointer_width = "32") {
-        check!(u32, isize; uident; qv: +isize; qa: +isize; qaW: *;
-            v: 2_147_483_647; v: 2_147_483_648, !Of;
-        );
-        check!(u32, usize; uident; qv: *; qa: *; qaW: *);
-    } else {
-        unimplemented!()
+    for_bitness! {
+        32 {
+            check!(u32, isize; uident; qv: +isize; qa: +isize; qaW: *;
+                v: 2_147_483_647; v: 2_147_483_648, !Of;
+            );
+            check!(u32, usize; uident; qv: *; qa: *; qaW: *);
+        }
+        64 {
+            unimplemented!();
+        }
     }
 }
 
@@ -218,15 +227,18 @@ fn test_u64() {
         v: 4_294_967_296, !Of;
     );
     check!(u64, u64; uident; qv: *; qa: *; qaW: *);
-    if cfg!(target_pointer_width = "32") {
-        check!(u64, isize; uident; qv: +isize; qa: +isize; qaW: *;
-            v: 2_147_483_648, !Of;
-        );
-        check!(u64, usize; uident; qv: usize; qa: usize; qaW: *;
-            v: 4_294_967_296, !Of;
-        );
-    } else {
-        unimplemented!()
+    for_bitness! {
+        32 {
+            check!(u64, isize; uident; qv: +isize; qa: +isize; qaW: *;
+                v: 2_147_483_648, !Of;
+            );
+            check!(u64, usize; uident; qv: usize; qa: usize; qaW: *;
+                v: 4_294_967_296, !Of;
+            );
+        }
+        64 {
+            unimplemented!();
+        }
     }
 }
 
@@ -245,20 +257,23 @@ fn test_isize() {
         v: -1, !RU; v: 65_536, !RO;
     );
     check!(isize, isize; sident; qv: *; qa: *; qaW: *);
-    if cfg!(target_pointer_width = "32") {
-        check!(isize, i32; sident; qv: *; qa: *; qaW: *);
-        check!(isize, i64; sident; qv: *; qa: *; qaW: *);
-        check!(isize, u32; uident; qv: +; qa: +; qaW: *;
-            v: -1, !Uf;
-        );
-        check!(isize, u64; uident; qv: +; qa: +; qaW: *;
-            v: -1, !Uf;
-        );
-        check!(isize, usize; uident; qv: +; qa: +; qaW: *;
-            v: -1, !Uf;
-        );
-    } else {
-        unimplemented!()
+    for_bitness! {
+        32 {
+            check!(isize, i32; sident; qv: *; qa: *; qaW: *);
+            check!(isize, i64; sident; qv: *; qa: *; qaW: *);
+            check!(isize, u32; uident; qv: +; qa: +; qaW: *;
+                v: -1, !Uf;
+            );
+            check!(isize, u64; uident; qv: +; qa: +; qaW: *;
+                v: -1, !Uf;
+            );
+            check!(isize, usize; uident; qv: +; qa: +; qaW: *;
+                v: -1, !Uf;
+            );
+        }
+        64 {
+            unimplemented!();
+        }
     }
 }
 
@@ -277,14 +292,17 @@ fn test_usize() {
         v: 65_536, !Of;
     );
     check!(usize, usize; uident; qv: *; qa: *; qaW: *);
-    if cfg!(target_pointer_width = "32") {
-        check!(usize, i32; uident; qv: +i32; qa: +i32; qaW: *);
-        check!(usize, i64; uident; qv: *; qa: *; qaW: *);
-        check!(usize, u32; uident; qv: *; qa: *; qaW: *);
-        check!(usize, u64; uident; qv: *; qa: *; qaW: *);
-        check!(usize, isize; uident; qv: +isize; qa: +isize; qaW: *);
-    } else {
-        unimplemented!()
+    for_bitness! {
+        32 {
+            check!(usize, i32; uident; qv: +i32; qa: +i32; qaW: *);
+            check!(usize, i64; uident; qv: *; qa: *; qaW: *);
+            check!(usize, u32; uident; qv: *; qa: *; qaW: *);
+            check!(usize, u64; uident; qv: *; qa: *; qaW: *);
+            check!(usize, isize; uident; qv: +isize; qa: +isize; qaW: *);
+        }
+        64 {
+            unimplemented!();
+        }
     }
 }
 
