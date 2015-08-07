@@ -3,6 +3,13 @@ name = "conv"
 version = "0.1.0"
 authors = ["Daniel Keep <daniel.keep@gmail.com>"]
 
+description = "This crate provides a number of conversion traits with more specific semantics than those provided by 'as' or 'From'/'Into'."
+repository = "https://github.com/DanielKeep/rust-conv"
+documentation = "https://danielkeep.github.io/rust-conv/doc/conv/index.html"
+readme = "README.md"
+license = "MIT"
+keywords = ["from", "into", "conversion", "approximation"]
+
 [dev-dependencies]
 custom_derive = "0.1.0"
 quickcheck = "0.2.21"
