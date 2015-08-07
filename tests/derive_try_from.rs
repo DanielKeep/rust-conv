@@ -7,12 +7,23 @@ enum Get { Up, Down, AllAround }
 
 TryFrom! { (u8)
     enum Get {
-        /// The +Z direction
         Up,
-        /// The -Z direction
+        /// And
         Down,
-        /// Just... everywhere
+        /** And */
         AllAround
+    }
+}
+
+#[derive(Debug, PartialEq)]
+enum GottaGo { GetAway, Fast = 9000, Faster = 9001 }
+
+TryFrom! { (u16)
+    enum GottaGo {
+        GetAway,
+        Fast = 9000,
+        /// This show was stupid.
+        Faster = 9001
     }
 }
 
@@ -22,4 +33,13 @@ fn test_try_from() {
     assert_eq!(Get::try_from(1u8), Ok(Get::Down));
     assert_eq!(Get::try_from(2u8), Ok(Get::AllAround));
     assert_eq!(Get::try_from(3u8), Err(3u8));
+
+    assert_eq!(GottaGo::try_from(0u16), Ok(GottaGo::GetAway));
+    assert_eq!(GottaGo::try_from(1u16), Err(1u16));
+    assert_eq!(GottaGo::try_from(2u16), Err(2u16));
+    assert_eq!(GottaGo::try_from(3u16), Err(3u16));
+    assert_eq!(GottaGo::try_from(8999u16), Err(8999u16));
+    assert_eq!(GottaGo::try_from(9000u16), Ok(GottaGo::Fast));
+    assert_eq!(GottaGo::try_from(9001u16), Ok(GottaGo::Faster));
+    assert_eq!(GottaGo::try_from(9002u16), Err(8999u16));
 }
