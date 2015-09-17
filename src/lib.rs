@@ -19,8 +19,12 @@ The following traits are used to define various conversion semantics:
 
 These extension methods are provided to help with some common cases:
 
-- [`ApproxWith::approx`](./trait.ApproxWith.html#method.approx) - calls `ApproxInto::approx_into` with the `DefaultApprox` scheme.
-- [`ApproxWith::approx_with<S>`](./trait.ApproxWith.html#method.approx_with) - calls `ApproxInto::approx_into` with the `S` approximation scheme.
+- [`ConvUtil::approx_as<Dst>`](./trait.ConvUtil.html#method.approx_as) - approximates to `Dst` with the `DefaultApprox` scheme.
+- [`ConvUtil::approx_as_by<Dst, S>`](./trait.ConvUtil.html#method.approx_as_by) - approximates to `Dst` with the scheme `S`.
+- [`ConvUtil::try_as<Dst>`](./trait.ConvUtil.html#method.try_as) - converts to `Dst` using `TryInto::try_into`.
+- [`ConvUtil::value_as<Dst>`](./trait.ConvUtil.html#method.value_as) - converts to `Dst` using `ValueInto::value_into`.
+- [`ConvAsUtil::approx`](./trait.ConvAsUtil.html#method.approx) - approximates to an inferred destination type with the `DefaultApprox` scheme.
+- [`ConvAsUtil::approx_by<S>`](./trait.ConvAsUtil.html#method.approx_by) - approximates to an inferred destination type with the scheme `S`.
 - [`UnwrapOk::unwrap_ok`](./errors/trait.UnwrapOk.html#tymethod.unwrap_ok) - unwraps results from conversions that cannot fail.
 - [`UnwrapOrInf::unwrap_or_inf`](./errors/trait.UnwrapOrInf.html#tymethod.unwrap_or_inf) - saturates to ±∞ on failure.
 - [`UnwrapOrInvalid::unwrap_or_invalid`](./errors/trait.UnwrapOrInvalid.html#tymethod.unwrap_or_invalid) - substitutes the target type's "invalid" sentinel value on failure.
@@ -87,11 +91,12 @@ assert_eq!(
     <u8 as ApproxFrom<_, Wrapping>>::approx_from(400u16),
     Ok(144u8));
 
-// This is rather inconvenient; as such, provided the return type can be
-// inferred, you can use `ApproxWith::approx` (for the default scheme) and
-// `ApproxWith::approx_with`.
-assert_eq!(400u16.approx(),                  Err::<u8, _>(Overflow));
-assert_eq!(400u16.approx_with::<Wrapping>(), Ok::<u8, _>(144u8));
+// This is rather inconvenient; as such, there are a number of convenience
+// extension methods available via `ConvUtil` and `ConvAsUtil`.
+assert_eq!(400u16.approx(),                       Err::<u8, _>(Overflow));
+assert_eq!(400u16.approx_by::<Wrapping>(),        Ok::<u8, _>(144u8));
+assert_eq!(400u16.approx_as::<u8>(),              Err(Overflow));
+assert_eq!(400u16.approx_as_by::<u8, Wrapping>(), Ok(144));
 
 // Integer -> float conversions *can* fail due to limited precision.
 // Once the continuous range of exactly representable integers is exceeded, the
@@ -148,9 +153,10 @@ Usage of the prelude should be considered **unstable**.  Although items will lik
 */
 pub mod prelude {
     pub use super::{
-        ApproxFrom, ApproxInto, ApproxWith,
+        ApproxFrom, ApproxInto,
         ValueFrom, ValueInto,
         UnwrapOk, UnwrapOrInf, UnwrapOrInvalid, UnwrapOrSaturate,
+        ConvUtil, ConvAsUtil,
     };
 }
 
@@ -228,34 +234,6 @@ where
         ApproxFrom::approx_from(self)
     }
 }
-
-/**
-This extension trait exists to simplify using approximation implementations.
-
-If there is more than one `ApproxFrom` implementation for a given type, a simple call to `approx_into` may not be uniquely resolvable.  Due to the position of the scheme parameter (on the trait itself), it is cumbersome to specify which scheme you wanted.
-
-Hence this trait.
-
-> **Note**: There appears to be a bug in `rustdoc`'s output.  This trait is implemented *for all* types.
-*/
-pub trait ApproxWith<Dst> {
-    /// Approximate the subject with the default scheme.
-    fn approx(self) -> Result<Dst, Self::Err>
-    where Self: Sized + ApproxInto<Dst> {
-        self.approx_into()
-    }
-
-    /// Approximate the subject with a specific scheme.
-    fn approx_with<Scheme=DefaultApprox>(self) -> Result<Dst, Self::Err>
-    where
-        Self: Sized + ApproxInto<Dst, Scheme>,
-        Scheme: ApproxScheme,
-    {
-        self.approx_into()
-    }
-}
-
-impl<T, Dst> ApproxWith<Dst> for T {}
 
 /**
 This trait is used to mark approximation scheme types.
@@ -359,3 +337,73 @@ impl<Src, Dst> ValueInto<Dst> for Src where Dst: ValueFrom<Src> {
         ValueFrom::value_from(self)
     }
 }
+
+/**
+This extension trait exists to simplify using various conversions.
+
+If there is more than one implementation for a given type/trait pair, a simple call to `*_into` may not be uniquely resolvable.  Due to the position of the type parameter (on the trait itself), it is cumbersome to specify the destination type.  A similar problem exists for approximation schemes.
+
+See also the [`ConvAsUtil`](./trait.ConvAsUtil.html) trait.
+
+> **Note**: There appears to be a bug in `rustdoc`'s output.  This trait is implemented *for all* types, though the methods are only available for types where the appropriate conversions are defined.
+*/
+pub trait ConvUtil {
+    /// Approximate the subject to a given type with the default scheme.
+    fn approx_as<Dst>(self) -> Result<Dst, Self::Err>
+    where Self: Sized + ApproxInto<Dst> {
+        self.approx_into()
+    }
+
+    /// Approximate the subject to a given type with a specific scheme.
+    fn approx_as_by<Dst, Scheme>(self) -> Result<Dst, Self::Err>
+    where
+        Self: Sized + ApproxInto<Dst, Scheme>,
+        Scheme: ApproxScheme,
+    {
+        self.approx_into()
+    }
+
+    /// Attempt to convert the subject to a given type.
+    fn try_as<Dst>(self) -> Result<Dst, Self::Err>
+    where Self: Sized + TryInto<Dst> {
+        self.try_into()
+    }
+
+    /// Attempt a value conversion of the subject to a given type.
+    fn value_as<Dst>(self) -> Result<Dst, Self::Err>
+    where Self: Sized + ValueInto<Dst> {
+        self.value_into()
+    }
+}
+
+impl<T> ConvUtil for T {}
+
+/**
+This extension trait exists to simplify using various conversions.
+
+If there is more than one `ApproxFrom` implementation for a given type, a simple call to `approx_into` may not be uniquely resolvable.  Due to the position of the scheme parameter (on the trait itself), it is cumbersome to specify which scheme you wanted.
+
+The destination type is inferred from context.
+
+See also the [`ConvUtil`](./trait.ConvUtil.html) trait.
+
+> **Note**: There appears to be a bug in `rustdoc`'s output.  This trait is implemented *for all* types, though the methods are only available for types where the appropriate conversions are defined.
+*/
+pub trait ConvAsUtil<Dst> {
+    /// Approximate the subject with the default scheme.
+    fn approx(self) -> Result<Dst, Self::Err>
+    where Self: Sized + ApproxInto<Dst> {
+        self.approx_into()
+    }
+
+    /// Approximate the subject with a specific scheme.
+    fn approx_by<Scheme>(self) -> Result<Dst, Self::Err>
+    where
+        Self: Sized + ApproxInto<Dst, Scheme>,
+        Scheme: ApproxScheme,
+    {
+        self.approx_into()
+    }
+}
+
+impl<T, Dst> ConvAsUtil<Dst> for T {}

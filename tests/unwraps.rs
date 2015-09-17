@@ -16,7 +16,7 @@ fn test_unwraps() {
     assert_eq!(cty!(127i16.value_into().unwrap(), i8), 127);
     assert_eq!(cty!(128i16.value_into().unwrap_or_saturate(), i8), 127);
     assert_eq!(cty!(128i16.approx().unwrap_or_saturate(), i8), 127);
-    assert_eq!(cty!(128i16.approx_with::<Wrapping>().unwrap_or_saturate(), i8), -128);
+    assert_eq!(cty!(128i16.approx_by::<Wrapping>().unwrap_or_saturate(), i8), -128);
 
     assert_eq!(cty!(16_777_216i32.value_into().unwrap(), f32), 16_777_216.0);
     assert_eq!(cty!(16_777_216i32.value_into().unwrap_or_inf(), f32), 16_777_216.0);
