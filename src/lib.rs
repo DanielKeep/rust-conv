@@ -268,7 +268,23 @@ This scheme is used to convert a value by rounding it to the nearest representab
 pub enum RoundToNearest {}
 impl ApproxScheme for RoundToNearest {}
 
-// TODO: RoundToPosInf, RoundToNegInf, RoundToZero
+/**
+This scheme is used to convert a value by rounding it toward negative infinity to the nearest representable value.
+*/
+pub enum RoundToNegInf {}
+impl ApproxScheme for RoundToNegInf {}
+
+/**
+This scheme is used to convert a value by rounding it toward positive infinity to the nearest representable value.
+*/
+pub enum RoundToPosInf {}
+impl ApproxScheme for RoundToPosInf {}
+
+/**
+This scheme is used to convert a value by rounding it toward zero to the nearest representable value.
+*/
+pub enum RoundToZero {}
+impl ApproxScheme for RoundToZero {}
 
 /**
 This trait is used to perform a conversion between different semantic types which might fail.

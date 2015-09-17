@@ -308,6 +308,12 @@ macro_rules! num_conv {
             approx_dmin_to_dmax_no_nan! { ($($attrs)*), $src, $dst, ::DefaultApprox }
             approx_dmin_to_dmax_no_nan! { ($($attrs)*), $src, $dst, ::RoundToNearest,
                 approx: |s| s.round() }
+            approx_dmin_to_dmax_no_nan! { ($($attrs)*), $src, $dst, ::RoundToNegInf,
+                approx: |s| s.floor() }
+            approx_dmin_to_dmax_no_nan! { ($($attrs)*), $src, $dst, ::RoundToPosInf,
+                approx: |s| s.ceil() }
+            approx_dmin_to_dmax_no_nan! { ($($attrs)*), $src, $dst, ::RoundToZero,
+                approx: |s| s.trunc() }
         }
         num_conv! { @ $src=> $($tail)* }
     };

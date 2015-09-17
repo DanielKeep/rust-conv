@@ -28,11 +28,31 @@ macro_rules! check {
     (@ $from:ty, $to:ty=> uidenta; $($tail:tt)*) => {
         check!(@ $from, $to=> a: 0.0;);
         check!(@ $from, $to=> a: 1.0;);
+
         check!(@ $from, $to=> aRTN: 0.00, 0;);
         check!(@ $from, $to=> aRTN: 0.25, 0;);
         check!(@ $from, $to=> aRTN: 0.50, 1;);
         check!(@ $from, $to=> aRTN: 0.75, 1;);
         check!(@ $from, $to=> aRTN: 1.00, 1;);
+
+        check!(@ $from, $to=> aRNI:  0.00,  0;);
+        check!(@ $from, $to=> aRNI:  0.25,  0;);
+        check!(@ $from, $to=> aRNI:  0.50,  0;);
+        check!(@ $from, $to=> aRNI:  0.75,  0;);
+        check!(@ $from, $to=> aRNI:  1.00,  1;);
+
+        check!(@ $from, $to=> aRPI:  0.00,  0;);
+        check!(@ $from, $to=> aRPI:  0.25,  1;);
+        check!(@ $from, $to=> aRPI:  0.50,  1;);
+        check!(@ $from, $to=> aRPI:  0.75,  1;);
+        check!(@ $from, $to=> aRPI:  1.00,  1;);
+
+        check!(@ $from, $to=> aRTZ:  0.00,  0;);
+        check!(@ $from, $to=> aRTZ:  0.25,  0;);
+        check!(@ $from, $to=> aRTZ:  0.50,  0;);
+        check!(@ $from, $to=> aRTZ:  0.75,  0;);
+        check!(@ $from, $to=> aRTZ:  1.00,  1;);
+
         check!(@ $from, $to=> $($tail)*);
     };
 
@@ -40,6 +60,7 @@ macro_rules! check {
         check!(@ $from, $to=> a: -1.0;);
         check!(@ $from, $to=> a:  0.0;);
         check!(@ $from, $to=> a:  1.0;);
+
         check!(@ $from, $to=> aRTN: -1.00, -1;);
         check!(@ $from, $to=> aRTN: -0.75, -1;);
         check!(@ $from, $to=> aRTN: -0.50, -1;);
@@ -49,6 +70,37 @@ macro_rules! check {
         check!(@ $from, $to=> aRTN:  0.50,  1;);
         check!(@ $from, $to=> aRTN:  0.75,  1;);
         check!(@ $from, $to=> aRTN:  1.00,  1;);
+
+        check!(@ $from, $to=> aRNI: -1.00, -1;);
+        check!(@ $from, $to=> aRNI: -0.75, -1;);
+        check!(@ $from, $to=> aRNI: -0.50, -1;);
+        check!(@ $from, $to=> aRNI: -0.25, -1;);
+        check!(@ $from, $to=> aRNI:  0.00,  0;);
+        check!(@ $from, $to=> aRNI:  0.25,  0;);
+        check!(@ $from, $to=> aRNI:  0.50,  0;);
+        check!(@ $from, $to=> aRNI:  0.75,  0;);
+        check!(@ $from, $to=> aRNI:  1.00,  1;);
+
+        check!(@ $from, $to=> aRPI: -1.00, -1;);
+        check!(@ $from, $to=> aRPI: -0.75,  0;);
+        check!(@ $from, $to=> aRPI: -0.50,  0;);
+        check!(@ $from, $to=> aRPI: -0.25,  0;);
+        check!(@ $from, $to=> aRPI:  0.00,  0;);
+        check!(@ $from, $to=> aRPI:  0.25,  1;);
+        check!(@ $from, $to=> aRPI:  0.50,  1;);
+        check!(@ $from, $to=> aRPI:  0.75,  1;);
+        check!(@ $from, $to=> aRPI:  1.00,  1;);
+
+        check!(@ $from, $to=> aRTZ: -1.00, -1;);
+        check!(@ $from, $to=> aRTZ: -0.75,  0;);
+        check!(@ $from, $to=> aRTZ: -0.50,  0;);
+        check!(@ $from, $to=> aRTZ: -0.25,  0;);
+        check!(@ $from, $to=> aRTZ:  0.00,  0;);
+        check!(@ $from, $to=> aRTZ:  0.25,  0;);
+        check!(@ $from, $to=> aRTZ:  0.50,  0;);
+        check!(@ $from, $to=> aRTZ:  0.75,  0;);
+        check!(@ $from, $to=> aRTZ:  1.00,  1;);
+
         check!(@ $from, $to=> $($tail)*);
     };
 
@@ -359,6 +411,33 @@ macro_rules! check {
         {
             let src: $from = $src;
             let dst: Result<$to, _> = src.approx_by::<conv::RoundToNearest>();
+            assert_eq!(dst, Ok($dst));
+        }
+        check!(@ $from, $to=> $($tail)*);
+    };
+
+    (@ $from:ty, $to:ty=> aRNI: $src:expr, $dst:expr; $($tail:tt)*) => {
+        {
+            let src: $from = $src;
+            let dst: Result<$to, _> = src.approx_by::<conv::RoundToNegInf>();
+            assert_eq!(dst, Ok($dst));
+        }
+        check!(@ $from, $to=> $($tail)*);
+    };
+
+    (@ $from:ty, $to:ty=> aRPI: $src:expr, $dst:expr; $($tail:tt)*) => {
+        {
+            let src: $from = $src;
+            let dst: Result<$to, _> = src.approx_by::<conv::RoundToPosInf>();
+            assert_eq!(dst, Ok($dst));
+        }
+        check!(@ $from, $to=> $($tail)*);
+    };
+
+    (@ $from:ty, $to:ty=> aRTZ: $src:expr, $dst:expr; $($tail:tt)*) => {
+        {
+            let src: $from = $src;
+            let dst: Result<$to, _> = src.approx_by::<conv::RoundToZero>();
             assert_eq!(dst, Ok($dst));
         }
         check!(@ $from, $to=> $($tail)*);
