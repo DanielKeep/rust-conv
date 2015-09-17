@@ -45,7 +45,7 @@
             <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                 [<span class='inner'>&#x2212;</span>]
             </a>
-        </span><a id='src-0' class='srclink' href='../src/conv/lib.rs.html#1-439' title='goto source code'>[src]</a></span></h1>
+        </span><a id='src-0' class='srclink' href='../src/conv/lib.rs.html#1-447' title='goto source code'>[src]</a></span></h1>
 <div class='docblock'><p>This crate provides a number of conversion traits with more specific semantics than those provided by <code>as</code> or <code>From</code>/<code>Into</code>.</p>
 
 <p>The goal with the traits provided here is to be more specific about what generic code can rely on, as well as provide reasonably self-describing alternatives to the standard <code>From</code>/<code>Into</code> traits.  For example, the although <code>T: From&lt;U&gt;</code> might be satisfied, it imposes no restrictions on the <em>kind</em> of conversion being implemented.  As such, the traits in this crate try to be very specific about what conversions are allowed.  This makes them less generally applicable, but more useful where they <em>do</em> apply.</p>
@@ -55,6 +55,16 @@
 <h1 id="api-stability-notice" class='section-header'><a
                            href="#api-stability-notice">API Stability Notice</a></h1>
 <p>The API of this crate is still not entirely decided.</p>
+
+<h2 id="change-log" class='section-header'><a
+                           href="#change-log">Change Log</a></h2>
+<h3 id="v0.2.0" class='section-header'><a
+                           href="#v0.2.0">v0.2.0</a></h3>
+<ul>
+<li>Changed all error types to include the original input as payload.  This breaks pretty much <em>everything</em>.  Sorry about that.  On the bright side, there&#39;s now no downside to using the conversion traits for non-<code>Copy</code> types.</li>
+<li>Added the normal rounding modes for float → int approximations: <code>RoundToNearest</code>, <code>RoundToNegInf</code>, <code>RoundToPosInf</code>, and <code>RoundToZero</code>.</li>
+<li><code>ApproxWith</code> is now subsumed by a pair of extension traits (<code>ConvUtil</code> and <code>ConvAsUtil</code>), that also have shortcuts for <code>TryInto</code> and <code>ValueInto</code> so that you can specify the destination type on the method.</li>
+</ul>
 
 <h1 id="overview" class='section-header'><a
                            href="#overview">Overview</a></h1>

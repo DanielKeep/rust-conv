@@ -479,6 +479,14 @@
 <span id="437">437</span>
 <span id="438">438</span>
 <span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
 </pre><pre class='rust '>
 <span class='doccomment'>/*!
 This crate provides a number of conversion traits with more specific semantics than those provided by `as` or `From`/`Into`.
@@ -490,6 +498,14 @@ In addition, `From`/`Into` requires all conversions to succeed or panic.  All co
 # API Stability Notice
 
 The API of this crate is still not entirely decided.
+
+## Change Log
+
+### v0.2.0
+
+- Changed all error types to include the original input as payload.  This breaks pretty much *everything*.  Sorry about that.  On the bright side, there&#39;s now no downside to using the conversion traits for non-`Copy` types.
+- Added the normal rounding modes for float → int approximations: `RoundToNearest`, `RoundToNegInf`, `RoundToPosInf`, and `RoundToZero`.
+- `ApproxWith` is now subsumed by a pair of extension traits (`ConvUtil` and `ConvAsUtil`), that also have shortcuts for `TryInto` and `ValueInto` so that you can specify the destination type on the method.
 
 # Overview
 
