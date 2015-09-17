@@ -192,7 +192,7 @@ The major reason for this formulation is to exactly define what happens when con
 
 With this formulation, it is well-defined: if a floating point value is outside the representable range, the conversion fails.  This allows users to distinguish between approximation and range violation, and act accordingly.
 */
-pub trait ApproxFrom<Src, Scheme=DefaultApprox> where Scheme: ApproxScheme {
+pub trait ApproxFrom<Src, Scheme=DefaultApprox>: Sized where Scheme: ApproxScheme {
     /// The error type produced by a failed conversion.
     type Err;
 
@@ -287,7 +287,7 @@ This trait is used to perform a conversion between different semantic types whic
 
 Typically, this should be used in cases where you are converting between values whose ranges and/or representations only partially overlap.  That the conversion may fail should be a reasonably expected outcome.  A standard example of this is converting from integers to enums of unitary variants.
 */
-pub trait TryFrom<Src> {
+pub trait TryFrom<Src>: Sized {
     /// The error type produced by a failed conversion.
     type Err;
 
@@ -327,7 +327,7 @@ This trait is used to perform an exact, value-preserving conversion.
 
 Implementations of this trait should be reflexive, associative and commutative (in the absence of conversion errors).  That is, all possible cycles of `ValueFrom` conversions (for which each "step" has a defined implementation) should produce the same result, with a given value either being "round-tripped" exactly, or an error being produced.
 */
-pub trait ValueFrom<Src> {
+pub trait ValueFrom<Src>: Sized {
     /// The error type produced by a failed conversion.
     type Err;
 
