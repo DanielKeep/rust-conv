@@ -161,8 +161,10 @@ pub mod prelude {
     pub use super::{
         ApproxFrom, ApproxInto,
         ValueFrom, ValueInto,
+        GeneralError, GeneralErrorKind,
         UnwrapOk, UnwrapOrInf, UnwrapOrInvalid, UnwrapOrSaturate,
         ConvUtil, ConvAsUtil,
+        RoundToNearest, RoundToZero, Wrapping,
     };
 }
 
