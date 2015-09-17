@@ -9,6 +9,14 @@ In addition, `From`/`Into` requires all conversions to succeed or panic.  All co
 
 The API of this crate is still not entirely decided.
 
+## Change Log
+
+### v0.2.0
+
+- Changed all error types to include the original input as payload.  This breaks pretty much *everything*.  Sorry about that.  On the bright side, there's now no downside to using the conversion traits for non-`Copy` types.
+- Added the normal rounding modes for float → int approximations: `RoundToNearest`, `RoundToNegInf`, `RoundToPosInf`, and `RoundToZero`.
+- `ApproxWith` is now subsumed by a pair of extension traits (`ConvUtil` and `ConvAsUtil`), that also have shortcuts for `TryInto` and `ValueInto` so that you can specify the destination type on the method.
+
 # Overview
 
 The following traits are used to define various conversion semantics:
