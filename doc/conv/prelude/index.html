@@ -45,12 +45,12 @@
             <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                 [<span class='inner'>&#x2212;</span>]
             </a>
-        </span><a id='src-18' class='srclink' href='../../src/conv/lib.rs.html#149-155' title='goto source code'>[src]</a></span></h1>
+        </span><a id='src-21' class='srclink' href='../../src/conv/lib.rs.html#160-169' title='goto source code'>[src]</a></span></h1>
 <div class='docblock'><p>Publicly re-exports the most generally useful set of items.</p>
 
 <p>Usage of the prelude should be considered <strong>unstable</strong>.  Although items will likely <em>not</em> be removed without bumping the major version, new items <em>may</em> be added, which could potentially cause name conflicts in user code.</p>
 </div><h2 id='reexports' class='section-header'><a href="#reexports">Reexports</a></h2>
-<table><tr><td><code>pub use super::{<a class='trait' href='../../conv/trait.ApproxFrom.html' title='conv::ApproxFrom'>ApproxFrom</a>, <a class='trait' href='../../conv/trait.ApproxInto.html' title='conv::ApproxInto'>ApproxInto</a>, <a class='trait' href='../../conv/trait.ApproxWith.html' title='conv::ApproxWith'>ApproxWith</a>, <a class='trait' href='../../conv/trait.ValueFrom.html' title='conv::ValueFrom'>ValueFrom</a>, <a class='trait' href='../../conv/trait.ValueInto.html' title='conv::ValueInto'>ValueInto</a>, <a class='trait' href='../../conv/errors/trait.UnwrapOk.html' title='conv::errors::UnwrapOk'>UnwrapOk</a>, <a class='trait' href='../../conv/errors/trait.UnwrapOrInf.html' title='conv::errors::UnwrapOrInf'>UnwrapOrInf</a>, <a class='trait' href='../../conv/errors/trait.UnwrapOrInvalid.html' title='conv::errors::UnwrapOrInvalid'>UnwrapOrInvalid</a>, <a class='trait' href='../../conv/errors/trait.UnwrapOrSaturate.html' title='conv::errors::UnwrapOrSaturate'>UnwrapOrSaturate</a>};</code></td></tr></table></section>
+<table><tr><td><code>pub use super::{<a class='trait' href='../../conv/trait.ApproxFrom.html' title='conv::ApproxFrom'>ApproxFrom</a>, <a class='trait' href='../../conv/trait.ApproxInto.html' title='conv::ApproxInto'>ApproxInto</a>, <a class='trait' href='../../conv/trait.ValueFrom.html' title='conv::ValueFrom'>ValueFrom</a>, <a class='trait' href='../../conv/trait.ValueInto.html' title='conv::ValueInto'>ValueInto</a>, <a class='enum' href='../../conv/errors/enum.GeneralError.html' title='conv::errors::GeneralError'>GeneralError</a>, <a class='enum' href='../../conv/errors/enum.GeneralErrorKind.html' title='conv::errors::GeneralErrorKind'>GeneralErrorKind</a>, <a class='trait' href='../../conv/errors/trait.UnwrapOk.html' title='conv::errors::UnwrapOk'>UnwrapOk</a>, <a class='trait' href='../../conv/errors/trait.UnwrapOrInf.html' title='conv::errors::UnwrapOrInf'>UnwrapOrInf</a>, <a class='trait' href='../../conv/errors/trait.UnwrapOrInvalid.html' title='conv::errors::UnwrapOrInvalid'>UnwrapOrInvalid</a>, <a class='trait' href='../../conv/errors/trait.UnwrapOrSaturate.html' title='conv::errors::UnwrapOrSaturate'>UnwrapOrSaturate</a>, <a class='trait' href='../../conv/trait.ConvUtil.html' title='conv::ConvUtil'>ConvUtil</a>, <a class='trait' href='../../conv/trait.ConvAsUtil.html' title='conv::ConvAsUtil'>ConvAsUtil</a>, <a class='enum' href='../../conv/enum.RoundToNearest.html' title='conv::RoundToNearest'>RoundToNearest</a>, <a class='enum' href='../../conv/enum.RoundToZero.html' title='conv::RoundToZero'>RoundToZero</a>, <a class='enum' href='../../conv/enum.Wrapping.html' title='conv::Wrapping'>Wrapping</a>};</code></td></tr></table></section>
     <section id='search' class="content hidden"></section>
 
     <section class="footer"></section>
@@ -85,8 +85,8 @@
                 <p>
                     Accepted types are: <code>fn</code>, <code>mod</code>,
                     <code>struct</code>, <code>enum</code>,
-                    <code>trait</code>, <code>typedef</code> (or
-                    <code>tdef</code>).
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
                 </p>
 
                 <p>

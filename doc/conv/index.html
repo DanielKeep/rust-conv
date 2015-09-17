@@ -45,7 +45,7 @@
             <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                 [<span class='inner'>&#x2212;</span>]
             </a>
-        </span><a id='src-0' class='srclink' href='../src/conv/lib.rs.html#1-361' title='goto source code'>[src]</a></span></h1>
+        </span><a id='src-0' class='srclink' href='../src/conv/lib.rs.html#1-439' title='goto source code'>[src]</a></span></h1>
 <div class='docblock'><p>This crate provides a number of conversion traits with more specific semantics than those provided by <code>as</code> or <code>From</code>/<code>Into</code>.</p>
 
 <p>The goal with the traits provided here is to be more specific about what generic code can rely on, as well as provide reasonably self-describing alternatives to the standard <code>From</code>/<code>Into</code> traits.  For example, the although <code>T: From&lt;U&gt;</code> might be satisfied, it imposes no restrictions on the <em>kind</em> of conversion being implemented.  As such, the traits in this crate try to be very specific about what conversions are allowed.  This makes them less generally applicable, but more useful where they <em>do</em> apply.</p>
@@ -54,7 +54,7 @@
 
 <h1 id="api-stability-notice" class='section-header'><a
                            href="#api-stability-notice">API Stability Notice</a></h1>
-<p>The API of this crate is still not entirely decided.  In particular, errors may change in the future to carry the value that failed to convert (allowing it to be recovered).</p>
+<p>The API of this crate is still not entirely decided.</p>
 
 <h1 id="overview" class='section-header'><a
                            href="#overview">Overview</a></h1>
@@ -69,8 +69,12 @@
 <p>These extension methods are provided to help with some common cases:</p>
 
 <ul>
-<li><a href="./trait.ApproxWith.html#method.approx"><code>ApproxWith::approx</code></a> - calls <code>ApproxInto::approx_into</code> with the <code>DefaultApprox</code> scheme.</li>
-<li><a href="./trait.ApproxWith.html#method.approx_with"><code>ApproxWith::approx_with&lt;S&gt;</code></a> - calls <code>ApproxInto::approx_into</code> with the <code>S</code> approximation scheme.</li>
+<li><a href="./trait.ConvUtil.html#method.approx_as"><code>ConvUtil::approx_as&lt;Dst&gt;</code></a> - approximates to <code>Dst</code> with the <code>DefaultApprox</code> scheme.</li>
+<li><a href="./trait.ConvUtil.html#method.approx_as_by"><code>ConvUtil::approx_as_by&lt;Dst, S&gt;</code></a> - approximates to <code>Dst</code> with the scheme <code>S</code>.</li>
+<li><a href="./trait.ConvUtil.html#method.try_as"><code>ConvUtil::try_as&lt;Dst&gt;</code></a> - converts to <code>Dst</code> using <code>TryInto::try_into</code>.</li>
+<li><a href="./trait.ConvUtil.html#method.value_as"><code>ConvUtil::value_as&lt;Dst&gt;</code></a> - converts to <code>Dst</code> using <code>ValueInto::value_into</code>.</li>
+<li><a href="./trait.ConvAsUtil.html#method.approx"><code>ConvAsUtil::approx</code></a> - approximates to an inferred destination type with the <code>DefaultApprox</code> scheme.</li>
+<li><a href="./trait.ConvAsUtil.html#method.approx_by"><code>ConvAsUtil::approx_by&lt;S&gt;</code></a> - approximates to an inferred destination type with the scheme <code>S</code>.</li>
 <li><a href="./errors/trait.UnwrapOk.html#tymethod.unwrap_ok"><code>UnwrapOk::unwrap_ok</code></a> - unwraps results from conversions that cannot fail.</li>
 <li><a href="./errors/trait.UnwrapOrInf.html#tymethod.unwrap_or_inf"><code>UnwrapOrInf::unwrap_or_inf</code></a> - saturates to ±∞ on failure.</li>
 <li><a href="./errors/trait.UnwrapOrInvalid.html#tymethod.unwrap_or_invalid"><code>UnwrapOrInvalid::unwrap_or_invalid</code></a> - substitutes the target type&#39;s &quot;invalid&quot; sentinel value on failure.</li>
@@ -107,9 +111,13 @@
 <li>Finally, <code>ApproxFrom&lt;f32&gt; for u16</code> can underflow, overflow, or attempt to convert NaN; <code>FloatError</code> covers those three cases.</li>
 </ul>
 
-<p>Because there are <em>numerous</em> error types, the <code>GeneralError</code> enum is provided.  <code>From&lt;E&gt; for GeneralError</code> exists for each error type <code>E</code> defined by this crate (even for <code>NoError</code>!), allowing errors to be translated automatically by <code>try!</code>.  In fact, all errors can be &quot;expanded&quot; to <em>all</em> more general forms (<em>e.g.</em> <code>NoError</code> → <code>Underflow</code>, <code>Overflow</code> → <code>RangeError</code> → <code>FloatError</code>).</p>
+<p>Because there are <em>numerous</em> error types, the <code>GeneralError</code> enum is provided.  <code>From&lt;E, T&gt; for GeneralError&lt;T&gt;</code> exists for each error type <code>E&lt;T&gt;</code> defined by this crate (even for <code>NoError</code>!), allowing errors to be translated automatically by <code>try!</code>.  In fact, all errors can be &quot;expanded&quot; to <em>all</em> more general forms (<em>e.g.</em> <code>NoError</code> → <code>Underflow</code>, <code>Overflow</code> → <code>RangeError</code> → <code>FloatError</code>).</p>
 
-<p>The reason for not just using <code>GeneralError</code> in the first place is to statically reduce the number of potential error cases you need to deal with.  It also allows the <code>Unwrap*</code> extension traits to be defined <em>without</em> the possibility for runtime failure (<em>e.g.</em> you cannot use <code>unwrap_or_saturate</code> with a <code>FloatError</code>, because what do you do if the error is <code>NotANumber</code>; saturate to max or to min?  Or panic?).</p>
+<p>Aside from <code>NoError</code>, the various error types wrap the input value that you attempted to convert.  This is so that non-<code>Copy</code> types do not need to be pre-emptively cloned prior to conversion, just in case the conversion fails.  A downside is that this means there are many, <em>many</em> incompatible error types.</p>
+
+<p>To help alleviate this, there is also <code>GeneralErrorKind</code>, which is simply <code>GeneralError&lt;T&gt;</code> without the payload, and all errors can be converted into it directly.</p>
+
+<p>The reason for not just using <code>GeneralErrorKind</code> in the first place is to statically reduce the number of potential error cases you need to deal with.  It also allows the <code>Unwrap*</code> extension traits to be defined <em>without</em> the possibility for runtime failure (<em>e.g.</em> you cannot use <code>unwrap_or_saturate</code> with a <code>FloatError</code>, because what do you do if the error is <code>NotANumber</code>; saturate to max or to min?  Or panic?).</p>
 
 <h1 id="examples" class='section-header'><a
                            href="#examples">Examples</a></h1><pre class='rust rust-example-rendered'>
@@ -118,12 +126,12 @@
 
 <span class='comment'>// This *can* fail.  Specifically, it can underflow.</span>
 <span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>u8</span>::<span class='ident'>value_from</span>(<span class='number'>0i8</span>),     <span class='prelude-val'>Ok</span>(<span class='number'>0u8</span>));
-<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>u8</span>::<span class='ident'>value_from</span>(<span class='op'>-</span><span class='number'>1i8</span>),    <span class='prelude-val'>Err</span>(<span class='ident'>Underflow</span>));
+<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>u8</span>::<span class='ident'>value_from</span>(<span class='op'>-</span><span class='number'>1i8</span>),    <span class='prelude-val'>Err</span>(<span class='ident'>Underflow</span>(<span class='op'>-</span><span class='number'>1</span>)));
 
 <span class='comment'>// This can underflow *and* overflow; hence the change to `RangeError`.</span>
-<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>u8</span>::<span class='ident'>value_from</span>(<span class='op'>-</span><span class='number'>1i16</span>),   <span class='prelude-val'>Err</span>(<span class='ident'>RangeError</span>::<span class='ident'>Underflow</span>));
+<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>u8</span>::<span class='ident'>value_from</span>(<span class='op'>-</span><span class='number'>1i16</span>),   <span class='prelude-val'>Err</span>(<span class='ident'>RangeError</span>::<span class='ident'>Underflow</span>(<span class='op'>-</span><span class='number'>1</span>)));
 <span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>u8</span>::<span class='ident'>value_from</span>(<span class='number'>0i16</span>),    <span class='prelude-val'>Ok</span>(<span class='number'>0u8</span>));
-<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>u8</span>::<span class='ident'>value_from</span>(<span class='number'>256i16</span>),  <span class='prelude-val'>Err</span>(<span class='ident'>RangeError</span>::<span class='ident'>Overflow</span>));
+<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>u8</span>::<span class='ident'>value_from</span>(<span class='number'>256i16</span>),  <span class='prelude-val'>Err</span>(<span class='ident'>RangeError</span>::<span class='ident'>Overflow</span>(<span class='number'>256</span>)));
 
 <span class='comment'>// We can use the extension traits to simplify this a little.</span>
 <span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>u8</span>::<span class='ident'>value_from</span>(<span class='op'>-</span><span class='number'>1i16</span>).<span class='ident'>unwrap_or_saturate</span>(),  <span class='number'>0u8</span>);
@@ -135,22 +143,23 @@
 <span class='comment'>// `Wrapping` scheme.</span>
 <span class='macro'>assert_eq</span><span class='macro'>!</span>(
     <span class='op'>&lt;</span><span class='ident'>u8</span> <span class='kw'>as</span> <span class='ident'>ApproxFrom</span><span class='op'>&lt;</span>_, <span class='ident'>DefaultApprox</span><span class='op'>&gt;&gt;</span>::<span class='ident'>approx_from</span>(<span class='number'>400u16</span>),
-    <span class='prelude-val'>Err</span>(<span class='ident'>Overflow</span>));
+    <span class='prelude-val'>Err</span>(<span class='ident'>Overflow</span>(<span class='number'>400</span>)));
 <span class='macro'>assert_eq</span><span class='macro'>!</span>(
     <span class='op'>&lt;</span><span class='ident'>u8</span> <span class='kw'>as</span> <span class='ident'>ApproxFrom</span><span class='op'>&lt;</span>_, <span class='ident'>Wrapping</span><span class='op'>&gt;&gt;</span>::<span class='ident'>approx_from</span>(<span class='number'>400u16</span>),
     <span class='prelude-val'>Ok</span>(<span class='number'>144u8</span>));
 
-<span class='comment'>// This is rather inconvenient; as such, provided the return type can be</span>
-<span class='comment'>// inferred, you can use `ApproxWith::approx` (for the default scheme) and</span>
-<span class='comment'>// `ApproxWith::approx_with`.</span>
-<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='number'>400u16</span>.<span class='ident'>approx</span>(),                  <span class='prelude-val'>Err</span>::<span class='op'>&lt;</span><span class='ident'>u8</span>, _<span class='op'>&gt;</span>(<span class='ident'>Overflow</span>));
-<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='number'>400u16</span>.<span class='ident'>approx_with</span>::<span class='op'>&lt;</span><span class='ident'>Wrapping</span><span class='op'>&gt;</span>(), <span class='prelude-val'>Ok</span>::<span class='op'>&lt;</span><span class='ident'>u8</span>, _<span class='op'>&gt;</span>(<span class='number'>144u8</span>));
+<span class='comment'>// This is rather inconvenient; as such, there are a number of convenience</span>
+<span class='comment'>// extension methods available via `ConvUtil` and `ConvAsUtil`.</span>
+<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='number'>400u16</span>.<span class='ident'>approx</span>(),                       <span class='prelude-val'>Err</span>::<span class='op'>&lt;</span><span class='ident'>u8</span>, _<span class='op'>&gt;</span>(<span class='ident'>Overflow</span>(<span class='number'>400</span>)));
+<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='number'>400u16</span>.<span class='ident'>approx_by</span>::<span class='op'>&lt;</span><span class='ident'>Wrapping</span><span class='op'>&gt;</span>(),        <span class='prelude-val'>Ok</span>::<span class='op'>&lt;</span><span class='ident'>u8</span>, _<span class='op'>&gt;</span>(<span class='number'>144u8</span>));
+<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='number'>400u16</span>.<span class='ident'>approx_as</span>::<span class='op'>&lt;</span><span class='ident'>u8</span><span class='op'>&gt;</span>(),              <span class='prelude-val'>Err</span>(<span class='ident'>Overflow</span>(<span class='number'>400</span>)));
+<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='number'>400u16</span>.<span class='ident'>approx_as_by</span>::<span class='op'>&lt;</span><span class='ident'>u8</span>, <span class='ident'>Wrapping</span><span class='op'>&gt;</span>(), <span class='prelude-val'>Ok</span>(<span class='number'>144</span>));
 
 <span class='comment'>// Integer -&gt; float conversions *can* fail due to limited precision.</span>
 <span class='comment'>// Once the continuous range of exactly representable integers is exceeded, the</span>
 <span class='comment'>// provided implementations fail with over/underflow errors.</span>
 <span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>f32</span>::<span class='ident'>value_from</span>(<span class='number'>16_777_216i32</span>), <span class='prelude-val'>Ok</span>(<span class='number'>16_777_216.0f32</span>));
-<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>f32</span>::<span class='ident'>value_from</span>(<span class='number'>16_777_217i32</span>), <span class='prelude-val'>Err</span>(<span class='ident'>RangeError</span>::<span class='ident'>Overflow</span>));
+<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>f32</span>::<span class='ident'>value_from</span>(<span class='number'>16_777_217i32</span>), <span class='prelude-val'>Err</span>(<span class='ident'>RangeError</span>::<span class='ident'>Overflow</span>(<span class='number'>16_777_217</span>)));
 
 <span class='comment'>// Float -&gt; integer conversions have to be done using approximations.  Although</span>
 <span class='comment'>// exact conversions are *possible*, &quot;advertising&quot; this with an implementation</span>
@@ -165,11 +174,11 @@
 <span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='number'>42.0f32</span>.<span class='ident'>approx</span>(), <span class='prelude-val'>Ok</span>(<span class='number'>42u8</span>));
 
 <span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='number'>255.0f32</span>.<span class='ident'>approx</span>(), <span class='prelude-val'>Ok</span>(<span class='number'>255u8</span>));
-<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='number'>256.0f32</span>.<span class='ident'>approx</span>(), <span class='prelude-val'>Err</span>::<span class='op'>&lt;</span><span class='ident'>u8</span>, _<span class='op'>&gt;</span>(<span class='ident'>FloatError</span>::<span class='ident'>Overflow</span>));
+<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='number'>256.0f32</span>.<span class='ident'>approx</span>(), <span class='prelude-val'>Err</span>::<span class='op'>&lt;</span><span class='ident'>u8</span>, _<span class='op'>&gt;</span>(<span class='ident'>FloatError</span>::<span class='ident'>Overflow</span>(<span class='number'>256.0</span>)));
 
 <span class='comment'>// If you really don&#39;t care about the specific kind of error, you can just rely</span>
-<span class='comment'>// on automatic conversion to `GeneralError`.</span>
-<span class='kw'>fn</span> <span class='ident'>too_many_errors</span>() <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>(), <span class='ident'>GeneralError</span><span class='op'>&gt;</span> {
+<span class='comment'>// on automatic conversion to `GeneralErrorKind`.</span>
+<span class='kw'>fn</span> <span class='ident'>too_many_errors</span>() <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>(), <span class='ident'>GeneralErrorKind</span><span class='op'>&gt;</span> {
     <span class='macro'>assert_eq</span><span class='macro'>!</span>({<span class='kw'>let</span> <span class='ident'>r</span>: <span class='ident'>u8</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='number'>0u8</span>.<span class='ident'>value_into</span>()); <span class='ident'>r</span>},  <span class='number'>0u8</span>);
     <span class='macro'>assert_eq</span><span class='macro'>!</span>({<span class='kw'>let</span> <span class='ident'>r</span>: <span class='ident'>u8</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='number'>0i8</span>.<span class='ident'>value_into</span>()); <span class='ident'>r</span>},  <span class='number'>0u8</span>);
     <span class='macro'>assert_eq</span><span class='macro'>!</span>({<span class='kw'>let</span> <span class='ident'>r</span>: <span class='ident'>u8</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='number'>0i16</span>.<span class='ident'>value_into</span>()); <span class='ident'>r</span>}, <span class='number'>0u8</span>);
@@ -177,7 +186,7 @@
     <span class='prelude-val'>Ok</span>(())
 }</pre>
 </div><h2 id='reexports' class='section-header'><a href="#reexports">Reexports</a></h2>
-<table><tr><td><code>pub use errors::{<a class='enum' href='../conv/errors/enum.NoError.html' title='conv::errors::NoError'>NoError</a>, <a class='enum' href='../conv/errors/enum.GeneralError.html' title='conv::errors::GeneralError'>GeneralError</a>, <a class='struct' href='../conv/errors/struct.Unrepresentable.html' title='conv::errors::Unrepresentable'>Unrepresentable</a>, <a class='struct' href='../conv/errors/struct.Underflow.html' title='conv::errors::Underflow'>Underflow</a>, <a class='struct' href='../conv/errors/struct.Overflow.html' title='conv::errors::Overflow'>Overflow</a>, <a class='enum' href='../conv/errors/enum.FloatError.html' title='conv::errors::FloatError'>FloatError</a>, <a class='enum' href='../conv/errors/enum.RangeError.html' title='conv::errors::RangeError'>RangeError</a>, <a class='trait' href='../conv/errors/trait.UnwrapOk.html' title='conv::errors::UnwrapOk'>UnwrapOk</a>, <a class='trait' href='../conv/errors/trait.UnwrapOrInf.html' title='conv::errors::UnwrapOrInf'>UnwrapOrInf</a>, <a class='trait' href='../conv/errors/trait.UnwrapOrInvalid.html' title='conv::errors::UnwrapOrInvalid'>UnwrapOrInvalid</a>, <a class='trait' href='../conv/errors/trait.UnwrapOrSaturate.html' title='conv::errors::UnwrapOrSaturate'>UnwrapOrSaturate</a>};</code></td></tr></table><h2 id='modules' class='section-header'><a href="#modules">Modules</a></h2>
+<table><tr><td><code>pub use errors::{<a class='enum' href='../conv/errors/enum.NoError.html' title='conv::errors::NoError'>NoError</a>, <a class='enum' href='../conv/errors/enum.GeneralError.html' title='conv::errors::GeneralError'>GeneralError</a>, <a class='enum' href='../conv/errors/enum.GeneralErrorKind.html' title='conv::errors::GeneralErrorKind'>GeneralErrorKind</a>, <a class='struct' href='../conv/errors/struct.Unrepresentable.html' title='conv::errors::Unrepresentable'>Unrepresentable</a>, <a class='struct' href='../conv/errors/struct.Underflow.html' title='conv::errors::Underflow'>Underflow</a>, <a class='struct' href='../conv/errors/struct.Overflow.html' title='conv::errors::Overflow'>Overflow</a>, <a class='enum' href='../conv/errors/enum.FloatError.html' title='conv::errors::FloatError'>FloatError</a>, <a class='enum' href='../conv/errors/enum.RangeError.html' title='conv::errors::RangeError'>RangeError</a>, <a class='enum' href='../conv/errors/enum.RangeErrorKind.html' title='conv::errors::RangeErrorKind'>RangeErrorKind</a>, <a class='trait' href='../conv/errors/trait.UnwrapOk.html' title='conv::errors::UnwrapOk'>UnwrapOk</a>, <a class='trait' href='../conv/errors/trait.UnwrapOrInf.html' title='conv::errors::UnwrapOrInf'>UnwrapOrInf</a>, <a class='trait' href='../conv/errors/trait.UnwrapOrInvalid.html' title='conv::errors::UnwrapOrInvalid'>UnwrapOrInvalid</a>, <a class='trait' href='../conv/errors/trait.UnwrapOrSaturate.html' title='conv::errors::UnwrapOrSaturate'>UnwrapOrSaturate</a>};</code></td></tr></table><h2 id='modules' class='section-header'><a href="#modules">Modules</a></h2>
 <table>
                     <tr class=' module-item'>
                         <td><a class='mod' href='errors/index.html'
@@ -236,6 +245,42 @@
                     </tr>
                 
                     <tr class=' module-item'>
+                        <td><a class='enum' href='enum.RoundToNearest.html'
+                               title='conv::RoundToNearest'>RoundToNearest</a></td>
+                        <td class='docblock short'>
+                             <p>This scheme is used to convert a value by rounding it to the nearest representable value, with ties rounding away from zero.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='enum' href='enum.RoundToNegInf.html'
+                               title='conv::RoundToNegInf'>RoundToNegInf</a></td>
+                        <td class='docblock short'>
+                             <p>This scheme is used to convert a value by rounding it toward negative infinity to the nearest representable value.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='enum' href='enum.RoundToPosInf.html'
+                               title='conv::RoundToPosInf'>RoundToPosInf</a></td>
+                        <td class='docblock short'>
+                             <p>This scheme is used to convert a value by rounding it toward positive infinity to the nearest representable value.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='enum' href='enum.RoundToZero.html'
+                               title='conv::RoundToZero'>RoundToZero</a></td>
+                        <td class='docblock short'>
+                             <p>This scheme is used to convert a value by rounding it toward zero to the nearest representable value.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
                         <td><a class='enum' href='enum.Wrapping.html'
                                title='conv::Wrapping'>Wrapping</a></td>
                         <td class='docblock short'>
@@ -273,10 +318,19 @@
                     </tr>
                 
                     <tr class=' module-item'>
-                        <td><a class='trait' href='trait.ApproxWith.html'
-                               title='conv::ApproxWith'>ApproxWith</a></td>
+                        <td><a class='trait' href='trait.ConvAsUtil.html'
+                               title='conv::ConvAsUtil'>ConvAsUtil</a></td>
                         <td class='docblock short'>
-                             <p>This extension trait exists to simplify using approximation implementations.</p>
+                             <p>This extension trait exists to simplify using various conversions.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='trait' href='trait.ConvUtil.html'
+                               title='conv::ConvUtil'>ConvUtil</a></td>
+                        <td class='docblock short'>
+                             <p>This extension trait exists to simplify using various conversions.</p>
 
                         </td>
                     </tr>
@@ -351,8 +405,8 @@
                 <p>
                     Accepted types are: <code>fn</code>, <code>mod</code>,
                     <code>struct</code>, <code>enum</code>,
-                    <code>trait</code>, <code>typedef</code> (or
-                    <code>tdef</code>).
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
                 </p>
 
                 <p>

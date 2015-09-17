@@ -45,13 +45,17 @@
             <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                 [<span class='inner'>&#x2212;</span>]
             </a>
-        </span><a id='src-15177' class='srclink' href='../src/conv/lib.rs.html#263' title='goto source code'>[src]</a></span></h1>
+        </span><a id='src-26341' class='srclink' href='../src/conv/lib.rs.html#249' title='goto source code'>[src]</a></span></h1>
 <pre class='rust trait'>pub trait ApproxScheme { }</pre><div class='docblock'><p>This trait is used to mark approximation scheme types.</p>
 </div>
         <h2 id='implementors'>Implementors</h2>
         <ul class='item-list' id='implementors-list'>
     <li><code>impl <a class='trait' href='../conv/trait.ApproxScheme.html' title='conv::ApproxScheme'>ApproxScheme</a> for <a class='enum' href='../conv/enum.DefaultApprox.html' title='conv::DefaultApprox'>DefaultApprox</a></code></li>
 <li><code>impl <a class='trait' href='../conv/trait.ApproxScheme.html' title='conv::ApproxScheme'>ApproxScheme</a> for <a class='enum' href='../conv/enum.Wrapping.html' title='conv::Wrapping'>Wrapping</a></code></li>
+<li><code>impl <a class='trait' href='../conv/trait.ApproxScheme.html' title='conv::ApproxScheme'>ApproxScheme</a> for <a class='enum' href='../conv/enum.RoundToNearest.html' title='conv::RoundToNearest'>RoundToNearest</a></code></li>
+<li><code>impl <a class='trait' href='../conv/trait.ApproxScheme.html' title='conv::ApproxScheme'>ApproxScheme</a> for <a class='enum' href='../conv/enum.RoundToNegInf.html' title='conv::RoundToNegInf'>RoundToNegInf</a></code></li>
+<li><code>impl <a class='trait' href='../conv/trait.ApproxScheme.html' title='conv::ApproxScheme'>ApproxScheme</a> for <a class='enum' href='../conv/enum.RoundToPosInf.html' title='conv::RoundToPosInf'>RoundToPosInf</a></code></li>
+<li><code>impl <a class='trait' href='../conv/trait.ApproxScheme.html' title='conv::ApproxScheme'>ApproxScheme</a> for <a class='enum' href='../conv/enum.RoundToZero.html' title='conv::RoundToZero'>RoundToZero</a></code></li>
 </ul><script type="text/javascript" async
                               src="../implementors/conv/trait.ApproxScheme.js">
                       </script></section>
@@ -89,8 +93,8 @@
                 <p>
                     Accepted types are: <code>fn</code>, <code>mod</code>,
                     <code>struct</code>, <code>enum</code>,
-                    <code>trait</code>, <code>typedef</code> (or
-                    <code>tdef</code>).
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
                 </p>
 
                 <p>

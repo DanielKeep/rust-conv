@@ -4,12 +4,12 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="rustdoc">
-    <meta name="description" content="API documentation for the Rust `InvalidSentinel` trait in crate `conv`.">
-    <meta name="keywords" content="rust, rustlang, rust-lang, InvalidSentinel">
+    <meta name="description" content="API documentation for the Rust `RoundToPosInf` enum in crate `conv`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, RoundToPosInf">
 
-    <title>conv::misc::InvalidSentinel - Rust</title>
+    <title>conv::RoundToPosInf - Rust</title>
 
-    <link rel="stylesheet" type="text/css" href="../../main.css">
+    <link rel="stylesheet" type="text/css" href="../main.css">
 
     
     
@@ -26,7 +26,7 @@
 
     <section class="sidebar">
         
-        <p class='location'><a href='../index.html'>conv</a>::<wbr><a href='index.html'>misc</a></p><script>window.sidebarCurrent = {name: 'InvalidSentinel', ty: 'trait', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+        <p class='location'><a href='index.html'>conv</a></p><script>window.sidebarCurrent = {name: 'RoundToPosInf', ty: 'enum', relpath: ''};</script><script defer src="sidebar-items.js"></script>
     </section>
 
     <nav class="sub">
@@ -40,29 +40,14 @@
         </form>
     </nav>
 
-    <section id='main' class="content trait">
-<h1 class='fqn'><span class='in-band'>Trait <a href='../index.html'>conv</a>::<wbr><a href='index.html'>misc</a>::<wbr><a class='trait' href=''>InvalidSentinel</a></span><span class='out-of-band'><span id='render-detail'>
+    <section id='main' class="content enum">
+<h1 class='fqn'><span class='in-band'>Enum <a href='index.html'>conv</a>::<wbr><a class='enum' href=''>RoundToPosInf</a></span><span class='out-of-band'><span id='render-detail'>
             <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                 [<span class='inner'>&#x2212;</span>]
             </a>
-        </span><a id='src-8546' class='srclink' href='../../src/conv/misc.rs.html#34-37' title='goto source code'>[src]</a></span></h1>
-<pre class='rust trait'>pub trait InvalidSentinel {
-    fn <a href='#tymethod.invalid_sentinel' class='fnname'>invalid_sentinel</a>() -&gt; Self;
-}</pre><div class='docblock'><p>This trait indicates that a type has an &quot;invalid&quot; sentinel value.</p>
-
-<p>This is used by the <code>errors::UnwrapOrInvalid</code> extension trait.</p>
-</div>
-            <h2 id='required-methods'>Required Methods</h2>
-            <div class='methods'>
-        <h3 id='tymethod.invalid_sentinel' class='method stab '><code>fn <a href='#tymethod.invalid_sentinel' class='fnname'>invalid_sentinel</a>() -&gt; Self</code></h3><div class='docblock'><p>Returns the type&#39;s &quot;invalid&quot; sentinel value.</p>
-</div></div>
-        <h2 id='implementors'>Implementors</h2>
-        <ul class='item-list' id='implementors-list'>
-    <li><code>impl <a class='trait' href='../../conv/misc/trait.InvalidSentinel.html' title='conv::misc::InvalidSentinel'>InvalidSentinel</a> for <a href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a></code></li>
-<li><code>impl <a class='trait' href='../../conv/misc/trait.InvalidSentinel.html' title='conv::misc::InvalidSentinel'>InvalidSentinel</a> for <a href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a></code></li>
-</ul><script type="text/javascript" async
-                              src="../../implementors/conv/misc/trait.InvalidSentinel.js">
-                      </script></section>
+        </span><a id='src-26367' class='srclink' href='../src/conv/lib.rs.html#282' title='goto source code'>[src]</a></span></h1>
+<pre class='rust enum'>pub enum RoundToPosInf {}</pre><div class='docblock'><p>This scheme is used to convert a value by rounding it toward positive infinity to the nearest representable value.</p>
+</div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><code>impl <a class='trait' href='../conv/trait.ApproxScheme.html' title='conv::ApproxScheme'>ApproxScheme</a> for <a class='enum' href='../conv/enum.RoundToPosInf.html' title='conv::RoundToPosInf'>RoundToPosInf</a></code></h3><div class='impl-items'></div></section>
     <section id='search' class="content hidden"></section>
 
     <section class="footer"></section>
@@ -112,13 +97,13 @@
     
 
     <script>
-        window.rootPath = "../../";
+        window.rootPath = "../";
         window.currentCrate = "conv";
         window.playgroundUrl = "";
     </script>
-    <script src="../../jquery.js"></script>
-    <script src="../../main.js"></script>
+    <script src="../jquery.js"></script>
+    <script src="../main.js"></script>
     
-    <script async src="../../search-index.js"></script>
+    <script async src="../search-index.js"></script>
 </body>
 </html>
