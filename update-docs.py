@@ -8,6 +8,7 @@ import sys
 import tempfile
 import time
 
+DOC_ARGS = '--no-deps'
 DOC_TARGET_BRANCH = 'gh-pages'
 TEMP_CHECKOUT_PREFIX = 'gh-pages-checkout-'
 TEMP_OUTPUT_PREFIX = 'gh-pages-generated-'
@@ -156,7 +157,7 @@ def main():
         sh('git checkout -q master')
 
         msg("Generating documentation...")
-        sh('cargo doc')
+        sh('cargo doc %s' % DOC_ARGS)
         tmp1_target_doc = '%s/target/doc' % tmp1
         msg_trace('shutil.move(%r, %r)' % (tmp1_target_doc, tmp2))
         shutil.move(tmp1_target_doc, tmp2)
