@@ -7,7 +7,7 @@ In addition, `From`/`Into` requires all conversions to succeed or panic.  All co
 
 # API Stability Notice
 
-The API of this crate is still not entirely decided.  In particular, errors may change in the future to carry the value that failed to convert (allowing it to be recovered).
+The API of this crate is still not entirely decided.
 
 # Overview
 
@@ -54,9 +54,13 @@ A number of error types are defined in the [`errors`](./errors/index.html) modul
 - `ValueFrom<i32> for u16` can underflow *or* overflow, hence it uses `RangeError`.
 - Finally, `ApproxFrom<f32> for u16` can underflow, overflow, or attempt to convert NaN; `FloatError` covers those three cases.
 
-Because there are *numerous* error types, the `GeneralError` enum is provided.  `From<E> for GeneralError` exists for each error type `E` defined by this crate (even for `NoError`!), allowing errors to be translated automatically by `try!`.  In fact, all errors can be "expanded" to *all* more general forms (*e.g.* `NoError` → `Underflow`, `Overflow` → `RangeError` → `FloatError`).
+Because there are *numerous* error types, the `GeneralError` enum is provided.  `From<E, T> for GeneralError<T>` exists for each error type `E<T>` defined by this crate (even for `NoError`!), allowing errors to be translated automatically by `try!`.  In fact, all errors can be "expanded" to *all* more general forms (*e.g.* `NoError` → `Underflow`, `Overflow` → `RangeError` → `FloatError`).
 
-The reason for not just using `GeneralError` in the first place is to statically reduce the number of potential error cases you need to deal with.  It also allows the `Unwrap*` extension traits to be defined *without* the possibility for runtime failure (*e.g.* you cannot use `unwrap_or_saturate` with a `FloatError`, because what do you do if the error is `NotANumber`; saturate to max or to min?  Or panic?).
+Aside from `NoError`, the various error types wrap the input value that you attempted to convert.  This is so that non-`Copy` types do not need to be pre-emptively cloned prior to conversion, just in case the conversion fails.  A downside is that this means there are many, *many* incompatible error types.
+
+To help alleviate this, there is also `GeneralErrorKind`, which is simply `GeneralError<T>` without the payload, and all errors can be converted into it directly.
+
+The reason for not just using `GeneralErrorKind` in the first place is to statically reduce the number of potential error cases you need to deal with.  It also allows the `Unwrap*` extension traits to be defined *without* the possibility for runtime failure (*e.g.* you cannot use `unwrap_or_saturate` with a `FloatError`, because what do you do if the error is `NotANumber`; saturate to max or to min?  Or panic?).
 
 # Examples
 
@@ -69,12 +73,12 @@ assert_eq!(u8::value_from(0u8).unwrap_ok(), 0u8);
 
 // This *can* fail.  Specifically, it can underflow.
 assert_eq!(u8::value_from(0i8),     Ok(0u8));
-assert_eq!(u8::value_from(-1i8),    Err(Underflow));
+assert_eq!(u8::value_from(-1i8),    Err(Underflow(-1)));
 
 // This can underflow *and* overflow; hence the change to `RangeError`.
-assert_eq!(u8::value_from(-1i16),   Err(RangeError::Underflow));
+assert_eq!(u8::value_from(-1i16),   Err(RangeError::Underflow(-1)));
 assert_eq!(u8::value_from(0i16),    Ok(0u8));
-assert_eq!(u8::value_from(256i16),  Err(RangeError::Overflow));
+assert_eq!(u8::value_from(256i16),  Err(RangeError::Overflow(256)));
 
 // We can use the extension traits to simplify this a little.
 assert_eq!(u8::value_from(-1i16).unwrap_or_saturate(),  0u8);
@@ -86,23 +90,23 @@ assert_eq!(u8::value_from(256i16).unwrap_or_saturate(), 255u8);
 // `Wrapping` scheme.
 assert_eq!(
     <u8 as ApproxFrom<_, DefaultApprox>>::approx_from(400u16),
-    Err(Overflow));
+    Err(Overflow(400)));
 assert_eq!(
     <u8 as ApproxFrom<_, Wrapping>>::approx_from(400u16),
     Ok(144u8));
 
 // This is rather inconvenient; as such, there are a number of convenience
 // extension methods available via `ConvUtil` and `ConvAsUtil`.
-assert_eq!(400u16.approx(),                       Err::<u8, _>(Overflow));
+assert_eq!(400u16.approx(),                       Err::<u8, _>(Overflow(400)));
 assert_eq!(400u16.approx_by::<Wrapping>(),        Ok::<u8, _>(144u8));
-assert_eq!(400u16.approx_as::<u8>(),              Err(Overflow));
+assert_eq!(400u16.approx_as::<u8>(),              Err(Overflow(400)));
 assert_eq!(400u16.approx_as_by::<u8, Wrapping>(), Ok(144));
 
 // Integer -> float conversions *can* fail due to limited precision.
 // Once the continuous range of exactly representable integers is exceeded, the
 // provided implementations fail with over/underflow errors.
 assert_eq!(f32::value_from(16_777_216i32), Ok(16_777_216.0f32));
-assert_eq!(f32::value_from(16_777_217i32), Err(RangeError::Overflow));
+assert_eq!(f32::value_from(16_777_217i32), Err(RangeError::Overflow(16_777_217)));
 
 // Float -> integer conversions have to be done using approximations.  Although
 // exact conversions are *possible*, "advertising" this with an implementation
@@ -117,11 +121,11 @@ assert_eq!(41.8f32.approx(), Ok(41u8));
 assert_eq!(42.0f32.approx(), Ok(42u8));
 
 assert_eq!(255.0f32.approx(), Ok(255u8));
-assert_eq!(256.0f32.approx(), Err::<u8, _>(FloatError::Overflow));
+assert_eq!(256.0f32.approx(), Err::<u8, _>(FloatError::Overflow(256.0)));
 
 // If you really don't care about the specific kind of error, you can just rely
-// on automatic conversion to `GeneralError`.
-fn too_many_errors() -> Result<(), GeneralError> {
+// on automatic conversion to `GeneralErrorKind`.
+fn too_many_errors() -> Result<(), GeneralErrorKind> {
     assert_eq!({let r: u8 = try!(0u8.value_into()); r},  0u8);
     assert_eq!({let r: u8 = try!(0i8.value_into()); r},  0u8);
     assert_eq!({let r: u8 = try!(0i16.value_into()); r}, 0u8);
@@ -136,13 +140,15 @@ fn too_many_errors() -> Result<(), GeneralError> {
 
 #![deny(missing_docs)]
 
+#[macro_use] extern crate custom_derive;
+
 // Exported macros.
 pub mod macros;
 
 pub use errors::{
-    NoError, GeneralError, Unrepresentable,
+    NoError, GeneralError, GeneralErrorKind, Unrepresentable,
     Underflow, Overflow,
-    FloatError, RangeError,
+    FloatError, RangeError, RangeErrorKind,
     UnwrapOk, UnwrapOrInf, UnwrapOrInvalid, UnwrapOrSaturate,
 };
 

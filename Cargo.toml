@@ -10,6 +10,8 @@ readme = "README.md"
 license = "MIT"
 keywords = ["from", "into", "conversion", "approximation"]
 
+[dependencies]
+custom_derive = "0.1.2"
+
 [dev-dependencies]
-custom_derive = "0.1.0"
 quickcheck = "0.2.21"

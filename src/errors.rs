@@ -9,83 +9,297 @@ use std::error::Error;
 use std::fmt::{self, Debug, Display};
 use misc::{Saturated, InvalidSentinel, SignedInfinity};
 
-/**
-A general error enumeration that subsumes all other conversion errors.
+macro_rules! Desc {
+    (
+        ($desc:expr)
+        pub struct $name:ident<$t:ident> $_body:tt;
+    ) => {
+        impl<$t> Display for $name<$t> {
+            fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+                write!(fmt, $desc)
+            }
+        }
 
-This exists primarily as a "catch-all" for reliably unifying various different kinds of conversion errors.
-*/
-#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
-pub enum GeneralError {
-    /// Input underflowed the target type.
-    Underflow,
-
-    /// Input overflowed the target type.
-    Overflow,
-
-    /// Input was not representable in the target type.
-    Unrepresentable,
+        impl<$t> Error for $name<$t> where $t: Any {
+            fn description(&self) -> &str {
+                $desc
+            }
+        }
+    };
 }
 
-impl Display for GeneralError {
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-        write!(fmt, "{}", self.description())
-    }
+macro_rules! DummyDebug {
+    (
+        () pub enum $name:ident<$t:ident> {
+            $(#[doc=$_doc:tt] $vname:ident($_vpay:ident),)+
+        }
+    ) => {
+        impl<$t> Debug for $name<$t> {
+            fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+                let msg = match *self {
+                    $($name::$vname(_) => stringify!($vname),)+
+                };
+                write!(fmt, concat!(stringify!($name), "::{}(..)"), msg)
+            }
+        }
+    };
+
+    (
+        () pub struct $name:ident<$t:ident>(pub $_pay:ident);
+    ) => {
+        impl<$t> Debug for $name<$t> {
+            fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+                write!(fmt, concat!(stringify!($name), "(..)"))
+            }
+        }
+    };
 }
 
-impl Error for GeneralError {
-    fn description(&self) -> &str {
-        use self::GeneralError::*;
-        match *self {
+macro_rules! EnumDesc {
+    (
+        ($($vname:ident => $vdesc:expr,)+) 
+        pub enum $name:ident $_body:tt
+    ) => {
+        impl Display for $name {
+            fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+                write!(fmt, "{}",
+                    match *self { $($name::$vname => $vdesc,)+ })
+            }
+        }
+
+        impl Error for $name {
+            fn description(&self) -> &str {
+                match *self { $($name::$vname => $vdesc,)+ }
+            }
+        }
+    };
+
+    (
+        ($($vname:ident => $vdesc:expr,)+) 
+        pub enum $name:ident<$t:ident> $_body:tt
+    ) => {
+        impl<$t> Display for $name<$t> {
+            fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+                write!(fmt, "{}",
+                    match *self { $($name::$vname(..) => $vdesc,)+ })
+            }
+        }
+
+        impl<$t> Error for $name<$t> where $t: Any {
+            fn description(&self) -> &str {
+                match *self { $($name::$vname(..) => $vdesc,)+ }
+            }
+        }
+    };
+}
+
+macro_rules! FromName {
+    (
+        ($fname:ident)
+        pub enum $name:ident<$t:ident> $_body:tt
+    ) => {
+        impl<$t> From<$fname<$t>> for $name<$t> {
+            fn from(e: $fname<$t>) -> Self {
+                $name::$fname(e.into_inner())
+            }
+        }
+    };
+
+    (
+        ($fname:ident<$t:ident>)
+        pub enum $name:ident $_body:tt
+    ) => {
+        impl<$t> From<$fname<$t>> for $name {
+            fn from(_: $fname<$t>) -> Self {
+                $name::$fname
+            }
+        }
+    };
+}
+
+macro_rules! FromNoError {
+    (
+        () pub enum $name:ident $_body:tt
+    ) => {
+        impl From<NoError> for $name {
+            fn from(_: NoError) -> Self {
+                panic!(concat!("cannot convert NoError into ", stringify!($name)))
+            }
+        }
+    };
+
+    (
+        () pub enum $name:ident<$t:ident> $_body:tt
+    ) => {
+        impl<$t> From<NoError> for $name<$t> {
+            fn from(_: NoError) -> Self {
+                panic!(concat!("cannot convert NoError into ", stringify!($name)))
+            }
+        }
+    };
+
+    (
+        () pub struct $name:ident<$t:ident> $_body:tt;
+    ) => {
+        impl<$t> From<NoError> for $name<$t> {
+            fn from(_: NoError) -> Self {
+                panic!(concat!("cannot convert NoError into ", stringify!($name)))
+            }
+        }
+    };
+}
+
+macro_rules! FromRemap {
+    (
+        ($from:ident($($vname:ident),+))
+        pub enum $name:ident $_body:tt
+    ) => {
+        impl From<$from> for $name {
+            fn from(e: $from) -> Self {
+                match e {
+                    $($from::$vname => $name::$vname,)+
+                }
+            }
+        }
+    };
+
+    (
+        ($from:ident<$t:ident>($($vname:ident),+))
+        pub enum $name:ident $_body:tt
+    ) => {
+        impl<$t> From<$from<$t>> for $name {
+            fn from(e: $from<$t>) -> Self {
+                match e {
+                    $($from::$vname(..) => $name::$vname,)+
+                }
+            }
+        }
+    };
+
+    (
+        ($from:ident($($vname:ident),+))
+        pub enum $name:ident<$t:ident> $_body:tt
+    ) => {
+        impl<$t> From<$from<$t>> for $name<$t> {
+            fn from(e: $from<$t>) -> Self {
+                match e {
+                    $($from::$vname(v) => $name::$vname(v),)+
+                }
+            }
+        }
+    };
+}
+
+macro_rules! IntoInner {
+    (
+        () pub enum $name:ident<$t:ident> {
+            $(#[doc=$_doc:tt] $vname:ident($_vpay:ident),)+
+        }
+    ) => {
+        impl<$t> $name<$t> {
+            /// Returns the value stored in this error.
+            pub fn into_inner(self) -> $t {
+                match self { $($name::$vname(v))|+ => v }
+            }
+        }
+    };
+
+    (
+        () pub struct $name:ident<$t:ident>(pub $_pay:ident);
+    ) => {
+        impl<$t> $name<$t> {
+            /// Returns the value stored in this error.
+            pub fn into_inner(self) -> $t {
+                self.0
+            }
+        }
+    };
+}
+
+custom_derive!{
+    /**
+    A general error enumeration that subsumes all other conversion errors.
+
+    This exists primarily as a "catch-all" for reliably unifying various different kinds of conversion errors.
+    */
+    #[derive(
+        Copy, Clone, Eq, PartialEq, Ord, PartialOrd,
+        IntoInner, DummyDebug, FromNoError,
+        EnumDesc(
             Underflow => "conversion resulted in underflow",
             Overflow => "conversion resulted in overflow",
             Unrepresentable => "could not convert unrepresentable value",
-        }
+        ),
+        FromName(Unrepresentable),
+        FromName(Underflow),
+        FromName(Overflow),
+        FromRemap(RangeError(Underflow, Overflow))
+    )]
+    pub enum GeneralError<T> {
+        /// Input underflowed the target type.
+        Underflow(T),
+
+        /// Input overflowed the target type.
+        Overflow(T),
+
+        /// Input was not representable in the target type.
+        Unrepresentable(T),
     }
 }
 
-impl From<NoError> for GeneralError {
-    fn from(_: NoError) -> GeneralError {
-        panic!("cannot convert NoError into GeneralError");
-    }
-}
-
-impl<T> From<Unrepresentable<T>> for GeneralError {
-    fn from(_: Unrepresentable<T>) -> GeneralError {
-        GeneralError::Unrepresentable
-    }
-}
-
-impl From<Underflow> for GeneralError {
-    fn from(_: Underflow) -> GeneralError {
-        GeneralError::Underflow
-    }
-}
-
-impl From<Overflow> for GeneralError {
-    fn from(_: Overflow) -> GeneralError {
-        GeneralError::Overflow
-    }
-}
-
-impl From<RangeError> for GeneralError {
-    fn from(e: RangeError) -> GeneralError {
-        use self::RangeError as R;
-        use self::GeneralError as G;
-        match e {
-            R::Underflow => G::Underflow,
-            R::Overflow => G::Overflow,
-        }
-    }
-}
-
-impl From<FloatError> for GeneralError {
-    fn from(e: FloatError) -> GeneralError {
+impl<T> From<FloatError<T>> for GeneralError<T> {
+    fn from(e: FloatError<T>) -> GeneralError<T> {
         use self::FloatError as F;
         use self::GeneralError as G;
         match e {
-            F::Underflow => G::Underflow,
-            F::Overflow => G::Overflow,
-            F::NotANumber => G::Unrepresentable,
+            F::Underflow(v) => G::Underflow(v),
+            F::Overflow(v) => G::Overflow(v),
+            F::NotANumber(v) => G::Unrepresentable(v),
+        }
+    }
+}
+
+custom_derive! {
+    /**
+    A general error enumeration that subsumes all other conversion errors, but discards all input payloads the errors may be carrying.
+
+    This exists primarily as a "catch-all" for reliably unifying various different kinds of conversion errors, and between different input types.
+    */
+    #[derive(
+        Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Debug,
+        FromNoError,
+        EnumDesc(
+            Underflow => "conversion resulted in underflow",
+            Overflow => "conversion resulted in overflow",
+            Unrepresentable => "could not convert unrepresentable value",
+        ),
+        FromName(Unrepresentable<T>),
+        FromName(Underflow<T>),
+        FromName(Overflow<T>),
+        FromRemap(RangeErrorKind(Underflow, Overflow)),
+        FromRemap(RangeError<T>(Underflow, Overflow)),
+        FromRemap(GeneralError<T>(Underflow, Overflow, Unrepresentable))
+    )]
+    pub enum GeneralErrorKind {
+        /// Input underflowed the target type.
+        Underflow,
+
+        /// Input overflowed the target type.
+        Overflow,
+
+        /// Input was not representable in the target type.
+        Unrepresentable,
+    }
+}
+
+impl<T> From<FloatError<T>> for GeneralErrorKind {
+    fn from(e: FloatError<T>) -> GeneralErrorKind {
+        use self::FloatError as F;
+        use self::GeneralErrorKind as G;
+        match e {
+            F::Underflow(..) => G::Underflow,
+            F::Overflow(..) => G::Overflow,
+            F::NotANumber(..) => G::Unrepresentable,
         }
     }
 }
@@ -110,172 +324,110 @@ impl Error for NoError {
     }
 }
 
-/// Indicates that the conversion failed because the value was not representable.
-#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
-pub struct Unrepresentable<T>(pub T);
-
-impl<T> Display for Unrepresentable<T>
-where T: Display {
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-        write!(fmt, "could not convert unrepresentable value: {}", self.0)
-    }
+custom_derive! {
+    /// Indicates that the conversion failed because the value was not representable.
+    #[derive(
+        Copy, Clone, Eq, PartialEq, Ord, PartialOrd,
+        IntoInner, DummyDebug, FromNoError,
+        Desc("could not convert unrepresentable value")
+    )]
+    pub struct Unrepresentable<T>(pub T);
 }
 
-impl<T> Error for Unrepresentable<T>
-where T: Debug + Display + Any {
-    fn description(&self) -> &str {
-        "could not convert unrepresentable value"
-    }
+custom_derive! {
+    /// Indicates that the conversion failed due to an underflow.
+    #[derive(
+        Copy, Clone, Eq, PartialEq, Ord, PartialOrd,
+        IntoInner, DummyDebug, FromNoError,
+        Desc("conversion resulted in underflow")
+    )]
+    pub struct Underflow<T>(pub T);
 }
 
-/// Indicates that the conversion failed due to an underflow.
-#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
-pub struct Underflow;
-
-impl Display for Underflow {
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-        write!(fmt, "{}", self.description())
-    }
+custom_derive! {
+    /// Indicates that the conversion failed due to an overflow.
+    #[derive(
+        Copy, Clone, Eq, PartialEq, Ord, PartialOrd,
+        IntoInner, DummyDebug, FromNoError,
+        Desc("conversion resulted in overflow")
+    )]
+    pub struct Overflow<T>(pub T);
 }
 
-impl Error for Underflow {
-    fn description(&self) -> &str {
-        "conversion resulted in underflow"
-    }
-}
-
-impl From<NoError> for Underflow {
-    fn from(_: NoError) -> Underflow {
-        panic!("cannot convert NoError into Underflow");
-    }
-}
-
-/// Indicates that the conversion failed due to an overflow.
-#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
-pub struct Overflow;
-
-impl Display for Overflow {
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-        write!(fmt, "{}", self.description())
-    }
-}
-
-impl Error for Overflow {
-    fn description(&self) -> &str {
-        "conversion resulted in overflow"
-    }
-}
-
-impl From<NoError> for Overflow {
-    fn from(_: NoError) -> Overflow {
-        panic!("cannot convert NoError into Overflow");
-    }
-}
-
-/**
-Indicates that a conversion from a floating point type failed.
-*/
-#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
-pub enum FloatError {
-    /// Input underflowed the target type.
-    Underflow,
-
-    /// Input overflowed the target type.
-    Overflow,
-
-    /// Input was not-a-number, which the target type could not represent.
-    NotANumber,
-}
-
-impl Display for FloatError {
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-        write!(fmt, "{}", self.description())
-    }
-}
-
-impl Error for FloatError {
-    fn description(&self) -> &str {
-        use self::FloatError::*;
-        match *self {
+custom_derive! {
+    /**
+    Indicates that a conversion from a floating point type failed.
+    */
+    #[derive(
+        Copy, Clone, Eq, PartialEq, Ord, PartialOrd,
+        IntoInner, DummyDebug, FromNoError,
+        EnumDesc(
             Underflow => "conversion resulted in underflow",
             Overflow => "conversion resulted in overflow",
             NotANumber => "conversion target does not support not-a-number",
-        }
+        ),
+        FromName(Underflow),
+        FromName(Overflow),
+        FromRemap(RangeError(Underflow, Overflow))
+    )]
+    pub enum FloatError<T> {
+        /// Input underflowed the target type.
+        Underflow(T),
+
+        /// Input overflowed the target type.
+        Overflow(T),
+
+        /// Input was not-a-number, which the target type could not represent.
+        NotANumber(T),
     }
 }
 
-impl From<NoError> for FloatError {
-    fn from(_: NoError) -> FloatError {
-        panic!("cannot convert NoError into FloatError");
-    }
-}
-
-impl From<Underflow> for FloatError {
-    fn from(_: Underflow) -> FloatError {
-        FloatError::Underflow
-    }
-}
-
-impl From<Overflow> for FloatError {
-    fn from(_: Overflow) -> FloatError {
-        FloatError::Overflow
-    }
-}
-
-impl From<RangeError> for FloatError {
-    fn from(e: RangeError) -> FloatError {
-        use self::RangeError as R;
-        use self::FloatError as F;
-        match e {
-            R::Underflow => F::Underflow,
-            R::Overflow => F::Overflow,
-        }
-    }
-}
-
-/**
-Indicates that a conversion failed due to a range error.
-*/
-#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
-pub enum RangeError {
-    /// Input underflowed the target type.
-    Underflow,
-
-    /// Input overflowed the target type.
-    Overflow,
-}
-
-impl Display for RangeError {
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-        write!(fmt, "{}", self.description())
-    }
-}
-
-impl Error for RangeError {
-    fn description(&self) -> &str {
-        use self::RangeError::*;
-        match *self {
+custom_derive! {
+    /**
+    Indicates that a conversion failed due to a range error.
+    */
+    #[derive(
+        Copy, Clone, Eq, PartialEq, Ord, PartialOrd,
+        IntoInner, DummyDebug, FromNoError,
+        EnumDesc(
             Underflow => "conversion resulted in underflow",
             Overflow => "conversion resulted in overflow",
-        }
+        ),
+        FromName(Underflow),
+        FromName(Overflow)
+    )]
+    pub enum RangeError<T> {
+        /// Input underflowed the target type.
+        Underflow(T),
+
+        /// Input overflowed the target type.
+        Overflow(T),
     }
 }
 
-impl From<NoError> for RangeError {
-    fn from(_: NoError) -> RangeError {
-        panic!("cannot convert NoError into RangeError");
-    }
-}
+custom_derive! {
+    /**
+    Indicates that a conversion failed due to a range error.
 
-impl From<Underflow> for RangeError {
-    fn from(_: Underflow) -> RangeError {
-        RangeError::Underflow
-    }
-}
+    This is a variant of `RangeError` that does not retain the input value which caused the error.  It exists to help unify some utility methods and should not generally be used directly, unless you are targeting the `Unwrap*` traits.
+    */
+    #[derive(
+        Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Debug,
+        FromNoError,
+        EnumDesc(
+            Underflow => "conversion resulted in underflow",
+            Overflow => "conversion resulted in overflow",
+        ),
+        FromName(Underflow<T>),
+        FromName(Overflow<T>),
+        FromRemap(RangeError<T>(Underflow, Overflow))
+    )]
+    pub enum RangeErrorKind {
+        /// Input underflowed the target type.
+        Underflow,
 
-impl From<Overflow> for RangeError {
-    fn from(_: Overflow) -> RangeError {
-        RangeError::Overflow
+        /// Input overflowed the target type.
+        Overflow,
     }
 }
 
@@ -340,14 +492,14 @@ pub trait UnwrapOrSaturate {
 }
 
 impl<T, E> UnwrapOrInf for Result<T, E>
-where T: SignedInfinity, E: Into<RangeError> {
+where T: SignedInfinity, E: Into<RangeErrorKind> {
     type Output = T;
     fn unwrap_or_inf(self) -> T {
-        use self::RangeError::*;
+        use self::RangeErrorKind::*;
         match self.map_err(Into::into) {
             Ok(v) => v,
-            Err(Underflow) => T::neg_infinity(),
-            Err(Overflow) => T::pos_infinity(),
+            Err(Underflow(..)) => T::neg_infinity(),
+            Err(Overflow(..)) => T::pos_infinity(),
         }
     }
 }
@@ -364,14 +516,14 @@ where T: InvalidSentinel {
 }
 
 impl<T, E> UnwrapOrSaturate for Result<T, E>
-where T: Saturated, E: Into<RangeError> {
+where T: Saturated, E: Into<RangeErrorKind> {
     type Output = T;
     fn unwrap_or_saturate(self) -> T {
-        use self::RangeError::*;
+        use self::RangeErrorKind::*;
         match self.map_err(Into::into) {
             Ok(v) => v,
-            Err(Underflow) => T::saturated_min(),
-            Err(Overflow) => T::saturated_max(),
+            Err(Underflow(..)) => T::saturated_min(),
+            Err(Overflow(..)) => T::saturated_max(),
         }
     }
 }

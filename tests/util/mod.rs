@@ -49,7 +49,7 @@ macro_rules! check {
         {
             let src: $from = $src;
             let dst: Result<$to, _> = src.value_into();
-            assert_eq!(dst, Err($dst));
+            assert_eq!(dst, Err($dst(src)));
         }
         check!(@ $from, $to=> $($tail)*);
     };
@@ -86,11 +86,11 @@ macro_rules! check {
             extern crate quickcheck;
 
             fn property(v: $from) -> bool {
-                let dst: Result<$to, conv::FloatError> = v.value_into().map_err(From::from);
+                let dst: Result<$to, conv::FloatError<_>> = v.value_into().map_err(From::from);
                 if !(-$bound as $from <= v) {
-                    dst == Err(conv::FloatError::Underflow)
+                    dst == Err(conv::FloatError::Underflow(v))
                 } else if !(v <= $bound as $from) {
-                    dst == Err(conv::FloatError::Overflow)
+                    dst == Err(conv::FloatError::Overflow(v))
                 } else {
                     dst == Ok(v as $to)
                 }
@@ -110,9 +110,9 @@ macro_rules! check {
             extern crate quickcheck;
 
             fn property(v: $from) -> bool {
-                let dst: Result<$to, conv::FloatError> = v.value_into().map_err(From::from);
+                let dst: Result<$to, conv::FloatError<_>> = v.value_into().map_err(From::from);
                 if !(v <= $bound as $from) {
-                    dst == Err(conv::FloatError::Overflow)
+                    dst == Err(conv::FloatError::Overflow(v))
                 } else {
                     dst == Ok(v as $to)
                 }
@@ -132,9 +132,9 @@ macro_rules! check {
             extern crate quickcheck;
 
             fn property(v: $from) -> bool {
-                let dst: Result<$to, conv::FloatError> = v.value_into().map_err(From::from);
+                let dst: Result<$to, conv::FloatError<_>> = v.value_into().map_err(From::from);
                 if !(0 <= v) {
-                    dst == Err(conv::FloatError::Underflow)
+                    dst == Err(conv::FloatError::Underflow(v))
                 } else {
                     dst == Ok(v as $to)
                 }
@@ -154,9 +154,9 @@ macro_rules! check {
             extern crate quickcheck;
 
             fn property(v: $from) -> bool {
-                let dst: Result<$to, conv::FloatError> = v.value_into().map_err(From::from);
+                let dst: Result<$to, conv::FloatError<_>> = v.value_into().map_err(From::from);
                 if !(v <= <$max>::max_value() as $from) {
-                    dst == Err(conv::FloatError::Overflow)
+                    dst == Err(conv::FloatError::Overflow(v))
                 } else {
                     dst == Ok(v as $to)
                 }
@@ -176,11 +176,11 @@ macro_rules! check {
             extern crate quickcheck;
 
             fn property(v: $from) -> bool {
-                let dst: Result<$to, conv::FloatError> = v.value_into().map_err(From::from);
+                let dst: Result<$to, conv::FloatError<_>> = v.value_into().map_err(From::from);
                 if !(<$bound>::min_value() as $from <= v) {
-                    dst == Err(conv::FloatError::Underflow)
+                    dst == Err(conv::FloatError::Underflow(v))
                 } else if !(v <= <$bound>::max_value() as $from) {
-                    dst == Err(conv::FloatError::Overflow)
+                    dst == Err(conv::FloatError::Overflow(v))
                 } else {
                     dst == Ok(v as $to)
                 }
@@ -200,11 +200,11 @@ macro_rules! check {
             extern crate quickcheck;
 
             fn property(v: $from) -> bool {
-                let dst: Result<$to, conv::FloatError> = v.value_into().map_err(From::from);
+                let dst: Result<$to, conv::FloatError<_>> = v.value_into().map_err(From::from);
                 if !(<$min>::min_value() as $from <= v) {
-                    dst == Err(conv::FloatError::Underflow)
+                    dst == Err(conv::FloatError::Underflow(v))
                 } else if !(v <= <$max>::max_value() as $from) {
-                    dst == Err(conv::FloatError::Overflow)
+                    dst == Err(conv::FloatError::Overflow(v))
                 } else {
                     dst == Ok(v as $to)
                 }
@@ -223,7 +223,7 @@ macro_rules! check {
         {
             let src: $from = $src;
             let dst: Result<$to, _> = src.approx_as();
-            assert_eq!(dst, Err($dst));
+            assert_eq!(dst, Err($dst(src)));
         }
         check!(@ $from, $to=> $($tail)*);
     };
@@ -260,9 +260,9 @@ macro_rules! check {
             extern crate quickcheck;
 
             fn property(v: $from) -> bool {
-                let dst: Result<$to, conv::FloatError> = v.approx_as().map_err(From::from);
+                let dst: Result<$to, conv::FloatError<_>> = v.approx_as().map_err(From::from);
                 if !(0 <= v) {
-                    dst == Err(conv::FloatError::Underflow)
+                    dst == Err(conv::FloatError::Underflow(v))
                 } else {
                     dst == Ok(v as $to)
                 }
@@ -282,9 +282,9 @@ macro_rules! check {
             extern crate quickcheck;
 
             fn property(v: $from) -> bool {
-                let dst: Result<$to, conv::FloatError> = v.approx_as().map_err(From::from);
+                let dst: Result<$to, conv::FloatError<_>> = v.approx_as().map_err(From::from);
                 if !(v <= <$max>::max_value() as $from) {
-                    dst == Err(conv::FloatError::Overflow)
+                    dst == Err(conv::FloatError::Overflow(v))
                 } else {
                     dst == Ok(v as $to)
                 }
@@ -304,11 +304,11 @@ macro_rules! check {
             extern crate quickcheck;
 
             fn property(v: $from) -> bool {
-                let dst: Result<$to, conv::FloatError> = v.approx_as().map_err(From::from);
+                let dst: Result<$to, conv::FloatError<_>> = v.approx_as().map_err(From::from);
                 if !(<$bound>::min_value() as $from <= v) {
-                    dst == Err(conv::FloatError::Underflow)
+                    dst == Err(conv::FloatError::Underflow(v))
                 } else if !(v <= <$bound>::max_value() as $from) {
-                    dst == Err(conv::FloatError::Overflow)
+                    dst == Err(conv::FloatError::Overflow(v))
                 } else {
                     dst == Ok(v as $to)
                 }
