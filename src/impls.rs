@@ -96,6 +96,10 @@ macro_rules! approx_z_up {
 
 macro_rules! approx_dmin_to_dmax_no_nan {
     (($($attrs:tt)*), $src:ty, $dst:ident, $scheme:ty) => {
+        approx_dmin_to_dmax_no_nan! { ($($attrs)*), $src, $dst, $scheme, approx: |s| s }
+    };
+
+    (($($attrs:tt)*), $src:ty, $dst:ident, $scheme:ty, approx: |$src_name:ident| $conv:expr) => {
         as_item! {
             $($attrs)*
             impl ::ApproxFrom<$src, $scheme> for $dst {
@@ -104,13 +108,14 @@ macro_rules! approx_dmin_to_dmax_no_nan {
                     if src.is_nan() {
                         return Err(::errors::FloatError::NotANumber(src));
                     }
-                    if !(min_of!($dst) as $src <= src) {
+                    let approx = { let $src_name = src; $conv };
+                    if !(min_of!($dst) as $src <= approx) {
                         return Err(::errors::FloatError::Underflow(src));
                     }
-                    if !(src <= max_of!($dst) as $src) {
+                    if !(approx <= max_of!($dst) as $src) {
                         return Err(::errors::FloatError::Overflow(src));
                     }
-                    Ok(src as $dst)
+                    Ok(approx as $dst)
                 }
             }
         }
@@ -301,6 +306,8 @@ macro_rules! num_conv {
     (@ $src:ty=> ($($attrs:tt)*) fan $dst:ident, $($tail:tt)*) => {
         as_item! {
             approx_dmin_to_dmax_no_nan! { ($($attrs)*), $src, $dst, ::DefaultApprox }
+            approx_dmin_to_dmax_no_nan! { ($($attrs)*), $src, $dst, ::RoundToNearest,
+                approx: |s| s.round() }
         }
         num_conv! { @ $src=> $($tail)* }
     };

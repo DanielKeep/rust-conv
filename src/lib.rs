@@ -262,7 +262,13 @@ In abstract, this can be viewed as the opposite of rounding: rather than preserv
 pub enum Wrapping {}
 impl ApproxScheme for Wrapping {}
 
-// TODO: RoundToNearest, RoundToPosInf, RoundToNegInf, RoundToZero
+/**
+This scheme is used to convert a value by rounding it to the nearest representable value, with ties rounding away from zero.
+*/
+pub enum RoundToNearest {}
+impl ApproxScheme for RoundToNearest {}
+
+// TODO: RoundToPosInf, RoundToNegInf, RoundToZero
 
 /**
 This trait is used to perform a conversion between different semantic types which might fail.
