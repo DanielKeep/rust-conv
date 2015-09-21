@@ -11,6 +11,10 @@ The API of this crate is still not entirely decided.
 
 ## Change Log
 
+### v0.2.1
+
+- Added `ConvUtil::into_as<Dst>` as a shortcut for `Into::<Dst>::into`.
+
 ### v0.2.0
 
 - Changed all error types to include the original input as payload.  This breaks pretty much *everything*.  Sorry about that.  On the bright side, there's now no downside to using the conversion traits for non-`Copy` types.
@@ -29,6 +33,7 @@ These extension methods are provided to help with some common cases:
 
 - [`ConvUtil::approx_as<Dst>`](./trait.ConvUtil.html#method.approx_as) - approximates to `Dst` with the `DefaultApprox` scheme.
 - [`ConvUtil::approx_as_by<Dst, S>`](./trait.ConvUtil.html#method.approx_as_by) - approximates to `Dst` with the scheme `S`.
+- [`ConvUtil::into_as<Dst>`](./trait.ConvUtil.html#method.into_as) - converts to `Dst` using `Into::into`.
 - [`ConvUtil::try_as<Dst>`](./trait.ConvUtil.html#method.try_as) - converts to `Dst` using `TryInto::try_into`.
 - [`ConvUtil::value_as<Dst>`](./trait.ConvUtil.html#method.value_as) - converts to `Dst` using `ValueInto::value_into`.
 - [`ConvAsUtil::approx`](./trait.ConvAsUtil.html#method.approx) - approximates to an inferred destination type with the `DefaultApprox` scheme.

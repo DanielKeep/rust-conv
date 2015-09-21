@@ -12,6 +12,12 @@ fn test_approx() {
 }
 
 #[test]
+fn test_into() {
+    let v = "ABC".into_as::<Vec<u8>>();
+    assert_eq!(&*v, &[0x41, 0x42, 0x43]);
+}
+
+#[test]
 fn test_try() {
     #[derive(PartialEq, Debug)] enum ItAintRight { BabeNo, NoNo }
     TryFrom! { (u8) enum ItAintRight { BabeNo, NoNo } }
