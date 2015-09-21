@@ -401,6 +401,12 @@ pub trait ConvUtil {
         self.approx_into()
     }
 
+    /// Convert the subject to a given type.
+    fn into_as<Dst>(self) -> Dst
+    where Self: Sized + Into<Dst> {
+        self.into()
+    }
+
     /// Attempt to convert the subject to a given type.
     fn try_as<Dst>(self) -> Result<Dst, Self::Err>
     where Self: Sized + TryInto<Dst> {
