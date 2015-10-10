@@ -442,6 +442,69 @@ custom_derive! {
 }
 
 /**
+Saturates a `Result`.
+*/
+pub trait Saturate {
+    /// The result of saturating.
+    type Output;
+
+    /**
+    Replaces an overflow or underflow error with a saturated value.
+
+    Unlike `unwrap_or_saturate`, this method can be used in cases where the `Result` error type can encode failures *other* than overflow and underflow.  For example, you cannot saturate a float-to-integer conversion using `unwrap_or_saturate` as the error might be `NotANumber`, which doesn't have a meaningful saturation "direction".
+
+    The output of this method will be a `Result` where the error type *does not* contain overflow or underflow conditions.  What conditions remain must still be dealt with in some fashion.
+    */
+    fn saturate(self) -> Self::Output;
+}
+
+impl<T, U> Saturate for Result<T, FloatError<U>>
+where T: Saturated {
+    type Output = Result<T, Unrepresentable<U>>;
+
+    #[inline]
+    fn saturate(self) -> Self::Output {
+        use self::FloatError::*;
+        match self {
+            Ok(v) => Ok(v),
+            Err(Underflow(_)) => Ok(T::saturated_min()),
+            Err(Overflow(_)) => Ok(T::saturated_max()),
+            Err(NotANumber(v)) => Err(Unrepresentable(v))
+        }
+    }
+}
+
+impl<T, U> Saturate for Result<T, RangeError<U>>
+where T: Saturated {
+    type Output = Result<T, NoError>;
+
+    #[inline]
+    fn saturate(self) -> Self::Output {
+        use self::RangeError::*;
+        match self {
+            Ok(v) => Ok(v),
+            Err(Underflow(_)) => Ok(T::saturated_min()),
+            Err(Overflow(_)) => Ok(T::saturated_max())
+        }
+    }
+}
+
+impl<T> Saturate for Result<T, RangeErrorKind>
+where T: Saturated {
+    type Output = Result<T, NoError>;
+
+    #[inline]
+    fn saturate(self) -> Self::Output {
+        use self::RangeErrorKind::*;
+        match self {
+            Ok(v) => Ok(v),
+            Err(Underflow) => Ok(T::saturated_min()),
+            Err(Overflow) => Ok(T::saturated_max())
+        }
+    }
+}
+
+/**
 Safely unwrap a `Result` that cannot contain an error.
 */
 pub trait UnwrapOk<T> {

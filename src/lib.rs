@@ -15,6 +15,7 @@ The API of this crate is still not entirely decided.
 
 - Added `ConvUtil::into_as<Dst>` as a shortcut for `Into::<Dst>::into`.
 - Added `#[inline]` attributes.
+- Added `Saturate::saturate`, which can saturate `Result`s arising from over/underflow.
 
 ### v0.2.0
 
@@ -39,6 +40,7 @@ These extension methods are provided to help with some common cases:
 - [`ConvUtil::value_as<Dst>`](./trait.ConvUtil.html#method.value_as) - converts to `Dst` using `ValueInto::value_into`.
 - [`ConvAsUtil::approx`](./trait.ConvAsUtil.html#method.approx) - approximates to an inferred destination type with the `DefaultApprox` scheme.
 - [`ConvAsUtil::approx_by<S>`](./trait.ConvAsUtil.html#method.approx_by) - approximates to an inferred destination type with the scheme `S`.
+- [`Saturate::saturate`](./errors/trait.Saturate.html#tymethod.saturate) - saturates on overflow/underflow.
 - [`UnwrapOk::unwrap_ok`](./errors/trait.UnwrapOk.html#tymethod.unwrap_ok) - unwraps results from conversions that cannot fail.
 - [`UnwrapOrInf::unwrap_or_inf`](./errors/trait.UnwrapOrInf.html#tymethod.unwrap_or_inf) - saturates to ±∞ on failure.
 - [`UnwrapOrInvalid::unwrap_or_invalid`](./errors/trait.UnwrapOrInvalid.html#tymethod.unwrap_or_invalid) - substitutes the target type's "invalid" sentinel value on failure.
@@ -137,6 +139,13 @@ assert_eq!(42.0f32.approx(), Ok(42u8));
 assert_eq!(255.0f32.approx(), Ok(255u8));
 assert_eq!(256.0f32.approx(), Err::<u8, _>(FloatError::Overflow(256.0)));
 
+// Sometimes, it can be useful to saturate the conversion from float to
+// integer directly, then account for NaN as input separately.  The `Saturate`
+// extension trait exists for this reason.
+assert_eq!((-23.0f32).approx_as::<u8>().saturate(), Ok(0));
+assert_eq!(302.0f32.approx_as::<u8>().saturate(), Ok(255u8));
+assert!(std::f32::NAN.approx_as::<u8>().saturate().is_err());
+
 // If you really don't care about the specific kind of error, you can just rely
 // on automatic conversion to `GeneralErrorKind`.
 fn too_many_errors() -> Result<(), GeneralErrorKind> {
@@ -163,6 +172,7 @@ pub use errors::{
     NoError, GeneralError, GeneralErrorKind, Unrepresentable,
     Underflow, Overflow,
     FloatError, RangeError, RangeErrorKind,
+    Saturate,
     UnwrapOk, UnwrapOrInf, UnwrapOrInvalid, UnwrapOrSaturate,
 };
 
@@ -176,6 +186,7 @@ pub mod prelude {
         ApproxFrom, ApproxInto,
         ValueFrom, ValueInto,
         GeneralError, GeneralErrorKind,
+        Saturate,
         UnwrapOk, UnwrapOrInf, UnwrapOrInvalid, UnwrapOrSaturate,
         ConvUtil, ConvAsUtil,
         RoundToNearest, RoundToZero, Wrapping,

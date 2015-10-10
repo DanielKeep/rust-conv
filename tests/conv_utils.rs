@@ -31,3 +31,10 @@ fn test_try() {
 fn test_value() {
     assert_eq!((123u32).value_as::<u8>(), Ok(123));
 }
+
+#[test]
+fn test_whizzo() {
+    use conv::errors::Unrepresentable;
+    assert_eq!((-1.0f32).approx_as::<u8>().saturate(), Ok::<_, Unrepresentable<_>>(0u8));
+    assert_eq!((-1i32).value_as::<u8>().saturate().unwrap_ok(), 0u8);
+}
