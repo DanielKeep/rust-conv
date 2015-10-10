@@ -128,7 +128,9 @@ def init_doc_branch():
     msg('%s is ready.  Continuing.' % DOC_TARGET_BRANCH)
 
 def main():
-    if sh_eval('git symbolic-ref --short HEAD') != u'master': return 0
+    if sh_eval('git symbolic-ref --short HEAD') != u'master':
+        msg('Not on master; doing nothing.')
+        return 0
 
     # Sanity check: does the doc branch exist at all?
     branches = {b[2:].strip() for b in sh_eval('git branch', dont_strip=True).splitlines()}
