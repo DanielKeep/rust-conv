@@ -99,6 +99,7 @@ macro_rules! FromName {
         pub enum $name:ident<$t:ident> $_body:tt
     ) => {
         impl<$t> From<$fname<$t>> for $name<$t> {
+            #[inline]
             fn from(e: $fname<$t>) -> Self {
                 $name::$fname(e.into_inner())
             }
@@ -110,6 +111,7 @@ macro_rules! FromName {
         pub enum $name:ident $_body:tt
     ) => {
         impl<$t> From<$fname<$t>> for $name {
+            #[inline]
             fn from(_: $fname<$t>) -> Self {
                 $name::$fname
             }
@@ -122,6 +124,7 @@ macro_rules! FromNoError {
         () pub enum $name:ident $_body:tt
     ) => {
         impl From<NoError> for $name {
+            #[inline]
             fn from(_: NoError) -> Self {
                 panic!(concat!("cannot convert NoError into ", stringify!($name)))
             }
@@ -155,6 +158,7 @@ macro_rules! FromRemap {
         pub enum $name:ident $_body:tt
     ) => {
         impl From<$from> for $name {
+            #[inline]
             fn from(e: $from) -> Self {
                 match e {
                     $($from::$vname => $name::$vname,)+
@@ -168,6 +172,7 @@ macro_rules! FromRemap {
         pub enum $name:ident $_body:tt
     ) => {
         impl<$t> From<$from<$t>> for $name {
+            #[inline]
             fn from(e: $from<$t>) -> Self {
                 match e {
                     $($from::$vname(..) => $name::$vname,)+
@@ -181,6 +186,7 @@ macro_rules! FromRemap {
         pub enum $name:ident<$t:ident> $_body:tt
     ) => {
         impl<$t> From<$from<$t>> for $name<$t> {
+            #[inline]
             fn from(e: $from<$t>) -> Self {
                 match e {
                     $($from::$vname(v) => $name::$vname(v),)+
@@ -198,6 +204,7 @@ macro_rules! IntoInner {
     ) => {
         impl<$t> $name<$t> {
             /// Returns the value stored in this error.
+            #[inline]
             pub fn into_inner(self) -> $t {
                 match self { $($name::$vname(v))|+ => v }
             }
@@ -209,6 +216,7 @@ macro_rules! IntoInner {
     ) => {
         impl<$t> $name<$t> {
             /// Returns the value stored in this error.
+            #[inline]
             pub fn into_inner(self) -> $t {
                 self.0
             }
@@ -248,6 +256,7 @@ custom_derive!{
 }
 
 impl<T> From<FloatError<T>> for GeneralError<T> {
+    #[inline]
     fn from(e: FloatError<T>) -> GeneralError<T> {
         use self::FloatError as F;
         use self::GeneralError as G;
@@ -293,6 +302,7 @@ custom_derive! {
 }
 
 impl<T> From<FloatError<T>> for GeneralErrorKind {
+    #[inline]
     fn from(e: FloatError<T>) -> GeneralErrorKind {
         use self::FloatError as F;
         use self::GeneralErrorKind as G;
@@ -444,6 +454,7 @@ pub trait UnwrapOk<T> {
 }
 
 impl<T> UnwrapOk<T> for Result<T, NoError> {
+    #[inline]
     fn unwrap_ok(self) -> T {
         match self {
             Ok(v) => v,
@@ -494,6 +505,7 @@ pub trait UnwrapOrSaturate {
 impl<T, E> UnwrapOrInf for Result<T, E>
 where T: SignedInfinity, E: Into<RangeErrorKind> {
     type Output = T;
+    #[inline]
     fn unwrap_or_inf(self) -> T {
         use self::RangeErrorKind::*;
         match self.map_err(Into::into) {
@@ -507,6 +519,7 @@ where T: SignedInfinity, E: Into<RangeErrorKind> {
 impl<T, E> UnwrapOrInvalid for Result<T, E>
 where T: InvalidSentinel {
     type Output = T;
+    #[inline]
     fn unwrap_or_invalid(self) -> T {
         match self {
             Ok(v) => v,
@@ -518,6 +531,7 @@ where T: InvalidSentinel {
 impl<T, E> UnwrapOrSaturate for Result<T, E>
 where T: Saturated, E: Into<RangeErrorKind> {
     type Output = T;
+    #[inline]
     fn unwrap_or_saturate(self) -> T {
         use self::RangeErrorKind::*;
         match self.map_err(Into::into) {

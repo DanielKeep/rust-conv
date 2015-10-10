@@ -14,6 +14,7 @@ The API of this crate is still not entirely decided.
 ### v0.2.1
 
 - Added `ConvUtil::into_as<Dst>` as a shortcut for `Into::<Dst>::into`.
+- Added `#[inline]` attributes.
 
 ### v0.2.0
 
