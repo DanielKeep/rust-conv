@@ -133,8 +133,8 @@ This is used by the `errors::UnwrapOrSaturate` extension trait.
     (<span class='ident'>i8</span>), (<span class='ident'>i16</span>), (<span class='ident'>i32</span>), (<span class='ident'>i64</span>), (<span class='ident'>u8</span>), (<span class='ident'>u16</span>), (<span class='ident'>u32</span>), (<span class='ident'>u64</span>), (<span class='ident'>isize</span>), (<span class='ident'>usize</span>) <span class='op'>=&gt;</span> {
         (<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>ity</span>:<span class='ident'>ident</span>) <span class='op'>=&gt;</span> {
             <span class='kw'>impl</span> <span class='ident'>Saturated</span> <span class='kw'>for</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>ity</span> {
-                <span class='kw'>fn</span> <span class='ident'>saturated_max</span>() <span class='op'>-&gt;</span> <span class='kw'>Self</span> { ::<span class='ident'>std</span>::<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>ity</span>::<span class='ident'>MAX</span> }
-                <span class='kw'>fn</span> <span class='ident'>saturated_min</span>() <span class='op'>-&gt;</span> <span class='kw'>Self</span> { ::<span class='ident'>std</span>::<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>ity</span>::<span class='ident'>MIN</span> }
+                <span class='attribute'>#[<span class='ident'>inline</span>]</span> <span class='kw'>fn</span> <span class='ident'>saturated_max</span>() <span class='op'>-&gt;</span> <span class='kw'>Self</span> { ::<span class='ident'>std</span>::<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>ity</span>::<span class='ident'>MAX</span> }
+                <span class='attribute'>#[<span class='ident'>inline</span>]</span> <span class='kw'>fn</span> <span class='ident'>saturated_min</span>() <span class='op'>-&gt;</span> <span class='kw'>Self</span> { ::<span class='ident'>std</span>::<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>ity</span>::<span class='ident'>MIN</span> }
             }
         };
     }
@@ -154,7 +154,7 @@ This is used by the `errors::UnwrapOrInvalid` extension trait.
     (<span class='ident'>f32</span>), (<span class='ident'>f64</span>) <span class='op'>=&gt;</span> {
         (<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>ity</span>:<span class='ident'>ident</span>) <span class='op'>=&gt;</span> {
             <span class='kw'>impl</span> <span class='ident'>InvalidSentinel</span> <span class='kw'>for</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>ity</span> {
-                <span class='kw'>fn</span> <span class='ident'>invalid_sentinel</span>() <span class='op'>-&gt;</span> <span class='kw'>Self</span> { ::<span class='ident'>std</span>::<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>ity</span>::<span class='ident'>NAN</span> }
+                <span class='attribute'>#[<span class='ident'>inline</span>]</span> <span class='kw'>fn</span> <span class='ident'>invalid_sentinel</span>() <span class='op'>-&gt;</span> <span class='kw'>Self</span> { ::<span class='ident'>std</span>::<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>ity</span>::<span class='ident'>NAN</span> }
             }
         };
     }
@@ -177,8 +177,8 @@ This is used by the `errors::UnwrapOrInf` extension trait.
     (<span class='ident'>f32</span>), (<span class='ident'>f64</span>) <span class='op'>=&gt;</span> {
         (<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>ity</span>:<span class='ident'>ident</span>) <span class='op'>=&gt;</span> {
             <span class='kw'>impl</span> <span class='ident'>SignedInfinity</span> <span class='kw'>for</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>ity</span> {
-                <span class='kw'>fn</span> <span class='ident'>neg_infinity</span>() <span class='op'>-&gt;</span> <span class='kw'>Self</span> { ::<span class='ident'>std</span>::<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>ity</span>::<span class='ident'>NEG_INFINITY</span> }
-                <span class='kw'>fn</span> <span class='ident'>pos_infinity</span>() <span class='op'>-&gt;</span> <span class='kw'>Self</span> { ::<span class='ident'>std</span>::<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>ity</span>::<span class='ident'>INFINITY</span> }
+                <span class='attribute'>#[<span class='ident'>inline</span>]</span> <span class='kw'>fn</span> <span class='ident'>neg_infinity</span>() <span class='op'>-&gt;</span> <span class='kw'>Self</span> { ::<span class='ident'>std</span>::<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>ity</span>::<span class='ident'>NEG_INFINITY</span> }
+                <span class='attribute'>#[<span class='ident'>inline</span>]</span> <span class='kw'>fn</span> <span class='ident'>pos_infinity</span>() <span class='op'>-&gt;</span> <span class='kw'>Self</span> { ::<span class='ident'>std</span>::<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>ity</span>::<span class='ident'>INFINITY</span> }
             }
         };
     }

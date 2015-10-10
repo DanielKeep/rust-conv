@@ -45,7 +45,7 @@
             <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                 [<span class='inner'>&#x2212;</span>]
             </a>
-        </span><a id='src-0' class='srclink' href='../src/conv/lib.rs.html#1-447' title='goto source code'>[src]</a></span></h1>
+        </span><a id='src-0' class='srclink' href='../src/conv/lib.rs.html#1-470' title='goto source code'>[src]</a></span></h1>
 <div class='docblock'><p>This crate provides a number of conversion traits with more specific semantics than those provided by <code>as</code> or <code>From</code>/<code>Into</code>.</p>
 
 <p>The goal with the traits provided here is to be more specific about what generic code can rely on, as well as provide reasonably self-describing alternatives to the standard <code>From</code>/<code>Into</code> traits.  For example, the although <code>T: From&lt;U&gt;</code> might be satisfied, it imposes no restrictions on the <em>kind</em> of conversion being implemented.  As such, the traits in this crate try to be very specific about what conversions are allowed.  This makes them less generally applicable, but more useful where they <em>do</em> apply.</p>
@@ -58,6 +58,14 @@
 
 <h2 id="change-log" class='section-header'><a
                            href="#change-log">Change Log</a></h2>
+<h3 id="v0.2.1" class='section-header'><a
+                           href="#v0.2.1">v0.2.1</a></h3>
+<ul>
+<li>Added <code>ConvUtil::into_as&lt;Dst&gt;</code> as a shortcut for <code>Into::&lt;Dst&gt;::into</code>.</li>
+<li>Added <code>#[inline]</code> attributes.</li>
+<li>Added <code>Saturate::saturate</code>, which can saturate <code>Result</code>s arising from over/underflow.</li>
+</ul>
+
 <h3 id="v0.2.0" class='section-header'><a
                            href="#v0.2.0">v0.2.0</a></h3>
 <ul>
@@ -81,10 +89,12 @@
 <ul>
 <li><a href="./trait.ConvUtil.html#method.approx_as"><code>ConvUtil::approx_as&lt;Dst&gt;</code></a> - approximates to <code>Dst</code> with the <code>DefaultApprox</code> scheme.</li>
 <li><a href="./trait.ConvUtil.html#method.approx_as_by"><code>ConvUtil::approx_as_by&lt;Dst, S&gt;</code></a> - approximates to <code>Dst</code> with the scheme <code>S</code>.</li>
+<li><a href="./trait.ConvUtil.html#method.into_as"><code>ConvUtil::into_as&lt;Dst&gt;</code></a> - converts to <code>Dst</code> using <code>Into::into</code>.</li>
 <li><a href="./trait.ConvUtil.html#method.try_as"><code>ConvUtil::try_as&lt;Dst&gt;</code></a> - converts to <code>Dst</code> using <code>TryInto::try_into</code>.</li>
 <li><a href="./trait.ConvUtil.html#method.value_as"><code>ConvUtil::value_as&lt;Dst&gt;</code></a> - converts to <code>Dst</code> using <code>ValueInto::value_into</code>.</li>
 <li><a href="./trait.ConvAsUtil.html#method.approx"><code>ConvAsUtil::approx</code></a> - approximates to an inferred destination type with the <code>DefaultApprox</code> scheme.</li>
 <li><a href="./trait.ConvAsUtil.html#method.approx_by"><code>ConvAsUtil::approx_by&lt;S&gt;</code></a> - approximates to an inferred destination type with the scheme <code>S</code>.</li>
+<li><a href="./errors/trait.Saturate.html#tymethod.saturate"><code>Saturate::saturate</code></a> - saturates on overflow/underflow.</li>
 <li><a href="./errors/trait.UnwrapOk.html#tymethod.unwrap_ok"><code>UnwrapOk::unwrap_ok</code></a> - unwraps results from conversions that cannot fail.</li>
 <li><a href="./errors/trait.UnwrapOrInf.html#tymethod.unwrap_or_inf"><code>UnwrapOrInf::unwrap_or_inf</code></a> - saturates to ±∞ on failure.</li>
 <li><a href="./errors/trait.UnwrapOrInvalid.html#tymethod.unwrap_or_invalid"><code>UnwrapOrInvalid::unwrap_or_invalid</code></a> - substitutes the target type&#39;s &quot;invalid&quot; sentinel value on failure.</li>
@@ -186,6 +196,13 @@
 <span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='number'>255.0f32</span>.<span class='ident'>approx</span>(), <span class='prelude-val'>Ok</span>(<span class='number'>255u8</span>));
 <span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='number'>256.0f32</span>.<span class='ident'>approx</span>(), <span class='prelude-val'>Err</span>::<span class='op'>&lt;</span><span class='ident'>u8</span>, _<span class='op'>&gt;</span>(<span class='ident'>FloatError</span>::<span class='ident'>Overflow</span>(<span class='number'>256.0</span>)));
 
+<span class='comment'>// Sometimes, it can be useful to saturate the conversion from float to</span>
+<span class='comment'>// integer directly, then account for NaN as input separately.  The `Saturate`</span>
+<span class='comment'>// extension trait exists for this reason.</span>
+<span class='macro'>assert_eq</span><span class='macro'>!</span>((<span class='op'>-</span><span class='number'>23.0f32</span>).<span class='ident'>approx_as</span>::<span class='op'>&lt;</span><span class='ident'>u8</span><span class='op'>&gt;</span>().<span class='ident'>saturate</span>(), <span class='prelude-val'>Ok</span>(<span class='number'>0</span>));
+<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='number'>302.0f32</span>.<span class='ident'>approx_as</span>::<span class='op'>&lt;</span><span class='ident'>u8</span><span class='op'>&gt;</span>().<span class='ident'>saturate</span>(), <span class='prelude-val'>Ok</span>(<span class='number'>255u8</span>));
+<span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>std</span>::<span class='ident'>f32</span>::<span class='ident'>NAN</span>.<span class='ident'>approx_as</span>::<span class='op'>&lt;</span><span class='ident'>u8</span><span class='op'>&gt;</span>().<span class='ident'>saturate</span>().<span class='ident'>is_err</span>());
+
 <span class='comment'>// If you really don&#39;t care about the specific kind of error, you can just rely</span>
 <span class='comment'>// on automatic conversion to `GeneralErrorKind`.</span>
 <span class='kw'>fn</span> <span class='ident'>too_many_errors</span>() <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>(), <span class='ident'>GeneralErrorKind</span><span class='op'>&gt;</span> {
@@ -196,7 +213,7 @@
     <span class='prelude-val'>Ok</span>(())
 }</pre>
 </div><h2 id='reexports' class='section-header'><a href="#reexports">Reexports</a></h2>
-<table><tr><td><code>pub use errors::{<a class='enum' href='../conv/errors/enum.NoError.html' title='conv::errors::NoError'>NoError</a>, <a class='enum' href='../conv/errors/enum.GeneralError.html' title='conv::errors::GeneralError'>GeneralError</a>, <a class='enum' href='../conv/errors/enum.GeneralErrorKind.html' title='conv::errors::GeneralErrorKind'>GeneralErrorKind</a>, <a class='struct' href='../conv/errors/struct.Unrepresentable.html' title='conv::errors::Unrepresentable'>Unrepresentable</a>, <a class='struct' href='../conv/errors/struct.Underflow.html' title='conv::errors::Underflow'>Underflow</a>, <a class='struct' href='../conv/errors/struct.Overflow.html' title='conv::errors::Overflow'>Overflow</a>, <a class='enum' href='../conv/errors/enum.FloatError.html' title='conv::errors::FloatError'>FloatError</a>, <a class='enum' href='../conv/errors/enum.RangeError.html' title='conv::errors::RangeError'>RangeError</a>, <a class='enum' href='../conv/errors/enum.RangeErrorKind.html' title='conv::errors::RangeErrorKind'>RangeErrorKind</a>, <a class='trait' href='../conv/errors/trait.UnwrapOk.html' title='conv::errors::UnwrapOk'>UnwrapOk</a>, <a class='trait' href='../conv/errors/trait.UnwrapOrInf.html' title='conv::errors::UnwrapOrInf'>UnwrapOrInf</a>, <a class='trait' href='../conv/errors/trait.UnwrapOrInvalid.html' title='conv::errors::UnwrapOrInvalid'>UnwrapOrInvalid</a>, <a class='trait' href='../conv/errors/trait.UnwrapOrSaturate.html' title='conv::errors::UnwrapOrSaturate'>UnwrapOrSaturate</a>};</code></td></tr></table><h2 id='modules' class='section-header'><a href="#modules">Modules</a></h2>
+<table><tr><td><code>pub use errors::{<a class='enum' href='../conv/errors/enum.NoError.html' title='conv::errors::NoError'>NoError</a>, <a class='enum' href='../conv/errors/enum.GeneralError.html' title='conv::errors::GeneralError'>GeneralError</a>, <a class='enum' href='../conv/errors/enum.GeneralErrorKind.html' title='conv::errors::GeneralErrorKind'>GeneralErrorKind</a>, <a class='struct' href='../conv/errors/struct.Unrepresentable.html' title='conv::errors::Unrepresentable'>Unrepresentable</a>, <a class='struct' href='../conv/errors/struct.Underflow.html' title='conv::errors::Underflow'>Underflow</a>, <a class='struct' href='../conv/errors/struct.Overflow.html' title='conv::errors::Overflow'>Overflow</a>, <a class='enum' href='../conv/errors/enum.FloatError.html' title='conv::errors::FloatError'>FloatError</a>, <a class='enum' href='../conv/errors/enum.RangeError.html' title='conv::errors::RangeError'>RangeError</a>, <a class='enum' href='../conv/errors/enum.RangeErrorKind.html' title='conv::errors::RangeErrorKind'>RangeErrorKind</a>, <a class='trait' href='../conv/errors/trait.Saturate.html' title='conv::errors::Saturate'>Saturate</a>, <a class='trait' href='../conv/errors/trait.UnwrapOk.html' title='conv::errors::UnwrapOk'>UnwrapOk</a>, <a class='trait' href='../conv/errors/trait.UnwrapOrInf.html' title='conv::errors::UnwrapOrInf'>UnwrapOrInf</a>, <a class='trait' href='../conv/errors/trait.UnwrapOrInvalid.html' title='conv::errors::UnwrapOrInvalid'>UnwrapOrInvalid</a>, <a class='trait' href='../conv/errors/trait.UnwrapOrSaturate.html' title='conv::errors::UnwrapOrSaturate'>UnwrapOrSaturate</a>};</code></td></tr></table><h2 id='modules' class='section-header'><a href="#modules">Modules</a></h2>
 <table>
                     <tr class=' module-item'>
                         <td><a class='mod' href='errors/index.html'

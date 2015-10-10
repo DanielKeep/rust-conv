@@ -487,6 +487,29 @@
 <span id="445">445</span>
 <span id="446">446</span>
 <span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
+<span id="464">464</span>
+<span id="465">465</span>
+<span id="466">466</span>
+<span id="467">467</span>
+<span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
 </pre><pre class='rust '>
 <span class='doccomment'>/*!
 This crate provides a number of conversion traits with more specific semantics than those provided by `as` or `From`/`Into`.
@@ -500,6 +523,12 @@ In addition, `From`/`Into` requires all conversions to succeed or panic.  All co
 The API of this crate is still not entirely decided.
 
 ## Change Log
+
+### v0.2.1
+
+- Added `ConvUtil::into_as&lt;Dst&gt;` as a shortcut for `Into::&lt;Dst&gt;::into`.
+- Added `#[inline]` attributes.
+- Added `Saturate::saturate`, which can saturate `Result`s arising from over/underflow.
 
 ### v0.2.0
 
@@ -519,10 +548,12 @@ These extension methods are provided to help with some common cases:
 
 - [`ConvUtil::approx_as&lt;Dst&gt;`](./trait.ConvUtil.html#method.approx_as) - approximates to `Dst` with the `DefaultApprox` scheme.
 - [`ConvUtil::approx_as_by&lt;Dst, S&gt;`](./trait.ConvUtil.html#method.approx_as_by) - approximates to `Dst` with the scheme `S`.
+- [`ConvUtil::into_as&lt;Dst&gt;`](./trait.ConvUtil.html#method.into_as) - converts to `Dst` using `Into::into`.
 - [`ConvUtil::try_as&lt;Dst&gt;`](./trait.ConvUtil.html#method.try_as) - converts to `Dst` using `TryInto::try_into`.
 - [`ConvUtil::value_as&lt;Dst&gt;`](./trait.ConvUtil.html#method.value_as) - converts to `Dst` using `ValueInto::value_into`.
 - [`ConvAsUtil::approx`](./trait.ConvAsUtil.html#method.approx) - approximates to an inferred destination type with the `DefaultApprox` scheme.
 - [`ConvAsUtil::approx_by&lt;S&gt;`](./trait.ConvAsUtil.html#method.approx_by) - approximates to an inferred destination type with the scheme `S`.
+- [`Saturate::saturate`](./errors/trait.Saturate.html#tymethod.saturate) - saturates on overflow/underflow.
 - [`UnwrapOk::unwrap_ok`](./errors/trait.UnwrapOk.html#tymethod.unwrap_ok) - unwraps results from conversions that cannot fail.
 - [`UnwrapOrInf::unwrap_or_inf`](./errors/trait.UnwrapOrInf.html#tymethod.unwrap_or_inf) - saturates to ±∞ on failure.
 - [`UnwrapOrInvalid::unwrap_or_invalid`](./errors/trait.UnwrapOrInvalid.html#tymethod.unwrap_or_invalid) - substitutes the target type&#39;s &quot;invalid&quot; sentinel value on failure.
@@ -621,6 +652,13 @@ assert_eq!(42.0f32.approx(), Ok(42u8));
 assert_eq!(255.0f32.approx(), Ok(255u8));
 assert_eq!(256.0f32.approx(), Err::&lt;u8, _&gt;(FloatError::Overflow(256.0)));
 
+// Sometimes, it can be useful to saturate the conversion from float to
+// integer directly, then account for NaN as input separately.  The `Saturate`
+// extension trait exists for this reason.
+assert_eq!((-23.0f32).approx_as::&lt;u8&gt;().saturate(), Ok(0));
+assert_eq!(302.0f32.approx_as::&lt;u8&gt;().saturate(), Ok(255u8));
+assert!(std::f32::NAN.approx_as::&lt;u8&gt;().saturate().is_err());
+
 // If you really don&#39;t care about the specific kind of error, you can just rely
 // on automatic conversion to `GeneralErrorKind`.
 fn too_many_errors() -&gt; Result&lt;(), GeneralErrorKind&gt; {
@@ -647,6 +685,7 @@ fn too_many_errors() -&gt; Result&lt;(), GeneralErrorKind&gt; {
     <span class='ident'>NoError</span>, <span class='ident'>GeneralError</span>, <span class='ident'>GeneralErrorKind</span>, <span class='ident'>Unrepresentable</span>,
     <span class='ident'>Underflow</span>, <span class='ident'>Overflow</span>,
     <span class='ident'>FloatError</span>, <span class='ident'>RangeError</span>, <span class='ident'>RangeErrorKind</span>,
+    <span class='ident'>Saturate</span>,
     <span class='ident'>UnwrapOk</span>, <span class='ident'>UnwrapOrInf</span>, <span class='ident'>UnwrapOrInvalid</span>, <span class='ident'>UnwrapOrSaturate</span>,
 };
 
@@ -660,6 +699,7 @@ Usage of the prelude should be considered **unstable**.  Although items will lik
         <span class='ident'>ApproxFrom</span>, <span class='ident'>ApproxInto</span>,
         <span class='ident'>ValueFrom</span>, <span class='ident'>ValueInto</span>,
         <span class='ident'>GeneralError</span>, <span class='ident'>GeneralErrorKind</span>,
+        <span class='ident'>Saturate</span>,
         <span class='ident'>UnwrapOk</span>, <span class='ident'>UnwrapOrInf</span>, <span class='ident'>UnwrapOrInvalid</span>, <span class='ident'>UnwrapOrSaturate</span>,
         <span class='ident'>ConvUtil</span>, <span class='ident'>ConvAsUtil</span>,
         <span class='ident'>RoundToNearest</span>, <span class='ident'>RoundToZero</span>, <span class='ident'>Wrapping</span>,
@@ -889,6 +929,12 @@ See also the [`ConvAsUtil`](./trait.ConvAsUtil.html) trait.
         <span class='ident'>Scheme</span>: <span class='ident'>ApproxScheme</span>,
     {
         <span class='self'>self</span>.<span class='ident'>approx_into</span>()
+    }
+
+    <span class='doccomment'>/// Convert the subject to a given type.</span>
+    <span class='kw'>fn</span> <span class='ident'>into_as</span><span class='op'>&lt;</span><span class='ident'>Dst</span><span class='op'>&gt;</span>(<span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>Dst</span>
+    <span class='kw'>where</span> <span class='kw'>Self</span>: <span class='ident'>Sized</span> <span class='op'>+</span> <span class='ident'>Into</span><span class='op'>&lt;</span><span class='ident'>Dst</span><span class='op'>&gt;</span> {
+        <span class='self'>self</span>.<span class='ident'>into</span>()
     }
 
     <span class='doccomment'>/// Attempt to convert the subject to a given type.</span>
