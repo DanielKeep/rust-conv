@@ -11,6 +11,10 @@ The API of this crate is still not entirely decided.
 
 ## Change Log
 
+### v0.3.0
+
+- Added an `Error` constraint to all `Err` associated types.  This will break any user-defined conversions where the `Err` type does not implement `Error`.
+
 ### v0.2.1
 
 - Added `ConvUtil::into_as<Dst>` as a shortcut for `Into::<Dst>::into`.
@@ -176,6 +180,8 @@ pub use errors::{
     UnwrapOk, UnwrapOrInf, UnwrapOrInvalid, UnwrapOrSaturate,
 };
 
+use std::error::Error;
+
 /**
 Publicly re-exports the most generally useful set of items.
 
@@ -233,7 +239,7 @@ With this formulation, it is well-defined: if a floating point value is outside 
 */
 pub trait ApproxFrom<Src, Scheme=DefaultApprox>: Sized where Scheme: ApproxScheme {
     /// The error type produced by a failed conversion.
-    type Err;
+    type Err: Error;
 
     /// Convert the given value into an approximately equivalent representation.
     fn approx_from(src: Src) -> Result<Self, Self::Err>;
@@ -251,7 +257,7 @@ This is the dual of `ApproxFrom`; see that trait for information.
 */
 pub trait ApproxInto<Dst, Scheme=DefaultApprox> where Scheme: ApproxScheme {
     /// The error type produced by a failed conversion.
-    type Err;
+    type Err: Error;
 
     /// Convert the subject into an approximately equivalent representation.
     fn approx_into(self) -> Result<Dst, Self::Err>;
@@ -322,7 +328,7 @@ Typically, this should be used in cases where you are converting between values 
 */
 pub trait TryFrom<Src>: Sized {
     /// The error type produced by a failed conversion.
-    type Err;
+    type Err: Error;
 
     /// Convert the given value into the subject type.
     fn try_from(src: Src) -> Result<Self, Self::Err>;
@@ -340,7 +346,7 @@ This is the dual of `TryFrom`; see that trait for information.
 */
 pub trait TryInto<Dst> {
     /// The error type produced by a failed conversion.
-    type Err;
+    type Err: Error;
 
     /// Convert the subject into the destination type.
     fn try_into(self) -> Result<Dst, Self::Err>;
@@ -362,7 +368,7 @@ Implementations of this trait should be reflexive, associative and commutative (
 */
 pub trait ValueFrom<Src>: Sized {
     /// The error type produced by a failed conversion.
-    type Err;
+    type Err: Error;
 
     /// Convert the given value into an exactly equivalent representation.
     fn value_from(src: Src) -> Result<Self, Self::Err>;
@@ -380,7 +386,7 @@ This is the dual of `ValueFrom`; see that trait for information.
 */
 pub trait ValueInto<Dst> {
     /// The error type produced by a failed conversion.
-    type Err;
+    type Err: Error;
     
     /// Convert the subject into an exactly equivalent representation.
     fn value_into(self) -> Result<Dst, Self::Err>;

@@ -1,6 +1,6 @@
 [package]
 name = "conv"
-version = "0.2.2"
+version = "0.3.0"
 authors = ["Daniel Keep <daniel.keep@gmail.com>"]
 
 description = "This crate provides a number of conversion traits with more specific semantics than those provided by 'as' or 'From'/'Into'."
