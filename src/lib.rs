@@ -35,6 +35,8 @@ The following traits are used to define various conversion semantics:
 - [`TryFrom`](./trait.TryFrom.html)/[`TryInto`](./trait.TryInto.html) - general, potentially failing value conversions.
 - [`ValueFrom`](./trait.ValueFrom.html)/[`ValueInto`](./trait.ValueInto.html) - exact, value-preserving conversions.
 
+When *defining* a conversion, try to implement the `*From` trait variant where possible.  When *using* a conversion, try to depend on the `*Into` trait variant where possible.  This is because the `*Into` traits automatically use `*From` implementations, but not the reverse.  Implementing `*From` and using `*Into` ensures conversions work in as many contexts as possible.
+
 These extension methods are provided to help with some common cases:
 
 - [`ConvUtil::approx_as<Dst>`](./trait.ConvUtil.html#method.approx_as) - approximates to `Dst` with the `DefaultApprox` scheme.
@@ -225,6 +227,8 @@ mod impls;
 /**
 This trait is used to perform a conversion that is permitted to approximate the result, but *not* to wrap or saturate the result to fit into the destination type's representable range.
 
+Where possible, prefer *implementing* this trait over `ApproxInto`, but prefer *using* `ApproxInto` for generic constraints.
+
 # Details
 
 All implementations of this trait must provide a conversion that can be separated into two logical steps: an approximation transform, and a representation transform.
@@ -254,6 +258,8 @@ impl<Src, Scheme> ApproxFrom<Src, Scheme> for Src where Scheme: ApproxScheme {
 
 /**
 This is the dual of `ApproxFrom`; see that trait for information.
+
+Where possible, prefer *using* this trait over `ApproxFrom` for generic constraints, but prefer *implementing* `ApproxFrom`.
 */
 pub trait ApproxInto<Dst, Scheme=DefaultApprox> where Scheme: ApproxScheme {
     /// The error type produced by a failed conversion.
@@ -322,6 +328,8 @@ impl ApproxScheme for RoundToZero {}
 /**
 This trait is used to perform a conversion between different semantic types which might fail.
 
+Where possible, prefer *implementing* this trait over `TryInto`, but prefer *using* `TryInto` for generic constraints.
+
 # Details
 
 Typically, this should be used in cases where you are converting between values whose ranges and/or representations only partially overlap.  That the conversion may fail should be a reasonably expected outcome.  A standard example of this is converting from integers to enums of unitary variants.
@@ -343,6 +351,8 @@ impl<Src> TryFrom<Src> for Src {
 
 /**
 This is the dual of `TryFrom`; see that trait for information.
+
+Where possible, prefer *using* this trait over `TryFrom` for generic constraints, but prefer *implementing* `TryFrom`.
 */
 pub trait TryInto<Dst> {
     /// The error type produced by a failed conversion.
@@ -361,6 +371,8 @@ impl<Src, Dst> TryInto<Dst> for Src where Dst: TryFrom<Src> {
 
 /**
 This trait is used to perform an exact, value-preserving conversion.
+
+Where possible, prefer *implementing* this trait over `ValueInto`, but prefer *using* `ValueInto` for generic constraints.
 
 # Details
 
@@ -383,6 +395,8 @@ impl<Src> ValueFrom<Src> for Src {
 
 /**
 This is the dual of `ValueFrom`; see that trait for information.
+
+Where possible, prefer *using* this trait over `ValueFrom` for generic constraints, but prefer *implementing* `ValueFrom`.
 */
 pub trait ValueInto<Dst> {
     /// The error type produced by a failed conversion.
