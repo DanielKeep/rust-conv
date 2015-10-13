@@ -883,21 +883,21 @@ In addition, it also defines some extension traits to make working with failable
         <span class='ident'>Copy</span>, <span class='ident'>Clone</span>, <span class='ident'>Eq</span>, <span class='ident'>PartialEq</span>, <span class='ident'>Ord</span>, <span class='ident'>PartialOrd</span>,
         <span class='ident'>IntoInner</span>, <span class='ident'>DummyDebug</span>, <span class='ident'>FromNoError</span>,
         <span class='ident'>EnumDesc</span>(
-            <span class='ident'>Underflow</span> <span class='op'>=&gt;</span> <span class='string'>&quot;conversion resulted in underflow&quot;</span>,
-            <span class='ident'>Overflow</span> <span class='op'>=&gt;</span> <span class='string'>&quot;conversion resulted in overflow&quot;</span>,
+            <span class='ident'>NegOverflow</span> <span class='op'>=&gt;</span> <span class='string'>&quot;conversion resulted in negative overflow&quot;</span>,
+            <span class='ident'>PosOverflow</span> <span class='op'>=&gt;</span> <span class='string'>&quot;conversion resulted in positive overflow&quot;</span>,
             <span class='ident'>Unrepresentable</span> <span class='op'>=&gt;</span> <span class='string'>&quot;could not convert unrepresentable value&quot;</span>,
         ),
         <span class='ident'>FromName</span>(<span class='ident'>Unrepresentable</span>),
-        <span class='ident'>FromName</span>(<span class='ident'>Underflow</span>),
-        <span class='ident'>FromName</span>(<span class='ident'>Overflow</span>),
-        <span class='ident'>FromRemap</span>(<span class='ident'>RangeError</span>(<span class='ident'>Underflow</span>, <span class='ident'>Overflow</span>))
+        <span class='ident'>FromName</span>(<span class='ident'>NegOverflow</span>),
+        <span class='ident'>FromName</span>(<span class='ident'>PosOverflow</span>),
+        <span class='ident'>FromRemap</span>(<span class='ident'>RangeError</span>(<span class='ident'>NegOverflow</span>, <span class='ident'>PosOverflow</span>))
     )]</span>
     <span class='kw'>pub</span> <span class='kw'>enum</span> <span class='ident'>GeneralError</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span> {
-        <span class='doccomment'>/// Input underflowed the target type.</span>
-        <span class='ident'>Underflow</span>(<span class='ident'>T</span>),
+        <span class='doccomment'>/// Input was too negative for the target type.</span>
+        <span class='ident'>NegOverflow</span>(<span class='ident'>T</span>),
 
-        <span class='doccomment'>/// Input overflowed the target type.</span>
-        <span class='ident'>Overflow</span>(<span class='ident'>T</span>),
+        <span class='doccomment'>/// Input was too positive for the target type.</span>
+        <span class='ident'>PosOverflow</span>(<span class='ident'>T</span>),
 
         <span class='doccomment'>/// Input was not representable in the target type.</span>
         <span class='ident'>Unrepresentable</span>(<span class='ident'>T</span>),
@@ -910,8 +910,8 @@ In addition, it also defines some extension traits to make working with failable
         <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>FloatError</span> <span class='kw'>as</span> <span class='ident'>F</span>;
         <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>GeneralError</span> <span class='kw'>as</span> <span class='ident'>G</span>;
         <span class='kw'>match</span> <span class='ident'>e</span> {
-            <span class='ident'>F</span>::<span class='ident'>Underflow</span>(<span class='ident'>v</span>) <span class='op'>=&gt;</span> <span class='ident'>G</span>::<span class='ident'>Underflow</span>(<span class='ident'>v</span>),
-            <span class='ident'>F</span>::<span class='ident'>Overflow</span>(<span class='ident'>v</span>) <span class='op'>=&gt;</span> <span class='ident'>G</span>::<span class='ident'>Overflow</span>(<span class='ident'>v</span>),
+            <span class='ident'>F</span>::<span class='ident'>NegOverflow</span>(<span class='ident'>v</span>) <span class='op'>=&gt;</span> <span class='ident'>G</span>::<span class='ident'>NegOverflow</span>(<span class='ident'>v</span>),
+            <span class='ident'>F</span>::<span class='ident'>PosOverflow</span>(<span class='ident'>v</span>) <span class='op'>=&gt;</span> <span class='ident'>G</span>::<span class='ident'>PosOverflow</span>(<span class='ident'>v</span>),
             <span class='ident'>F</span>::<span class='ident'>NotANumber</span>(<span class='ident'>v</span>) <span class='op'>=&gt;</span> <span class='ident'>G</span>::<span class='ident'>Unrepresentable</span>(<span class='ident'>v</span>),
         }
     }
@@ -927,23 +927,23 @@ In addition, it also defines some extension traits to make working with failable
         <span class='ident'>Copy</span>, <span class='ident'>Clone</span>, <span class='ident'>Eq</span>, <span class='ident'>PartialEq</span>, <span class='ident'>Ord</span>, <span class='ident'>PartialOrd</span>, <span class='ident'>Debug</span>,
         <span class='ident'>FromNoError</span>,
         <span class='ident'>EnumDesc</span>(
-            <span class='ident'>Underflow</span> <span class='op'>=&gt;</span> <span class='string'>&quot;conversion resulted in underflow&quot;</span>,
-            <span class='ident'>Overflow</span> <span class='op'>=&gt;</span> <span class='string'>&quot;conversion resulted in overflow&quot;</span>,
+            <span class='ident'>NegOverflow</span> <span class='op'>=&gt;</span> <span class='string'>&quot;conversion resulted in negative overflow&quot;</span>,
+            <span class='ident'>PosOverflow</span> <span class='op'>=&gt;</span> <span class='string'>&quot;conversion resulted in positive overflow&quot;</span>,
             <span class='ident'>Unrepresentable</span> <span class='op'>=&gt;</span> <span class='string'>&quot;could not convert unrepresentable value&quot;</span>,
         ),
         <span class='ident'>FromName</span>(<span class='ident'>Unrepresentable</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span>),
-        <span class='ident'>FromName</span>(<span class='ident'>Underflow</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span>),
-        <span class='ident'>FromName</span>(<span class='ident'>Overflow</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span>),
-        <span class='ident'>FromRemap</span>(<span class='ident'>RangeErrorKind</span>(<span class='ident'>Underflow</span>, <span class='ident'>Overflow</span>)),
-        <span class='ident'>FromRemap</span>(<span class='ident'>RangeError</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span>(<span class='ident'>Underflow</span>, <span class='ident'>Overflow</span>)),
-        <span class='ident'>FromRemap</span>(<span class='ident'>GeneralError</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span>(<span class='ident'>Underflow</span>, <span class='ident'>Overflow</span>, <span class='ident'>Unrepresentable</span>))
+        <span class='ident'>FromName</span>(<span class='ident'>NegOverflow</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span>),
+        <span class='ident'>FromName</span>(<span class='ident'>PosOverflow</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span>),
+        <span class='ident'>FromRemap</span>(<span class='ident'>RangeErrorKind</span>(<span class='ident'>NegOverflow</span>, <span class='ident'>PosOverflow</span>)),
+        <span class='ident'>FromRemap</span>(<span class='ident'>RangeError</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span>(<span class='ident'>NegOverflow</span>, <span class='ident'>PosOverflow</span>)),
+        <span class='ident'>FromRemap</span>(<span class='ident'>GeneralError</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span>(<span class='ident'>NegOverflow</span>, <span class='ident'>PosOverflow</span>, <span class='ident'>Unrepresentable</span>))
     )]</span>
     <span class='kw'>pub</span> <span class='kw'>enum</span> <span class='ident'>GeneralErrorKind</span> {
-        <span class='doccomment'>/// Input underflowed the target type.</span>
-        <span class='ident'>Underflow</span>,
+        <span class='doccomment'>/// Input was too negative for the target type.</span>
+        <span class='ident'>NegOverflow</span>,
 
-        <span class='doccomment'>/// Input overflowed the target type.</span>
-        <span class='ident'>Overflow</span>,
+        <span class='doccomment'>/// Input was too positive for the target type.</span>
+        <span class='ident'>PosOverflow</span>,
 
         <span class='doccomment'>/// Input was not representable in the target type.</span>
         <span class='ident'>Unrepresentable</span>,
@@ -956,8 +956,8 @@ In addition, it also defines some extension traits to make working with failable
         <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>FloatError</span> <span class='kw'>as</span> <span class='ident'>F</span>;
         <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>GeneralErrorKind</span> <span class='kw'>as</span> <span class='ident'>G</span>;
         <span class='kw'>match</span> <span class='ident'>e</span> {
-            <span class='ident'>F</span>::<span class='ident'>Underflow</span>(..) <span class='op'>=&gt;</span> <span class='ident'>G</span>::<span class='ident'>Underflow</span>,
-            <span class='ident'>F</span>::<span class='ident'>Overflow</span>(..) <span class='op'>=&gt;</span> <span class='ident'>G</span>::<span class='ident'>Overflow</span>,
+            <span class='ident'>F</span>::<span class='ident'>NegOverflow</span>(..) <span class='op'>=&gt;</span> <span class='ident'>G</span>::<span class='ident'>NegOverflow</span>,
+            <span class='ident'>F</span>::<span class='ident'>PosOverflow</span>(..) <span class='op'>=&gt;</span> <span class='ident'>G</span>::<span class='ident'>PosOverflow</span>,
             <span class='ident'>F</span>::<span class='ident'>NotANumber</span>(..) <span class='op'>=&gt;</span> <span class='ident'>G</span>::<span class='ident'>Unrepresentable</span>,
         }
     }
@@ -994,23 +994,23 @@ You can use the [`UnwrapOk::unwrap_ok`](./trait.UnwrapOk.html#tymethod.unwrap_ok
 }
 
 <span class='macro'>custom_derive</span><span class='macro'>!</span> {
-    <span class='doccomment'>/// Indicates that the conversion failed due to an underflow.</span>
+    <span class='doccomment'>/// Indicates that the conversion failed due to a negative overflow.</span>
     <span class='attribute'>#[<span class='ident'>derive</span>(
         <span class='ident'>Copy</span>, <span class='ident'>Clone</span>, <span class='ident'>Eq</span>, <span class='ident'>PartialEq</span>, <span class='ident'>Ord</span>, <span class='ident'>PartialOrd</span>,
         <span class='ident'>IntoInner</span>, <span class='ident'>DummyDebug</span>, <span class='ident'>FromNoError</span>,
-        <span class='ident'>Desc</span>(<span class='string'>&quot;conversion resulted in underflow&quot;</span>)
+        <span class='ident'>Desc</span>(<span class='string'>&quot;conversion resulted in negative overflow&quot;</span>)
     )]</span>
-    <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Underflow</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span>(<span class='kw'>pub</span> <span class='ident'>T</span>);
+    <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>NegOverflow</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span>(<span class='kw'>pub</span> <span class='ident'>T</span>);
 }
 
 <span class='macro'>custom_derive</span><span class='macro'>!</span> {
-    <span class='doccomment'>/// Indicates that the conversion failed due to an overflow.</span>
+    <span class='doccomment'>/// Indicates that the conversion failed due to a positive overflow.</span>
     <span class='attribute'>#[<span class='ident'>derive</span>(
         <span class='ident'>Copy</span>, <span class='ident'>Clone</span>, <span class='ident'>Eq</span>, <span class='ident'>PartialEq</span>, <span class='ident'>Ord</span>, <span class='ident'>PartialOrd</span>,
         <span class='ident'>IntoInner</span>, <span class='ident'>DummyDebug</span>, <span class='ident'>FromNoError</span>,
-        <span class='ident'>Desc</span>(<span class='string'>&quot;conversion resulted in overflow&quot;</span>)
+        <span class='ident'>Desc</span>(<span class='string'>&quot;conversion resulted in positive overflow&quot;</span>)
     )]</span>
-    <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Overflow</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span>(<span class='kw'>pub</span> <span class='ident'>T</span>);
+    <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>PosOverflow</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span>(<span class='kw'>pub</span> <span class='ident'>T</span>);
 }
 
 <span class='macro'>custom_derive</span><span class='macro'>!</span> {
@@ -1021,20 +1021,20 @@ You can use the [`UnwrapOk::unwrap_ok`](./trait.UnwrapOk.html#tymethod.unwrap_ok
         <span class='ident'>Copy</span>, <span class='ident'>Clone</span>, <span class='ident'>Eq</span>, <span class='ident'>PartialEq</span>, <span class='ident'>Ord</span>, <span class='ident'>PartialOrd</span>,
         <span class='ident'>IntoInner</span>, <span class='ident'>DummyDebug</span>, <span class='ident'>FromNoError</span>,
         <span class='ident'>EnumDesc</span>(
-            <span class='ident'>Underflow</span> <span class='op'>=&gt;</span> <span class='string'>&quot;conversion resulted in underflow&quot;</span>,
-            <span class='ident'>Overflow</span> <span class='op'>=&gt;</span> <span class='string'>&quot;conversion resulted in overflow&quot;</span>,
+            <span class='ident'>NegOverflow</span> <span class='op'>=&gt;</span> <span class='string'>&quot;conversion resulted in negative overflow&quot;</span>,
+            <span class='ident'>PosOverflow</span> <span class='op'>=&gt;</span> <span class='string'>&quot;conversion resulted in positive overflow&quot;</span>,
             <span class='ident'>NotANumber</span> <span class='op'>=&gt;</span> <span class='string'>&quot;conversion target does not support not-a-number&quot;</span>,
         ),
-        <span class='ident'>FromName</span>(<span class='ident'>Underflow</span>),
-        <span class='ident'>FromName</span>(<span class='ident'>Overflow</span>),
-        <span class='ident'>FromRemap</span>(<span class='ident'>RangeError</span>(<span class='ident'>Underflow</span>, <span class='ident'>Overflow</span>))
+        <span class='ident'>FromName</span>(<span class='ident'>NegOverflow</span>),
+        <span class='ident'>FromName</span>(<span class='ident'>PosOverflow</span>),
+        <span class='ident'>FromRemap</span>(<span class='ident'>RangeError</span>(<span class='ident'>NegOverflow</span>, <span class='ident'>PosOverflow</span>))
     )]</span>
     <span class='kw'>pub</span> <span class='kw'>enum</span> <span class='ident'>FloatError</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span> {
-        <span class='doccomment'>/// Input underflowed the target type.</span>
-        <span class='ident'>Underflow</span>(<span class='ident'>T</span>),
+        <span class='doccomment'>/// Input was too negative for the target type.</span>
+        <span class='ident'>NegOverflow</span>(<span class='ident'>T</span>),
 
-        <span class='doccomment'>/// Input overflowed the target type.</span>
-        <span class='ident'>Overflow</span>(<span class='ident'>T</span>),
+        <span class='doccomment'>/// Input was too positive for the target type.</span>
+        <span class='ident'>PosOverflow</span>(<span class='ident'>T</span>),
 
         <span class='doccomment'>/// Input was not-a-number, which the target type could not represent.</span>
         <span class='ident'>NotANumber</span>(<span class='ident'>T</span>),
@@ -1049,18 +1049,18 @@ You can use the [`UnwrapOk::unwrap_ok`](./trait.UnwrapOk.html#tymethod.unwrap_ok
         <span class='ident'>Copy</span>, <span class='ident'>Clone</span>, <span class='ident'>Eq</span>, <span class='ident'>PartialEq</span>, <span class='ident'>Ord</span>, <span class='ident'>PartialOrd</span>,
         <span class='ident'>IntoInner</span>, <span class='ident'>DummyDebug</span>, <span class='ident'>FromNoError</span>,
         <span class='ident'>EnumDesc</span>(
-            <span class='ident'>Underflow</span> <span class='op'>=&gt;</span> <span class='string'>&quot;conversion resulted in underflow&quot;</span>,
-            <span class='ident'>Overflow</span> <span class='op'>=&gt;</span> <span class='string'>&quot;conversion resulted in overflow&quot;</span>,
+            <span class='ident'>NegOverflow</span> <span class='op'>=&gt;</span> <span class='string'>&quot;conversion resulted in negative overflow&quot;</span>,
+            <span class='ident'>PosOverflow</span> <span class='op'>=&gt;</span> <span class='string'>&quot;conversion resulted in positive overflow&quot;</span>,
         ),
-        <span class='ident'>FromName</span>(<span class='ident'>Underflow</span>),
-        <span class='ident'>FromName</span>(<span class='ident'>Overflow</span>)
+        <span class='ident'>FromName</span>(<span class='ident'>NegOverflow</span>),
+        <span class='ident'>FromName</span>(<span class='ident'>PosOverflow</span>)
     )]</span>
     <span class='kw'>pub</span> <span class='kw'>enum</span> <span class='ident'>RangeError</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span> {
-        <span class='doccomment'>/// Input underflowed the target type.</span>
-        <span class='ident'>Underflow</span>(<span class='ident'>T</span>),
+        <span class='doccomment'>/// Input was too negative for the target type.</span>
+        <span class='ident'>NegOverflow</span>(<span class='ident'>T</span>),
 
-        <span class='doccomment'>/// Input overflowed the target type.</span>
-        <span class='ident'>Overflow</span>(<span class='ident'>T</span>),
+        <span class='doccomment'>/// Input was too positive the target type.</span>
+        <span class='ident'>PosOverflow</span>(<span class='ident'>T</span>),
     }
 }
 
@@ -1074,19 +1074,19 @@ You can use the [`UnwrapOk::unwrap_ok`](./trait.UnwrapOk.html#tymethod.unwrap_ok
         <span class='ident'>Copy</span>, <span class='ident'>Clone</span>, <span class='ident'>Eq</span>, <span class='ident'>PartialEq</span>, <span class='ident'>Ord</span>, <span class='ident'>PartialOrd</span>, <span class='ident'>Debug</span>,
         <span class='ident'>FromNoError</span>,
         <span class='ident'>EnumDesc</span>(
-            <span class='ident'>Underflow</span> <span class='op'>=&gt;</span> <span class='string'>&quot;conversion resulted in underflow&quot;</span>,
-            <span class='ident'>Overflow</span> <span class='op'>=&gt;</span> <span class='string'>&quot;conversion resulted in overflow&quot;</span>,
+            <span class='ident'>NegOverflow</span> <span class='op'>=&gt;</span> <span class='string'>&quot;conversion resulted in negative overflow&quot;</span>,
+            <span class='ident'>PosOverflow</span> <span class='op'>=&gt;</span> <span class='string'>&quot;conversion resulted in positive overflow&quot;</span>,
         ),
-        <span class='ident'>FromName</span>(<span class='ident'>Underflow</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span>),
-        <span class='ident'>FromName</span>(<span class='ident'>Overflow</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span>),
-        <span class='ident'>FromRemap</span>(<span class='ident'>RangeError</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span>(<span class='ident'>Underflow</span>, <span class='ident'>Overflow</span>))
+        <span class='ident'>FromName</span>(<span class='ident'>NegOverflow</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span>),
+        <span class='ident'>FromName</span>(<span class='ident'>PosOverflow</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span>),
+        <span class='ident'>FromRemap</span>(<span class='ident'>RangeError</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span>(<span class='ident'>NegOverflow</span>, <span class='ident'>PosOverflow</span>))
     )]</span>
     <span class='kw'>pub</span> <span class='kw'>enum</span> <span class='ident'>RangeErrorKind</span> {
-        <span class='doccomment'>/// Input underflowed the target type.</span>
-        <span class='ident'>Underflow</span>,
+        <span class='doccomment'>/// Input was too negative for the target type.</span>
+        <span class='ident'>NegOverflow</span>,
 
-        <span class='doccomment'>/// Input overflowed the target type.</span>
-        <span class='ident'>Overflow</span>,
+        <span class='doccomment'>/// Input was too positive for the target type.</span>
+        <span class='ident'>PosOverflow</span>,
     }
 }
 
@@ -1098,11 +1098,11 @@ Saturates a `Result`.
     <span class='kw'>type</span> <span class='ident'>Output</span>;
 
     <span class='doccomment'>/**
-    Replaces an overflow or underflow error with a saturated value.
+    Replaces an overflow error with a saturated value.
 
     Unlike `unwrap_or_saturate`, this method can be used in cases where the `Result` error type can encode failures *other* than overflow and underflow.  For example, you cannot saturate a float-to-integer conversion using `unwrap_or_saturate` as the error might be `NotANumber`, which doesn&#39;t have a meaningful saturation &quot;direction&quot;.
 
-    The output of this method will be a `Result` where the error type *does not* contain overflow or underflow conditions.  What conditions remain must still be dealt with in some fashion.
+    The output of this method will be a `Result` where the error type *does not* contain overflow conditions.  What conditions remain must still be dealt with in some fashion.
     */</span>
     <span class='kw'>fn</span> <span class='ident'>saturate</span>(<span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>Self</span>::<span class='ident'>Output</span>;
 }
@@ -1116,8 +1116,8 @@ Saturates a `Result`.
         <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>FloatError</span>::<span class='op'>*</span>;
         <span class='kw'>match</span> <span class='self'>self</span> {
             <span class='prelude-val'>Ok</span>(<span class='ident'>v</span>) <span class='op'>=&gt;</span> <span class='prelude-val'>Ok</span>(<span class='ident'>v</span>),
-            <span class='prelude-val'>Err</span>(<span class='ident'>Underflow</span>(_)) <span class='op'>=&gt;</span> <span class='prelude-val'>Ok</span>(<span class='ident'>T</span>::<span class='ident'>saturated_min</span>()),
-            <span class='prelude-val'>Err</span>(<span class='ident'>Overflow</span>(_)) <span class='op'>=&gt;</span> <span class='prelude-val'>Ok</span>(<span class='ident'>T</span>::<span class='ident'>saturated_max</span>()),
+            <span class='prelude-val'>Err</span>(<span class='ident'>NegOverflow</span>(_)) <span class='op'>=&gt;</span> <span class='prelude-val'>Ok</span>(<span class='ident'>T</span>::<span class='ident'>saturated_min</span>()),
+            <span class='prelude-val'>Err</span>(<span class='ident'>PosOverflow</span>(_)) <span class='op'>=&gt;</span> <span class='prelude-val'>Ok</span>(<span class='ident'>T</span>::<span class='ident'>saturated_max</span>()),
             <span class='prelude-val'>Err</span>(<span class='ident'>NotANumber</span>(<span class='ident'>v</span>)) <span class='op'>=&gt;</span> <span class='prelude-val'>Err</span>(<span class='ident'>Unrepresentable</span>(<span class='ident'>v</span>))
         }
     }
@@ -1132,8 +1132,8 @@ Saturates a `Result`.
         <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>RangeError</span>::<span class='op'>*</span>;
         <span class='kw'>match</span> <span class='self'>self</span> {
             <span class='prelude-val'>Ok</span>(<span class='ident'>v</span>) <span class='op'>=&gt;</span> <span class='prelude-val'>Ok</span>(<span class='ident'>v</span>),
-            <span class='prelude-val'>Err</span>(<span class='ident'>Underflow</span>(_)) <span class='op'>=&gt;</span> <span class='prelude-val'>Ok</span>(<span class='ident'>T</span>::<span class='ident'>saturated_min</span>()),
-            <span class='prelude-val'>Err</span>(<span class='ident'>Overflow</span>(_)) <span class='op'>=&gt;</span> <span class='prelude-val'>Ok</span>(<span class='ident'>T</span>::<span class='ident'>saturated_max</span>())
+            <span class='prelude-val'>Err</span>(<span class='ident'>NegOverflow</span>(_)) <span class='op'>=&gt;</span> <span class='prelude-val'>Ok</span>(<span class='ident'>T</span>::<span class='ident'>saturated_min</span>()),
+            <span class='prelude-val'>Err</span>(<span class='ident'>PosOverflow</span>(_)) <span class='op'>=&gt;</span> <span class='prelude-val'>Ok</span>(<span class='ident'>T</span>::<span class='ident'>saturated_max</span>())
         }
     }
 }
@@ -1147,8 +1147,8 @@ Saturates a `Result`.
         <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>RangeErrorKind</span>::<span class='op'>*</span>;
         <span class='kw'>match</span> <span class='self'>self</span> {
             <span class='prelude-val'>Ok</span>(<span class='ident'>v</span>) <span class='op'>=&gt;</span> <span class='prelude-val'>Ok</span>(<span class='ident'>v</span>),
-            <span class='prelude-val'>Err</span>(<span class='ident'>Underflow</span>) <span class='op'>=&gt;</span> <span class='prelude-val'>Ok</span>(<span class='ident'>T</span>::<span class='ident'>saturated_min</span>()),
-            <span class='prelude-val'>Err</span>(<span class='ident'>Overflow</span>) <span class='op'>=&gt;</span> <span class='prelude-val'>Ok</span>(<span class='ident'>T</span>::<span class='ident'>saturated_max</span>())
+            <span class='prelude-val'>Err</span>(<span class='ident'>NegOverflow</span>) <span class='op'>=&gt;</span> <span class='prelude-val'>Ok</span>(<span class='ident'>T</span>::<span class='ident'>saturated_min</span>()),
+            <span class='prelude-val'>Err</span>(<span class='ident'>PosOverflow</span>) <span class='op'>=&gt;</span> <span class='prelude-val'>Ok</span>(<span class='ident'>T</span>::<span class='ident'>saturated_max</span>())
         }
     }
 }
@@ -1183,7 +1183,7 @@ Unwrap a conversion by saturating to infinity.
     <span class='kw'>type</span> <span class='ident'>Output</span>;
 
     <span class='doccomment'>/**
-    Either unwraps the successfully converted value, or saturates to infinity in the &quot;direction&quot; of overflow/underflow.
+    Either unwraps the successfully converted value, or saturates to infinity in the &quot;direction&quot; of overflow.
     */</span>
     <span class='kw'>fn</span> <span class='ident'>unwrap_or_inf</span>(<span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>Self</span>::<span class='ident'>Output</span>;
 }
@@ -1209,7 +1209,7 @@ Unwrap a conversion by saturating.
     <span class='kw'>type</span> <span class='ident'>Output</span>;
 
     <span class='doccomment'>/**
-    Either unwraps the successfully converted value, or saturates in the &quot;direction&quot; of overflow/underflow.
+    Either unwraps the successfully converted value, or saturates in the &quot;direction&quot; of overflow.
     */</span>
     <span class='kw'>fn</span> <span class='ident'>unwrap_or_saturate</span>(<span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>Self</span>::<span class='ident'>Output</span>;
 }
@@ -1222,8 +1222,8 @@ Unwrap a conversion by saturating.
         <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>RangeErrorKind</span>::<span class='op'>*</span>;
         <span class='kw'>match</span> <span class='self'>self</span>.<span class='ident'>map_err</span>(<span class='ident'>Into</span>::<span class='ident'>into</span>) {
             <span class='prelude-val'>Ok</span>(<span class='ident'>v</span>) <span class='op'>=&gt;</span> <span class='ident'>v</span>,
-            <span class='prelude-val'>Err</span>(<span class='ident'>Underflow</span>(..)) <span class='op'>=&gt;</span> <span class='ident'>T</span>::<span class='ident'>neg_infinity</span>(),
-            <span class='prelude-val'>Err</span>(<span class='ident'>Overflow</span>(..)) <span class='op'>=&gt;</span> <span class='ident'>T</span>::<span class='ident'>pos_infinity</span>(),
+            <span class='prelude-val'>Err</span>(<span class='ident'>NegOverflow</span>(..)) <span class='op'>=&gt;</span> <span class='ident'>T</span>::<span class='ident'>neg_infinity</span>(),
+            <span class='prelude-val'>Err</span>(<span class='ident'>PosOverflow</span>(..)) <span class='op'>=&gt;</span> <span class='ident'>T</span>::<span class='ident'>pos_infinity</span>(),
         }
     }
 }
@@ -1248,8 +1248,8 @@ Unwrap a conversion by saturating.
         <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>RangeErrorKind</span>::<span class='op'>*</span>;
         <span class='kw'>match</span> <span class='self'>self</span>.<span class='ident'>map_err</span>(<span class='ident'>Into</span>::<span class='ident'>into</span>) {
             <span class='prelude-val'>Ok</span>(<span class='ident'>v</span>) <span class='op'>=&gt;</span> <span class='ident'>v</span>,
-            <span class='prelude-val'>Err</span>(<span class='ident'>Underflow</span>(..)) <span class='op'>=&gt;</span> <span class='ident'>T</span>::<span class='ident'>saturated_min</span>(),
-            <span class='prelude-val'>Err</span>(<span class='ident'>Overflow</span>(..)) <span class='op'>=&gt;</span> <span class='ident'>T</span>::<span class='ident'>saturated_max</span>(),
+            <span class='prelude-val'>Err</span>(<span class='ident'>NegOverflow</span>(..)) <span class='op'>=&gt;</span> <span class='ident'>T</span>::<span class='ident'>saturated_min</span>(),
+            <span class='prelude-val'>Err</span>(<span class='ident'>PosOverflow</span>(..)) <span class='op'>=&gt;</span> <span class='ident'>T</span>::<span class='ident'>saturated_max</span>(),
         }
     }
 }

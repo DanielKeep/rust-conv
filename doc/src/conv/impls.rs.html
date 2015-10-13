@@ -499,10 +499,10 @@
                 <span class='attribute'>#[<span class='ident'>inline</span>]</span>
                 <span class='kw'>fn</span> <span class='ident'>approx_from</span>(<span class='ident'>src</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>src</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>dst</span>, <span class='ident'>Self</span>::<span class='prelude-val'>Err</span><span class='op'>&gt;</span> {
                     <span class='kw'>if</span> <span class='op'>!</span>(<span class='number'>0</span> <span class='op'>&lt;=</span> <span class='ident'>src</span>) {
-                        <span class='kw'>return</span> <span class='prelude-val'>Err</span>(::<span class='ident'>errors</span>::<span class='ident'>RangeError</span>::<span class='ident'>Underflow</span>(<span class='ident'>src</span>));
+                        <span class='kw'>return</span> <span class='prelude-val'>Err</span>(::<span class='ident'>errors</span>::<span class='ident'>RangeError</span>::<span class='ident'>NegOverflow</span>(<span class='ident'>src</span>));
                     }
                     <span class='kw'>if</span> <span class='op'>!</span>(<span class='ident'>src</span> <span class='op'>&lt;=</span> <span class='macro'>max_of</span><span class='macro'>!</span>(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>dst</span>) <span class='kw'>as</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>src</span>) {
-                        <span class='kw'>return</span> <span class='prelude-val'>Err</span>(::<span class='ident'>errors</span>::<span class='ident'>RangeError</span>::<span class='ident'>Overflow</span>(<span class='ident'>src</span>));
+                        <span class='kw'>return</span> <span class='prelude-val'>Err</span>(::<span class='ident'>errors</span>::<span class='ident'>RangeError</span>::<span class='ident'>PosOverflow</span>(<span class='ident'>src</span>));
                     }
                     <span class='prelude-val'>Ok</span>(<span class='ident'>src</span> <span class='kw'>as</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>dst</span>)
                 }
@@ -516,11 +516,11 @@
         <span class='macro'>as_item</span><span class='macro'>!</span> {
             $(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>attrs</span>)<span class='op'>*</span>
             <span class='kw'>impl</span> ::<span class='ident'>ApproxFrom</span><span class='op'>&lt;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>src</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>scheme</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>dst</span> {
-                <span class='kw'>type</span> <span class='prelude-val'>Err</span> <span class='op'>=</span> ::<span class='ident'>errors</span>::<span class='ident'>Overflow</span><span class='op'>&lt;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>src</span><span class='op'>&gt;</span>;
+                <span class='kw'>type</span> <span class='prelude-val'>Err</span> <span class='op'>=</span> ::<span class='ident'>errors</span>::<span class='ident'>PosOverflow</span><span class='op'>&lt;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>src</span><span class='op'>&gt;</span>;
                 <span class='attribute'>#[<span class='ident'>inline</span>]</span>
                 <span class='kw'>fn</span> <span class='ident'>approx_from</span>(<span class='ident'>src</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>src</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>dst</span>, <span class='ident'>Self</span>::<span class='prelude-val'>Err</span><span class='op'>&gt;</span> {
                     <span class='kw'>if</span> <span class='op'>!</span>(<span class='ident'>src</span> <span class='op'>&lt;=</span> <span class='macro'>max_of</span><span class='macro'>!</span>(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>dst</span>) <span class='kw'>as</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>src</span>) {
-                        <span class='kw'>return</span> <span class='prelude-val'>Err</span>(::<span class='ident'>errors</span>::<span class='ident'>Overflow</span>(<span class='ident'>src</span>));
+                        <span class='kw'>return</span> <span class='prelude-val'>Err</span>(::<span class='ident'>errors</span>::<span class='ident'>PosOverflow</span>(<span class='ident'>src</span>));
                     }
                     <span class='prelude-val'>Ok</span>(<span class='ident'>src</span> <span class='kw'>as</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>dst</span>)
                 }
@@ -538,10 +538,10 @@
                 <span class='attribute'>#[<span class='ident'>inline</span>]</span>
                 <span class='kw'>fn</span> <span class='ident'>approx_from</span>(<span class='ident'>src</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>src</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>dst</span>, <span class='ident'>Self</span>::<span class='prelude-val'>Err</span><span class='op'>&gt;</span> {
                     <span class='kw'>if</span> <span class='op'>!</span>(<span class='macro'>min_of</span><span class='macro'>!</span>(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>dst</span>) <span class='kw'>as</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>src</span> <span class='op'>&lt;=</span> <span class='ident'>src</span>) {
-                        <span class='kw'>return</span> <span class='prelude-val'>Err</span>(::<span class='ident'>errors</span>::<span class='ident'>RangeError</span>::<span class='ident'>Underflow</span>(<span class='ident'>src</span>));
+                        <span class='kw'>return</span> <span class='prelude-val'>Err</span>(::<span class='ident'>errors</span>::<span class='ident'>RangeError</span>::<span class='ident'>NegOverflow</span>(<span class='ident'>src</span>));
                     }
                     <span class='kw'>if</span> <span class='op'>!</span>(<span class='ident'>src</span> <span class='op'>&lt;=</span> <span class='macro'>max_of</span><span class='macro'>!</span>(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>dst</span>) <span class='kw'>as</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>src</span>) {
-                        <span class='kw'>return</span> <span class='prelude-val'>Err</span>(::<span class='ident'>errors</span>::<span class='ident'>RangeError</span>::<span class='ident'>Overflow</span>(<span class='ident'>src</span>));
+                        <span class='kw'>return</span> <span class='prelude-val'>Err</span>(::<span class='ident'>errors</span>::<span class='ident'>RangeError</span>::<span class='ident'>PosOverflow</span>(<span class='ident'>src</span>));
                     }
                     <span class='prelude-val'>Ok</span>(<span class='ident'>src</span> <span class='kw'>as</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>dst</span>)
                 }
@@ -555,11 +555,11 @@
         <span class='macro'>as_item</span><span class='macro'>!</span> {
             $(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>attrs</span>)<span class='op'>*</span>
             <span class='kw'>impl</span> ::<span class='ident'>ApproxFrom</span><span class='op'>&lt;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>src</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>scheme</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>dst</span> {
-                <span class='kw'>type</span> <span class='prelude-val'>Err</span> <span class='op'>=</span> ::<span class='ident'>errors</span>::<span class='ident'>Underflow</span><span class='op'>&lt;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>src</span><span class='op'>&gt;</span>;
+                <span class='kw'>type</span> <span class='prelude-val'>Err</span> <span class='op'>=</span> ::<span class='ident'>errors</span>::<span class='ident'>NegOverflow</span><span class='op'>&lt;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>src</span><span class='op'>&gt;</span>;
                 <span class='attribute'>#[<span class='ident'>inline</span>]</span>
                 <span class='kw'>fn</span> <span class='ident'>approx_from</span>(<span class='ident'>src</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>src</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>dst</span>, <span class='ident'>Self</span>::<span class='prelude-val'>Err</span><span class='op'>&gt;</span> {
                     <span class='kw'>if</span> <span class='op'>!</span>(<span class='number'>0</span> <span class='op'>&lt;=</span> <span class='ident'>src</span>) {
-                        <span class='kw'>return</span> <span class='prelude-val'>Err</span>(::<span class='ident'>errors</span>::<span class='ident'>Underflow</span>(<span class='ident'>src</span>));
+                        <span class='kw'>return</span> <span class='prelude-val'>Err</span>(::<span class='ident'>errors</span>::<span class='ident'>NegOverflow</span>(<span class='ident'>src</span>));
                     }
                     <span class='prelude-val'>Ok</span>(<span class='ident'>src</span> <span class='kw'>as</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>dst</span>)
                 }
@@ -585,10 +585,10 @@
                     }
                     <span class='kw'>let</span> <span class='ident'>approx</span> <span class='op'>=</span> { <span class='kw'>let</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>src_name</span> <span class='op'>=</span> <span class='ident'>src</span>; <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>conv</span> };
                     <span class='kw'>if</span> <span class='op'>!</span>(<span class='macro'>min_of</span><span class='macro'>!</span>(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>dst</span>) <span class='kw'>as</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>src</span> <span class='op'>&lt;=</span> <span class='ident'>approx</span>) {
-                        <span class='kw'>return</span> <span class='prelude-val'>Err</span>(::<span class='ident'>errors</span>::<span class='ident'>FloatError</span>::<span class='ident'>Underflow</span>(<span class='ident'>src</span>));
+                        <span class='kw'>return</span> <span class='prelude-val'>Err</span>(::<span class='ident'>errors</span>::<span class='ident'>FloatError</span>::<span class='ident'>NegOverflow</span>(<span class='ident'>src</span>));
                     }
                     <span class='kw'>if</span> <span class='op'>!</span>(<span class='ident'>approx</span> <span class='op'>&lt;=</span> <span class='macro'>max_of</span><span class='macro'>!</span>(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>dst</span>) <span class='kw'>as</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>src</span>) {
-                        <span class='kw'>return</span> <span class='prelude-val'>Err</span>(::<span class='ident'>errors</span>::<span class='ident'>FloatError</span>::<span class='ident'>Overflow</span>(<span class='ident'>src</span>));
+                        <span class='kw'>return</span> <span class='prelude-val'>Err</span>(::<span class='ident'>errors</span>::<span class='ident'>FloatError</span>::<span class='ident'>PosOverflow</span>(<span class='ident'>src</span>));
                     }
                     <span class='prelude-val'>Ok</span>(<span class='ident'>approx</span> <span class='kw'>as</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>dst</span>)
                 }
@@ -647,10 +647,10 @@
                 <span class='attribute'>#[<span class='ident'>inline</span>]</span>
                 <span class='kw'>fn</span> <span class='ident'>value_from</span>(<span class='ident'>src</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>src</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>dst</span>, <span class='ident'>Self</span>::<span class='prelude-val'>Err</span><span class='op'>&gt;</span> {
                     <span class='kw'>if</span> <span class='op'>!</span>(<span class='number'>0</span> <span class='op'>&lt;=</span> <span class='ident'>src</span>) {
-                        <span class='kw'>return</span> <span class='prelude-val'>Err</span>(::<span class='ident'>errors</span>::<span class='ident'>RangeError</span>::<span class='ident'>Underflow</span>(<span class='ident'>src</span>));
+                        <span class='kw'>return</span> <span class='prelude-val'>Err</span>(::<span class='ident'>errors</span>::<span class='ident'>RangeError</span>::<span class='ident'>NegOverflow</span>(<span class='ident'>src</span>));
                     }
                     <span class='kw'>if</span> <span class='op'>!</span>(<span class='ident'>src</span> <span class='op'>&lt;=</span> <span class='macro'>max_of</span><span class='macro'>!</span>(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>dst</span>) <span class='kw'>as</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>src</span>) {
-                        <span class='kw'>return</span> <span class='prelude-val'>Err</span>(::<span class='ident'>errors</span>::<span class='ident'>RangeError</span>::<span class='ident'>Overflow</span>(<span class='ident'>src</span>));
+                        <span class='kw'>return</span> <span class='prelude-val'>Err</span>(::<span class='ident'>errors</span>::<span class='ident'>RangeError</span>::<span class='ident'>PosOverflow</span>(<span class='ident'>src</span>));
                     }
                     <span class='prelude-val'>Ok</span>(<span class='ident'>src</span> <span class='kw'>as</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>dst</span>)
                 }
@@ -667,11 +667,11 @@
 
             $(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>attrs</span>)<span class='op'>*</span>
             <span class='kw'>impl</span> ::<span class='ident'>ValueFrom</span><span class='op'>&lt;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>src</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>dst</span> {
-                <span class='kw'>type</span> <span class='prelude-val'>Err</span> <span class='op'>=</span> ::<span class='ident'>errors</span>::<span class='ident'>Overflow</span><span class='op'>&lt;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>src</span><span class='op'>&gt;</span>;
+                <span class='kw'>type</span> <span class='prelude-val'>Err</span> <span class='op'>=</span> ::<span class='ident'>errors</span>::<span class='ident'>PosOverflow</span><span class='op'>&lt;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>src</span><span class='op'>&gt;</span>;
                 <span class='attribute'>#[<span class='ident'>inline</span>]</span>
                 <span class='kw'>fn</span> <span class='ident'>value_from</span>(<span class='ident'>src</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>src</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>dst</span>, <span class='ident'>Self</span>::<span class='prelude-val'>Err</span><span class='op'>&gt;</span> {
                     <span class='kw'>if</span> <span class='op'>!</span>(<span class='ident'>src</span> <span class='op'>&lt;=</span> <span class='macro'>max_of</span><span class='macro'>!</span>(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>dst</span>) <span class='kw'>as</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>src</span>) {
-                        <span class='kw'>return</span> <span class='prelude-val'>Err</span>(::<span class='ident'>errors</span>::<span class='ident'>Overflow</span>(<span class='ident'>src</span>));
+                        <span class='kw'>return</span> <span class='prelude-val'>Err</span>(::<span class='ident'>errors</span>::<span class='ident'>PosOverflow</span>(<span class='ident'>src</span>));
                     }
                     <span class='prelude-val'>Ok</span>(<span class='ident'>src</span> <span class='kw'>as</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>dst</span>)
                 }
@@ -692,10 +692,10 @@
                 <span class='attribute'>#[<span class='ident'>inline</span>]</span>
                 <span class='kw'>fn</span> <span class='ident'>value_from</span>(<span class='ident'>src</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>src</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>dst</span>, <span class='ident'>Self</span>::<span class='prelude-val'>Err</span><span class='op'>&gt;</span> {
                     <span class='kw'>if</span> <span class='op'>!</span>(<span class='macro'>min_of</span><span class='macro'>!</span>(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>dst</span>) <span class='kw'>as</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>src</span> <span class='op'>&lt;=</span> <span class='ident'>src</span>) {
-                        <span class='kw'>return</span> <span class='prelude-val'>Err</span>(::<span class='ident'>errors</span>::<span class='ident'>RangeError</span>::<span class='ident'>Underflow</span>(<span class='ident'>src</span>));
+                        <span class='kw'>return</span> <span class='prelude-val'>Err</span>(::<span class='ident'>errors</span>::<span class='ident'>RangeError</span>::<span class='ident'>NegOverflow</span>(<span class='ident'>src</span>));
                     }
                     <span class='kw'>if</span> <span class='op'>!</span>(<span class='ident'>src</span> <span class='op'>&lt;=</span> <span class='macro'>max_of</span><span class='macro'>!</span>(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>dst</span>) <span class='kw'>as</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>src</span>) {
-                        <span class='kw'>return</span> <span class='prelude-val'>Err</span>(::<span class='ident'>errors</span>::<span class='ident'>RangeError</span>::<span class='ident'>Overflow</span>(<span class='ident'>src</span>));
+                        <span class='kw'>return</span> <span class='prelude-val'>Err</span>(::<span class='ident'>errors</span>::<span class='ident'>RangeError</span>::<span class='ident'>PosOverflow</span>(<span class='ident'>src</span>));
                     }
                     <span class='prelude-val'>Ok</span>(<span class='ident'>src</span> <span class='kw'>as</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>dst</span>)
                 }
@@ -712,11 +712,11 @@
 
             $(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>attrs</span>)<span class='op'>*</span>
             <span class='kw'>impl</span> ::<span class='ident'>ValueFrom</span><span class='op'>&lt;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>src</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>dst</span> {
-                <span class='kw'>type</span> <span class='prelude-val'>Err</span> <span class='op'>=</span> ::<span class='ident'>errors</span>::<span class='ident'>Underflow</span><span class='op'>&lt;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>src</span><span class='op'>&gt;</span>;
+                <span class='kw'>type</span> <span class='prelude-val'>Err</span> <span class='op'>=</span> ::<span class='ident'>errors</span>::<span class='ident'>NegOverflow</span><span class='op'>&lt;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>src</span><span class='op'>&gt;</span>;
                 <span class='attribute'>#[<span class='ident'>inline</span>]</span>
                 <span class='kw'>fn</span> <span class='ident'>value_from</span>(<span class='ident'>src</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>src</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>dst</span>, <span class='ident'>Self</span>::<span class='prelude-val'>Err</span><span class='op'>&gt;</span> {
                     <span class='kw'>if</span> <span class='op'>!</span>(<span class='number'>0</span> <span class='op'>&lt;=</span> <span class='ident'>src</span>) {
-                        <span class='kw'>return</span> <span class='prelude-val'>Err</span>(::<span class='ident'>errors</span>::<span class='ident'>Underflow</span>(<span class='ident'>src</span>));
+                        <span class='kw'>return</span> <span class='prelude-val'>Err</span>(::<span class='ident'>errors</span>::<span class='ident'>NegOverflow</span>(<span class='ident'>src</span>));
                     }
                     <span class='prelude-val'>Ok</span>(<span class='ident'>src</span> <span class='kw'>as</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>dst</span>)
                 }
@@ -754,10 +754,10 @@
                 <span class='attribute'>#[<span class='ident'>inline</span>]</span>
                 <span class='kw'>fn</span> <span class='ident'>value_from</span>(<span class='ident'>src</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>src</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>dst</span>, <span class='ident'>Self</span>::<span class='prelude-val'>Err</span><span class='op'>&gt;</span> {
                     <span class='kw'>if</span> <span class='op'>!</span>(<span class='op'>-</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>bound</span> <span class='op'>&lt;=</span> <span class='ident'>src</span>) {
-                        <span class='kw'>return</span> <span class='prelude-val'>Err</span>(::<span class='ident'>errors</span>::<span class='ident'>RangeError</span>::<span class='ident'>Underflow</span>(<span class='ident'>src</span>));
+                        <span class='kw'>return</span> <span class='prelude-val'>Err</span>(::<span class='ident'>errors</span>::<span class='ident'>RangeError</span>::<span class='ident'>NegOverflow</span>(<span class='ident'>src</span>));
                     }
                     <span class='kw'>if</span> <span class='op'>!</span>(<span class='ident'>src</span> <span class='op'>&lt;=</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>bound</span>) {
-                        <span class='kw'>return</span> <span class='prelude-val'>Err</span>(::<span class='ident'>errors</span>::<span class='ident'>RangeError</span>::<span class='ident'>Overflow</span>(<span class='ident'>src</span>));
+                        <span class='kw'>return</span> <span class='prelude-val'>Err</span>(::<span class='ident'>errors</span>::<span class='ident'>RangeError</span>::<span class='ident'>PosOverflow</span>(<span class='ident'>src</span>));
                     }
                     <span class='prelude-val'>Ok</span>(<span class='ident'>src</span> <span class='kw'>as</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>dst</span>)
                 }
@@ -772,11 +772,11 @@
 
             $(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>attrs</span>)<span class='op'>*</span>
             <span class='kw'>impl</span> ::<span class='ident'>ValueFrom</span><span class='op'>&lt;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>src</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>dst</span> {
-                <span class='kw'>type</span> <span class='prelude-val'>Err</span> <span class='op'>=</span> ::<span class='ident'>errors</span>::<span class='ident'>Overflow</span><span class='op'>&lt;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>src</span><span class='op'>&gt;</span>;
+                <span class='kw'>type</span> <span class='prelude-val'>Err</span> <span class='op'>=</span> ::<span class='ident'>errors</span>::<span class='ident'>PosOverflow</span><span class='op'>&lt;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>src</span><span class='op'>&gt;</span>;
                 <span class='attribute'>#[<span class='ident'>inline</span>]</span>
                 <span class='kw'>fn</span> <span class='ident'>value_from</span>(<span class='ident'>src</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>src</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>dst</span>, <span class='ident'>Self</span>::<span class='prelude-val'>Err</span><span class='op'>&gt;</span> {
                     <span class='kw'>if</span> <span class='op'>!</span>(<span class='ident'>src</span> <span class='op'>&lt;=</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>max</span>) {
-                        <span class='kw'>return</span> <span class='prelude-val'>Err</span>(::<span class='ident'>errors</span>::<span class='ident'>Overflow</span>(<span class='ident'>src</span>));
+                        <span class='kw'>return</span> <span class='prelude-val'>Err</span>(::<span class='ident'>errors</span>::<span class='ident'>PosOverflow</span>(<span class='ident'>src</span>));
                     }
                     <span class='prelude-val'>Ok</span>(<span class='ident'>src</span> <span class='kw'>as</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>dst</span>)
                 }
@@ -862,10 +862,10 @@
                 <span class='kw'>return</span> <span class='prelude-val'>Ok</span>(<span class='ident'>src</span> <span class='kw'>as</span> <span class='ident'>f32</span>);
             }
             <span class='kw'>if</span> <span class='op'>!</span>(::<span class='ident'>std</span>::<span class='ident'>f32</span>::<span class='ident'>MIN</span> <span class='kw'>as</span> <span class='ident'>f64</span> <span class='op'>&lt;=</span> <span class='ident'>src</span>) {
-                <span class='kw'>return</span> <span class='prelude-val'>Err</span>(<span class='ident'>RangeError</span>::<span class='ident'>Underflow</span>(<span class='ident'>src</span>));
+                <span class='kw'>return</span> <span class='prelude-val'>Err</span>(<span class='ident'>RangeError</span>::<span class='ident'>NegOverflow</span>(<span class='ident'>src</span>));
             }
             <span class='kw'>if</span> <span class='op'>!</span>(<span class='ident'>src</span> <span class='op'>&lt;=</span> ::<span class='ident'>std</span>::<span class='ident'>f32</span>::<span class='ident'>MAX</span> <span class='kw'>as</span> <span class='ident'>f64</span>) {
-                <span class='kw'>return</span> <span class='prelude-val'>Err</span>(<span class='ident'>RangeError</span>::<span class='ident'>Overflow</span>(<span class='ident'>src</span>));
+                <span class='kw'>return</span> <span class='prelude-val'>Err</span>(<span class='ident'>RangeError</span>::<span class='ident'>PosOverflow</span>(<span class='ident'>src</span>));
             }
             <span class='prelude-val'>Ok</span>(<span class='ident'>src</span> <span class='kw'>as</span> <span class='ident'>f32</span>)
         }

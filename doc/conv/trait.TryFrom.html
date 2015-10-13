@@ -45,11 +45,13 @@
             <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                 [<span class='inner'>&#x2212;</span>]
             </a>
-        </span><a id='src-26530' class='srclink' href='../src/conv/lib.rs.html#323-329' title='goto source code'>[src]</a></span></h1>
+        </span><a id='src-26533' class='srclink' href='../src/conv/lib.rs.html#338-344' title='goto source code'>[src]</a></span></h1>
 <pre class='rust trait'>pub trait TryFrom&lt;Src&gt;: <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Sized.html' title='core::marker::Sized'>Sized</a> {
-    type Err;
+    type Err: <a class='trait' href='https://doc.rust-lang.org/nightly/std/error/trait.Error.html' title='std::error::Error'>Error</a>;
     fn <a href='#tymethod.try_from' class='fnname'>try_from</a>(src: Src) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;Self, Self::<a class='trait' href='../conv/trait.TryFrom.html' title='conv::TryFrom'>Err</a>&gt;;
 }</pre><div class='docblock'><p>This trait is used to perform a conversion between different semantic types which might fail.</p>
+
+<p>Where possible, prefer <em>implementing</em> this trait over <code>TryInto</code>, but prefer <em>using</em> <code>TryInto</code> for generic constraints.</p>
 
 <h1 id="details" class='section-header'><a
                            href="#details">Details</a></h1>
@@ -57,7 +59,7 @@
 </div>
             <h2 id='associated-types'>Associated Types</h2>
             <div class='methods'>
-        <h3 id='associatedtype.Err' class='method stab '><code>type Err</code></h3><div class='docblock'><p>The error type produced by a failed conversion.</p>
+        <h3 id='associatedtype.Err' class='method stab '><code>type Err: <a class='trait' href='https://doc.rust-lang.org/nightly/std/error/trait.Error.html' title='std::error::Error'>Error</a></code></h3><div class='docblock'><p>The error type produced by a failed conversion.</p>
 </div></div>
             <h2 id='required-methods'>Required Methods</h2>
             <div class='methods'>

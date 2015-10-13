@@ -45,15 +45,17 @@
             <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                 [<span class='inner'>&#x2212;</span>]
             </a>
-        </span><a id='src-26447' class='srclink' href='../src/conv/lib.rs.html#252-258' title='goto source code'>[src]</a></span></h1>
+        </span><a id='src-26449' class='srclink' href='../src/conv/lib.rs.html#265-271' title='goto source code'>[src]</a></span></h1>
 <pre class='rust trait'>pub trait ApproxInto&lt;Dst, Scheme = <a class='enum' href='../conv/enum.DefaultApprox.html' title='conv::DefaultApprox'>DefaultApprox</a>&gt; <span class='where'>where Scheme: <a class='trait' href='../conv/trait.ApproxScheme.html' title='conv::ApproxScheme'>ApproxScheme</a></span> {
-    type Err;
+    type Err: <a class='trait' href='https://doc.rust-lang.org/nightly/std/error/trait.Error.html' title='std::error::Error'>Error</a>;
     fn <a href='#tymethod.approx_into' class='fnname'>approx_into</a>(self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;Dst, Self::<a class='trait' href='../conv/trait.ApproxInto.html' title='conv::ApproxInto'>Err</a>&gt;;
 }</pre><div class='docblock'><p>This is the dual of <code>ApproxFrom</code>; see that trait for information.</p>
+
+<p>Where possible, prefer <em>using</em> this trait over <code>ApproxFrom</code> for generic constraints, but prefer <em>implementing</em> <code>ApproxFrom</code>.</p>
 </div>
             <h2 id='associated-types'>Associated Types</h2>
             <div class='methods'>
-        <h3 id='associatedtype.Err' class='method stab '><code>type Err</code></h3><div class='docblock'><p>The error type produced by a failed conversion.</p>
+        <h3 id='associatedtype.Err' class='method stab '><code>type Err: <a class='trait' href='https://doc.rust-lang.org/nightly/std/error/trait.Error.html' title='std::error::Error'>Error</a></code></h3><div class='docblock'><p>The error type produced by a failed conversion.</p>
 </div></div>
             <h2 id='required-methods'>Required Methods</h2>
             <div class='methods'>

@@ -45,11 +45,13 @@
             <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                 [<span class='inner'>&#x2212;</span>]
             </a>
-        </span><a id='src-26406' class='srclink' href='../src/conv/lib.rs.html#234-240' title='goto source code'>[src]</a></span></h1>
+        </span><a id='src-26407' class='srclink' href='../src/conv/lib.rs.html#245-251' title='goto source code'>[src]</a></span></h1>
 <pre class='rust trait'>pub trait ApproxFrom&lt;Src, Scheme = <a class='enum' href='../conv/enum.DefaultApprox.html' title='conv::DefaultApprox'>DefaultApprox</a>&gt;: <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Sized.html' title='core::marker::Sized'>Sized</a> <span class='where'>where Scheme: <a class='trait' href='../conv/trait.ApproxScheme.html' title='conv::ApproxScheme'>ApproxScheme</a></span> {
-    type Err;
+    type Err: <a class='trait' href='https://doc.rust-lang.org/nightly/std/error/trait.Error.html' title='std::error::Error'>Error</a>;
     fn <a href='#tymethod.approx_from' class='fnname'>approx_from</a>(src: Src) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;Self, Self::<a class='trait' href='../conv/trait.ApproxFrom.html' title='conv::ApproxFrom'>Err</a>&gt;;
 }</pre><div class='docblock'><p>This trait is used to perform a conversion that is permitted to approximate the result, but <em>not</em> to wrap or saturate the result to fit into the destination type&#39;s representable range.</p>
+
+<p>Where possible, prefer <em>implementing</em> this trait over <code>ApproxInto</code>, but prefer <em>using</em> <code>ApproxInto</code> for generic constraints.</p>
 
 <h1 id="details" class='section-header'><a
                            href="#details">Details</a></h1>
@@ -65,7 +67,7 @@
 </div>
             <h2 id='associated-types'>Associated Types</h2>
             <div class='methods'>
-        <h3 id='associatedtype.Err' class='method stab '><code>type Err</code></h3><div class='docblock'><p>The error type produced by a failed conversion.</p>
+        <h3 id='associatedtype.Err' class='method stab '><code>type Err: <a class='trait' href='https://doc.rust-lang.org/nightly/std/error/trait.Error.html' title='std::error::Error'>Error</a></code></h3><div class='docblock'><p>The error type produced by a failed conversion.</p>
 </div></div>
             <h2 id='required-methods'>Required Methods</h2>
             <div class='methods'>
