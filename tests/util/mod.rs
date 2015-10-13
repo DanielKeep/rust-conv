@@ -154,9 +154,9 @@ macro_rules! check {
             fn property(v: $from) -> bool {
                 let dst: Result<$to, conv::FloatError<_>> = v.value_into().map_err(From::from);
                 if !(-$bound as $from <= v) {
-                    dst == Err(conv::FloatError::Underflow(v))
+                    dst == Err(conv::FloatError::NegOverflow(v))
                 } else if !(v <= $bound as $from) {
-                    dst == Err(conv::FloatError::Overflow(v))
+                    dst == Err(conv::FloatError::PosOverflow(v))
                 } else {
                     dst == Ok(v as $to)
                 }
@@ -178,7 +178,7 @@ macro_rules! check {
             fn property(v: $from) -> bool {
                 let dst: Result<$to, conv::FloatError<_>> = v.value_into().map_err(From::from);
                 if !(v <= $bound as $from) {
-                    dst == Err(conv::FloatError::Overflow(v))
+                    dst == Err(conv::FloatError::PosOverflow(v))
                 } else {
                     dst == Ok(v as $to)
                 }
@@ -200,7 +200,7 @@ macro_rules! check {
             fn property(v: $from) -> bool {
                 let dst: Result<$to, conv::FloatError<_>> = v.value_into().map_err(From::from);
                 if !(0 <= v) {
-                    dst == Err(conv::FloatError::Underflow(v))
+                    dst == Err(conv::FloatError::NegOverflow(v))
                 } else {
                     dst == Ok(v as $to)
                 }
@@ -222,7 +222,7 @@ macro_rules! check {
             fn property(v: $from) -> bool {
                 let dst: Result<$to, conv::FloatError<_>> = v.value_into().map_err(From::from);
                 if !(v <= <$max>::max_value() as $from) {
-                    dst == Err(conv::FloatError::Overflow(v))
+                    dst == Err(conv::FloatError::PosOverflow(v))
                 } else {
                     dst == Ok(v as $to)
                 }
@@ -244,9 +244,9 @@ macro_rules! check {
             fn property(v: $from) -> bool {
                 let dst: Result<$to, conv::FloatError<_>> = v.value_into().map_err(From::from);
                 if !(<$bound>::min_value() as $from <= v) {
-                    dst == Err(conv::FloatError::Underflow(v))
+                    dst == Err(conv::FloatError::NegOverflow(v))
                 } else if !(v <= <$bound>::max_value() as $from) {
-                    dst == Err(conv::FloatError::Overflow(v))
+                    dst == Err(conv::FloatError::PosOverflow(v))
                 } else {
                     dst == Ok(v as $to)
                 }
@@ -268,9 +268,9 @@ macro_rules! check {
             fn property(v: $from) -> bool {
                 let dst: Result<$to, conv::FloatError<_>> = v.value_into().map_err(From::from);
                 if !(<$min>::min_value() as $from <= v) {
-                    dst == Err(conv::FloatError::Underflow(v))
+                    dst == Err(conv::FloatError::NegOverflow(v))
                 } else if !(v <= <$max>::max_value() as $from) {
-                    dst == Err(conv::FloatError::Overflow(v))
+                    dst == Err(conv::FloatError::PosOverflow(v))
                 } else {
                     dst == Ok(v as $to)
                 }
@@ -328,7 +328,7 @@ macro_rules! check {
             fn property(v: $from) -> bool {
                 let dst: Result<$to, conv::FloatError<_>> = v.approx_as().map_err(From::from);
                 if !(0 <= v) {
-                    dst == Err(conv::FloatError::Underflow(v))
+                    dst == Err(conv::FloatError::NegOverflow(v))
                 } else {
                     dst == Ok(v as $to)
                 }
@@ -350,7 +350,7 @@ macro_rules! check {
             fn property(v: $from) -> bool {
                 let dst: Result<$to, conv::FloatError<_>> = v.approx_as().map_err(From::from);
                 if !(v <= <$max>::max_value() as $from) {
-                    dst == Err(conv::FloatError::Overflow(v))
+                    dst == Err(conv::FloatError::PosOverflow(v))
                 } else {
                     dst == Ok(v as $to)
                 }
@@ -372,9 +372,9 @@ macro_rules! check {
             fn property(v: $from) -> bool {
                 let dst: Result<$to, conv::FloatError<_>> = v.approx_as().map_err(From::from);
                 if !(<$bound>::min_value() as $from <= v) {
-                    dst == Err(conv::FloatError::Underflow(v))
+                    dst == Err(conv::FloatError::NegOverflow(v))
                 } else if !(v <= <$bound>::max_value() as $from) {
-                    dst == Err(conv::FloatError::Overflow(v))
+                    dst == Err(conv::FloatError::PosOverflow(v))
                 } else {
                     dst == Ok(v as $to)
                 }

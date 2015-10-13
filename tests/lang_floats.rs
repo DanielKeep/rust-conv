@@ -4,8 +4,8 @@ extern crate conv;
 
 use conv::*;
 
-use conv::FloatError::Underflow as FU;
-use conv::FloatError::Overflow as FO;
+use conv::FloatError::NegOverflow as FU;
+use conv::FloatError::PosOverflow as FO;
 
 #[test]
 fn test_f32() {

@@ -4,10 +4,10 @@ extern crate conv;
 
 use conv::*;
 
-use conv::Underflow as Uf;
-use conv::Overflow as Of;
-use conv::RangeError::Underflow as RU;
-use conv::RangeError::Overflow as RO;
+use conv::NegOverflow as Uf;
+use conv::PosOverflow as Of;
+use conv::RangeError::NegOverflow as RU;
+use conv::RangeError::PosOverflow as RO;
 
 #[test]
 fn test_i8() {

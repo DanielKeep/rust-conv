@@ -234,21 +234,21 @@ custom_derive!{
         Copy, Clone, Eq, PartialEq, Ord, PartialOrd,
         IntoInner, DummyDebug, FromNoError,
         EnumDesc(
-            Underflow => "conversion resulted in underflow",
-            Overflow => "conversion resulted in overflow",
+            NegOverflow => "conversion resulted in negative overflow",
+            PosOverflow => "conversion resulted in positive overflow",
             Unrepresentable => "could not convert unrepresentable value",
         ),
         FromName(Unrepresentable),
-        FromName(Underflow),
-        FromName(Overflow),
-        FromRemap(RangeError(Underflow, Overflow))
+        FromName(NegOverflow),
+        FromName(PosOverflow),
+        FromRemap(RangeError(NegOverflow, PosOverflow))
     )]
     pub enum GeneralError<T> {
-        /// Input underflowed the target type.
-        Underflow(T),
+        /// Input was too negative for the target type.
+        NegOverflow(T),
 
-        /// Input overflowed the target type.
-        Overflow(T),
+        /// Input was too positive for the target type.
+        PosOverflow(T),
 
         /// Input was not representable in the target type.
         Unrepresentable(T),
@@ -261,8 +261,8 @@ impl<T> From<FloatError<T>> for GeneralError<T> {
         use self::FloatError as F;
         use self::GeneralError as G;
         match e {
-            F::Underflow(v) => G::Underflow(v),
-            F::Overflow(v) => G::Overflow(v),
+            F::NegOverflow(v) => G::NegOverflow(v),
+            F::PosOverflow(v) => G::PosOverflow(v),
             F::NotANumber(v) => G::Unrepresentable(v),
         }
     }
@@ -278,23 +278,23 @@ custom_derive! {
         Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Debug,
         FromNoError,
         EnumDesc(
-            Underflow => "conversion resulted in underflow",
-            Overflow => "conversion resulted in overflow",
+            NegOverflow => "conversion resulted in negative overflow",
+            PosOverflow => "conversion resulted in positive overflow",
             Unrepresentable => "could not convert unrepresentable value",
         ),
         FromName(Unrepresentable<T>),
-        FromName(Underflow<T>),
-        FromName(Overflow<T>),
-        FromRemap(RangeErrorKind(Underflow, Overflow)),
-        FromRemap(RangeError<T>(Underflow, Overflow)),
-        FromRemap(GeneralError<T>(Underflow, Overflow, Unrepresentable))
+        FromName(NegOverflow<T>),
+        FromName(PosOverflow<T>),
+        FromRemap(RangeErrorKind(NegOverflow, PosOverflow)),
+        FromRemap(RangeError<T>(NegOverflow, PosOverflow)),
+        FromRemap(GeneralError<T>(NegOverflow, PosOverflow, Unrepresentable))
     )]
     pub enum GeneralErrorKind {
-        /// Input underflowed the target type.
-        Underflow,
+        /// Input was too negative for the target type.
+        NegOverflow,
 
-        /// Input overflowed the target type.
-        Overflow,
+        /// Input was too positive for the target type.
+        PosOverflow,
 
         /// Input was not representable in the target type.
         Unrepresentable,
@@ -307,8 +307,8 @@ impl<T> From<FloatError<T>> for GeneralErrorKind {
         use self::FloatError as F;
         use self::GeneralErrorKind as G;
         match e {
-            F::Underflow(..) => G::Underflow,
-            F::Overflow(..) => G::Overflow,
+            F::NegOverflow(..) => G::NegOverflow,
+            F::PosOverflow(..) => G::PosOverflow,
             F::NotANumber(..) => G::Unrepresentable,
         }
     }
@@ -345,23 +345,23 @@ custom_derive! {
 }
 
 custom_derive! {
-    /// Indicates that the conversion failed due to an underflow.
+    /// Indicates that the conversion failed due to a negative overflow.
     #[derive(
         Copy, Clone, Eq, PartialEq, Ord, PartialOrd,
         IntoInner, DummyDebug, FromNoError,
-        Desc("conversion resulted in underflow")
+        Desc("conversion resulted in negative overflow")
     )]
-    pub struct Underflow<T>(pub T);
+    pub struct NegOverflow<T>(pub T);
 }
 
 custom_derive! {
-    /// Indicates that the conversion failed due to an overflow.
+    /// Indicates that the conversion failed due to a positive overflow.
     #[derive(
         Copy, Clone, Eq, PartialEq, Ord, PartialOrd,
         IntoInner, DummyDebug, FromNoError,
-        Desc("conversion resulted in overflow")
+        Desc("conversion resulted in positive overflow")
     )]
-    pub struct Overflow<T>(pub T);
+    pub struct PosOverflow<T>(pub T);
 }
 
 custom_derive! {
@@ -372,20 +372,20 @@ custom_derive! {
         Copy, Clone, Eq, PartialEq, Ord, PartialOrd,
         IntoInner, DummyDebug, FromNoError,
         EnumDesc(
-            Underflow => "conversion resulted in underflow",
-            Overflow => "conversion resulted in overflow",
+            NegOverflow => "conversion resulted in negative overflow",
+            PosOverflow => "conversion resulted in positive overflow",
             NotANumber => "conversion target does not support not-a-number",
         ),
-        FromName(Underflow),
-        FromName(Overflow),
-        FromRemap(RangeError(Underflow, Overflow))
+        FromName(NegOverflow),
+        FromName(PosOverflow),
+        FromRemap(RangeError(NegOverflow, PosOverflow))
     )]
     pub enum FloatError<T> {
-        /// Input underflowed the target type.
-        Underflow(T),
+        /// Input was too negative for the target type.
+        NegOverflow(T),
 
-        /// Input overflowed the target type.
-        Overflow(T),
+        /// Input was too positive for the target type.
+        PosOverflow(T),
 
         /// Input was not-a-number, which the target type could not represent.
         NotANumber(T),
@@ -400,18 +400,18 @@ custom_derive! {
         Copy, Clone, Eq, PartialEq, Ord, PartialOrd,
         IntoInner, DummyDebug, FromNoError,
         EnumDesc(
-            Underflow => "conversion resulted in underflow",
-            Overflow => "conversion resulted in overflow",
+            NegOverflow => "conversion resulted in negative overflow",
+            PosOverflow => "conversion resulted in positive overflow",
         ),
-        FromName(Underflow),
-        FromName(Overflow)
+        FromName(NegOverflow),
+        FromName(PosOverflow)
     )]
     pub enum RangeError<T> {
-        /// Input underflowed the target type.
-        Underflow(T),
+        /// Input was too negative for the target type.
+        NegOverflow(T),
 
-        /// Input overflowed the target type.
-        Overflow(T),
+        /// Input was too positive the target type.
+        PosOverflow(T),
     }
 }
 
@@ -425,19 +425,19 @@ custom_derive! {
         Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Debug,
         FromNoError,
         EnumDesc(
-            Underflow => "conversion resulted in underflow",
-            Overflow => "conversion resulted in overflow",
+            NegOverflow => "conversion resulted in negative overflow",
+            PosOverflow => "conversion resulted in positive overflow",
         ),
-        FromName(Underflow<T>),
-        FromName(Overflow<T>),
-        FromRemap(RangeError<T>(Underflow, Overflow))
+        FromName(NegOverflow<T>),
+        FromName(PosOverflow<T>),
+        FromRemap(RangeError<T>(NegOverflow, PosOverflow))
     )]
     pub enum RangeErrorKind {
-        /// Input underflowed the target type.
-        Underflow,
+        /// Input was too negative for the target type.
+        NegOverflow,
 
-        /// Input overflowed the target type.
-        Overflow,
+        /// Input was too positive for the target type.
+        PosOverflow,
     }
 }
 
@@ -449,11 +449,11 @@ pub trait Saturate {
     type Output;
 
     /**
-    Replaces an overflow or underflow error with a saturated value.
+    Replaces an overflow error with a saturated value.
 
     Unlike `unwrap_or_saturate`, this method can be used in cases where the `Result` error type can encode failures *other* than overflow and underflow.  For example, you cannot saturate a float-to-integer conversion using `unwrap_or_saturate` as the error might be `NotANumber`, which doesn't have a meaningful saturation "direction".
 
-    The output of this method will be a `Result` where the error type *does not* contain overflow or underflow conditions.  What conditions remain must still be dealt with in some fashion.
+    The output of this method will be a `Result` where the error type *does not* contain overflow conditions.  What conditions remain must still be dealt with in some fashion.
     */
     fn saturate(self) -> Self::Output;
 }
@@ -467,8 +467,8 @@ where T: Saturated {
         use self::FloatError::*;
         match self {
             Ok(v) => Ok(v),
-            Err(Underflow(_)) => Ok(T::saturated_min()),
-            Err(Overflow(_)) => Ok(T::saturated_max()),
+            Err(NegOverflow(_)) => Ok(T::saturated_min()),
+            Err(PosOverflow(_)) => Ok(T::saturated_max()),
             Err(NotANumber(v)) => Err(Unrepresentable(v))
         }
     }
@@ -483,8 +483,8 @@ where T: Saturated {
         use self::RangeError::*;
         match self {
             Ok(v) => Ok(v),
-            Err(Underflow(_)) => Ok(T::saturated_min()),
-            Err(Overflow(_)) => Ok(T::saturated_max())
+            Err(NegOverflow(_)) => Ok(T::saturated_min()),
+            Err(PosOverflow(_)) => Ok(T::saturated_max())
         }
     }
 }
@@ -498,8 +498,8 @@ where T: Saturated {
         use self::RangeErrorKind::*;
         match self {
             Ok(v) => Ok(v),
-            Err(Underflow) => Ok(T::saturated_min()),
-            Err(Overflow) => Ok(T::saturated_max())
+            Err(NegOverflow) => Ok(T::saturated_min()),
+            Err(PosOverflow) => Ok(T::saturated_max())
         }
     }
 }
@@ -534,7 +534,7 @@ pub trait UnwrapOrInf {
     type Output;
 
     /**
-    Either unwraps the successfully converted value, or saturates to infinity in the "direction" of overflow/underflow.
+    Either unwraps the successfully converted value, or saturates to infinity in the "direction" of overflow.
     */
     fn unwrap_or_inf(self) -> Self::Output;
 }
@@ -560,7 +560,7 @@ pub trait UnwrapOrSaturate {
     type Output;
 
     /**
-    Either unwraps the successfully converted value, or saturates in the "direction" of overflow/underflow.
+    Either unwraps the successfully converted value, or saturates in the "direction" of overflow.
     */
     fn unwrap_or_saturate(self) -> Self::Output;
 }
@@ -573,8 +573,8 @@ where T: SignedInfinity, E: Into<RangeErrorKind> {
         use self::RangeErrorKind::*;
         match self.map_err(Into::into) {
             Ok(v) => v,
-            Err(Underflow(..)) => T::neg_infinity(),
-            Err(Overflow(..)) => T::pos_infinity(),
+            Err(NegOverflow(..)) => T::neg_infinity(),
+            Err(PosOverflow(..)) => T::pos_infinity(),
         }
     }
 }
@@ -599,8 +599,8 @@ where T: Saturated, E: Into<RangeErrorKind> {
         use self::RangeErrorKind::*;
         match self.map_err(Into::into) {
             Ok(v) => v,
-            Err(Underflow(..)) => T::saturated_min(),
-            Err(Overflow(..)) => T::saturated_max(),
+            Err(NegOverflow(..)) => T::saturated_min(),
+            Err(PosOverflow(..)) => T::saturated_max(),
         }
     }
 }

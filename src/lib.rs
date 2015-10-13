@@ -14,6 +14,7 @@ The API of this crate is still not entirely decided.
 ### v0.3.0
 
 - Added an `Error` constraint to all `Err` associated types.  This will break any user-defined conversions where the `Err` type does not implement `Error`.
+- Renamed the `Overflow` and `Underflow` errors to `PosOverflow` and `NegOverflow` respectively.  In the context of floating point conversions, "underflow" usually means the value was too close to zero to correctly represent.
 
 ### v0.2.1
 
@@ -46,7 +47,7 @@ These extension methods are provided to help with some common cases:
 - [`ConvUtil::value_as<Dst>`](./trait.ConvUtil.html#method.value_as) - converts to `Dst` using `ValueInto::value_into`.
 - [`ConvAsUtil::approx`](./trait.ConvAsUtil.html#method.approx) - approximates to an inferred destination type with the `DefaultApprox` scheme.
 - [`ConvAsUtil::approx_by<S>`](./trait.ConvAsUtil.html#method.approx_by) - approximates to an inferred destination type with the scheme `S`.
-- [`Saturate::saturate`](./errors/trait.Saturate.html#tymethod.saturate) - saturates on overflow/underflow.
+- [`Saturate::saturate`](./errors/trait.Saturate.html#tymethod.saturate) - saturates on overflow.
 - [`UnwrapOk::unwrap_ok`](./errors/trait.UnwrapOk.html#tymethod.unwrap_ok) - unwraps results from conversions that cannot fail.
 - [`UnwrapOrInf::unwrap_or_inf`](./errors/trait.UnwrapOrInf.html#tymethod.unwrap_or_inf) - saturates to ±∞ on failure.
 - [`UnwrapOrInvalid::unwrap_or_invalid`](./errors/trait.UnwrapOrInvalid.html#tymethod.unwrap_or_invalid) - substitutes the target type's "invalid" sentinel value on failure.
@@ -72,11 +73,11 @@ Conversions for the builtin numeric (integer and floating point) types are provi
 A number of error types are defined in the [`errors`](./errors/index.html) module.  Generally, conversions use whichever error type most *narrowly* defines the kinds of failures that can occur.  For example:
 
 - `ValueFrom<u8> for u16` cannot possibly fail, and as such it uses `NoError`.
-- `ValueFrom<i8> for u16` can *only* fail with an underflow, thus it uses the `Underflow` type.
-- `ValueFrom<i32> for u16` can underflow *or* overflow, hence it uses `RangeError`.
-- Finally, `ApproxFrom<f32> for u16` can underflow, overflow, or attempt to convert NaN; `FloatError` covers those three cases.
+- `ValueFrom<i8> for u16` can *only* fail with a negative overflow, thus it uses the `NegOverflow` type.
+- `ValueFrom<i32> for u16` can overflow in either direction, hence it uses `RangeError`.
+- Finally, `ApproxFrom<f32> for u16` can overflow (positive or negative), or attempt to convert NaN; `FloatError` covers those three cases.
 
-Because there are *numerous* error types, the `GeneralError` enum is provided.  `From<E, T> for GeneralError<T>` exists for each error type `E<T>` defined by this crate (even for `NoError`!), allowing errors to be translated automatically by `try!`.  In fact, all errors can be "expanded" to *all* more general forms (*e.g.* `NoError` → `Underflow`, `Overflow` → `RangeError` → `FloatError`).
+Because there are *numerous* error types, the `GeneralError` enum is provided.  `From<E, T> for GeneralError<T>` exists for each error type `E<T>` defined by this crate (even for `NoError`!), allowing errors to be translated automatically by `try!`.  In fact, all errors can be "expanded" to *all* more general forms (*e.g.* `NoError` → `NegOverflow`, `PosOverflow` → `RangeError` → `FloatError`).
 
 Aside from `NoError`, the various error types wrap the input value that you attempted to convert.  This is so that non-`Copy` types do not need to be pre-emptively cloned prior to conversion, just in case the conversion fails.  A downside is that this means there are many, *many* incompatible error types.
 
@@ -93,14 +94,14 @@ The reason for not just using `GeneralErrorKind` in the first place is to static
 // This *cannot* fail, so we can use `unwrap_ok` to discard the `Result`.
 assert_eq!(u8::value_from(0u8).unwrap_ok(), 0u8);
 
-// This *can* fail.  Specifically, it can underflow.
+// This *can* fail.  Specifically, it can overflow toward negative infinity.
 assert_eq!(u8::value_from(0i8),     Ok(0u8));
-assert_eq!(u8::value_from(-1i8),    Err(Underflow(-1)));
+assert_eq!(u8::value_from(-1i8),    Err(NegOverflow(-1)));
 
-// This can underflow *and* overflow; hence the change to `RangeError`.
-assert_eq!(u8::value_from(-1i16),   Err(RangeError::Underflow(-1)));
+// This can overflow in *either* direction; hence the change to `RangeError`.
+assert_eq!(u8::value_from(-1i16),   Err(RangeError::NegOverflow(-1)));
 assert_eq!(u8::value_from(0i16),    Ok(0u8));
-assert_eq!(u8::value_from(256i16),  Err(RangeError::Overflow(256)));
+assert_eq!(u8::value_from(256i16),  Err(RangeError::PosOverflow(256)));
 
 // We can use the extension traits to simplify this a little.
 assert_eq!(u8::value_from(-1i16).unwrap_or_saturate(),  0u8);
@@ -112,23 +113,23 @@ assert_eq!(u8::value_from(256i16).unwrap_or_saturate(), 255u8);
 // `Wrapping` scheme.
 assert_eq!(
     <u8 as ApproxFrom<_, DefaultApprox>>::approx_from(400u16),
-    Err(Overflow(400)));
+    Err(PosOverflow(400)));
 assert_eq!(
     <u8 as ApproxFrom<_, Wrapping>>::approx_from(400u16),
     Ok(144u8));
 
 // This is rather inconvenient; as such, there are a number of convenience
 // extension methods available via `ConvUtil` and `ConvAsUtil`.
-assert_eq!(400u16.approx(),                       Err::<u8, _>(Overflow(400)));
+assert_eq!(400u16.approx(),                       Err::<u8, _>(PosOverflow(400)));
 assert_eq!(400u16.approx_by::<Wrapping>(),        Ok::<u8, _>(144u8));
-assert_eq!(400u16.approx_as::<u8>(),              Err(Overflow(400)));
+assert_eq!(400u16.approx_as::<u8>(),              Err(PosOverflow(400)));
 assert_eq!(400u16.approx_as_by::<u8, Wrapping>(), Ok(144));
 
 // Integer -> float conversions *can* fail due to limited precision.
 // Once the continuous range of exactly representable integers is exceeded, the
-// provided implementations fail with over/underflow errors.
+// provided implementations fail with overflow errors.
 assert_eq!(f32::value_from(16_777_216i32), Ok(16_777_216.0f32));
-assert_eq!(f32::value_from(16_777_217i32), Err(RangeError::Overflow(16_777_217)));
+assert_eq!(f32::value_from(16_777_217i32), Err(RangeError::PosOverflow(16_777_217)));
 
 // Float -> integer conversions have to be done using approximations.  Although
 // exact conversions are *possible*, "advertising" this with an implementation
@@ -143,7 +144,7 @@ assert_eq!(41.8f32.approx(), Ok(41u8));
 assert_eq!(42.0f32.approx(), Ok(42u8));
 
 assert_eq!(255.0f32.approx(), Ok(255u8));
-assert_eq!(256.0f32.approx(), Err::<u8, _>(FloatError::Overflow(256.0)));
+assert_eq!(256.0f32.approx(), Err::<u8, _>(FloatError::PosOverflow(256.0)));
 
 // Sometimes, it can be useful to saturate the conversion from float to
 // integer directly, then account for NaN as input separately.  The `Saturate`
@@ -176,7 +177,7 @@ pub mod macros;
 
 pub use errors::{
     NoError, GeneralError, GeneralErrorKind, Unrepresentable,
-    Underflow, Overflow,
+    NegOverflow, PosOverflow,
     FloatError, RangeError, RangeErrorKind,
     Saturate,
     UnwrapOk, UnwrapOrInf, UnwrapOrInvalid, UnwrapOrSaturate,

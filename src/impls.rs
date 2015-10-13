@@ -30,10 +30,10 @@ macro_rules! approx_z_to_dmax {
                 #[inline]
                 fn approx_from(src: $src) -> Result<$dst, Self::Err> {
                     if !(0 <= src) {
-                        return Err(::errors::RangeError::Underflow(src));
+                        return Err(::errors::RangeError::NegOverflow(src));
                     }
                     if !(src <= max_of!($dst) as $src) {
-                        return Err(::errors::RangeError::Overflow(src));
+                        return Err(::errors::RangeError::PosOverflow(src));
                     }
                     Ok(src as $dst)
                 }
@@ -47,11 +47,11 @@ macro_rules! approx_to_dmax {
         as_item! {
             $($attrs)*
             impl ::ApproxFrom<$src, $scheme> for $dst {
-                type Err = ::errors::Overflow<$src>;
+                type Err = ::errors::PosOverflow<$src>;
                 #[inline]
                 fn approx_from(src: $src) -> Result<$dst, Self::Err> {
                     if !(src <= max_of!($dst) as $src) {
-                        return Err(::errors::Overflow(src));
+                        return Err(::errors::PosOverflow(src));
                     }
                     Ok(src as $dst)
                 }
@@ -69,10 +69,10 @@ macro_rules! approx_dmin_to_dmax {
                 #[inline]
                 fn approx_from(src: $src) -> Result<$dst, Self::Err> {
                     if !(min_of!($dst) as $src <= src) {
-                        return Err(::errors::RangeError::Underflow(src));
+                        return Err(::errors::RangeError::NegOverflow(src));
                     }
                     if !(src <= max_of!($dst) as $src) {
-                        return Err(::errors::RangeError::Overflow(src));
+                        return Err(::errors::RangeError::PosOverflow(src));
                     }
                     Ok(src as $dst)
                 }
@@ -86,11 +86,11 @@ macro_rules! approx_z_up {
         as_item! {
             $($attrs)*
             impl ::ApproxFrom<$src, $scheme> for $dst {
-                type Err = ::errors::Underflow<$src>;
+                type Err = ::errors::NegOverflow<$src>;
                 #[inline]
                 fn approx_from(src: $src) -> Result<$dst, Self::Err> {
                     if !(0 <= src) {
-                        return Err(::errors::Underflow(src));
+                        return Err(::errors::NegOverflow(src));
                     }
                     Ok(src as $dst)
                 }
@@ -116,10 +116,10 @@ macro_rules! approx_dmin_to_dmax_no_nan {
                     }
                     let approx = { let $src_name = src; $conv };
                     if !(min_of!($dst) as $src <= approx) {
-                        return Err(::errors::FloatError::Underflow(src));
+                        return Err(::errors::FloatError::NegOverflow(src));
                     }
                     if !(approx <= max_of!($dst) as $src) {
-                        return Err(::errors::FloatError::Overflow(src));
+                        return Err(::errors::FloatError::PosOverflow(src));
                     }
                     Ok(approx as $dst)
                 }
@@ -178,10 +178,10 @@ macro_rules! num_conv {
                 #[inline]
                 fn value_from(src: $src) -> Result<$dst, Self::Err> {
                     if !(0 <= src) {
-                        return Err(::errors::RangeError::Underflow(src));
+                        return Err(::errors::RangeError::NegOverflow(src));
                     }
                     if !(src <= max_of!($dst) as $src) {
-                        return Err(::errors::RangeError::Overflow(src));
+                        return Err(::errors::RangeError::PosOverflow(src));
                     }
                     Ok(src as $dst)
                 }
@@ -198,11 +198,11 @@ macro_rules! num_conv {
 
             $($attrs)*
             impl ::ValueFrom<$src> for $dst {
-                type Err = ::errors::Overflow<$src>;
+                type Err = ::errors::PosOverflow<$src>;
                 #[inline]
                 fn value_from(src: $src) -> Result<$dst, Self::Err> {
                     if !(src <= max_of!($dst) as $src) {
-                        return Err(::errors::Overflow(src));
+                        return Err(::errors::PosOverflow(src));
                     }
                     Ok(src as $dst)
                 }
@@ -223,10 +223,10 @@ macro_rules! num_conv {
                 #[inline]
                 fn value_from(src: $src) -> Result<$dst, Self::Err> {
                     if !(min_of!($dst) as $src <= src) {
-                        return Err(::errors::RangeError::Underflow(src));
+                        return Err(::errors::RangeError::NegOverflow(src));
                     }
                     if !(src <= max_of!($dst) as $src) {
-                        return Err(::errors::RangeError::Overflow(src));
+                        return Err(::errors::RangeError::PosOverflow(src));
                     }
                     Ok(src as $dst)
                 }
@@ -243,11 +243,11 @@ macro_rules! num_conv {
 
             $($attrs)*
             impl ::ValueFrom<$src> for $dst {
-                type Err = ::errors::Underflow<$src>;
+                type Err = ::errors::NegOverflow<$src>;
                 #[inline]
                 fn value_from(src: $src) -> Result<$dst, Self::Err> {
                     if !(0 <= src) {
-                        return Err(::errors::Underflow(src));
+                        return Err(::errors::NegOverflow(src));
                     }
                     Ok(src as $dst)
                 }
@@ -285,10 +285,10 @@ macro_rules! num_conv {
                 #[inline]
                 fn value_from(src: $src) -> Result<$dst, Self::Err> {
                     if !(-$bound <= src) {
-                        return Err(::errors::RangeError::Underflow(src));
+                        return Err(::errors::RangeError::NegOverflow(src));
                     }
                     if !(src <= $bound) {
-                        return Err(::errors::RangeError::Overflow(src));
+                        return Err(::errors::RangeError::PosOverflow(src));
                     }
                     Ok(src as $dst)
                 }
@@ -303,11 +303,11 @@ macro_rules! num_conv {
 
             $($attrs)*
             impl ::ValueFrom<$src> for $dst {
-                type Err = ::errors::Overflow<$src>;
+                type Err = ::errors::PosOverflow<$src>;
                 #[inline]
                 fn value_from(src: $src) -> Result<$dst, Self::Err> {
                     if !(src <= $max) {
-                        return Err(::errors::Overflow(src));
+                        return Err(::errors::PosOverflow(src));
                     }
                     Ok(src as $dst)
                 }
@@ -393,10 +393,10 @@ mod lang_floats {
                 return Ok(src as f32);
             }
             if !(::std::f32::MIN as f64 <= src) {
-                return Err(RangeError::Underflow(src));
+                return Err(RangeError::NegOverflow(src));
             }
             if !(src <= ::std::f32::MAX as f64) {
-                return Err(RangeError::Overflow(src));
+                return Err(RangeError::PosOverflow(src));
             }
             Ok(src as f32)
         }
