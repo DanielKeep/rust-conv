@@ -521,7 +521,7 @@ impl<T> UnwrapOk<T> for Result<T, NoError> {
     fn unwrap_ok(self) -> T {
         match self {
             Ok(v) => v,
-            Err(..) => loop {},
+            Err(no_error) => match no_error {},
         }
     }
 }
