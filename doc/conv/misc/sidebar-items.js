@@ -1,1 +1,0 @@
-initSidebarItems({"trait":[["InvalidSentinel","This trait indicates that a type has an \"invalid\" sentinel value."],["Saturated","This trait indicates that values of a type can be logically \"saturated\"."],["SignedInfinity","This trait indicates that a type has positive and negative \"infinity\" values."]]});
