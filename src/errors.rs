@@ -573,8 +573,8 @@ where T: SignedInfinity, E: Into<RangeErrorKind> {
         use self::RangeErrorKind::*;
         match self.map_err(Into::into) {
             Ok(v) => v,
-            Err(NegOverflow(..)) => T::neg_infinity(),
-            Err(PosOverflow(..)) => T::pos_infinity(),
+            Err(NegOverflow) => T::neg_infinity(),
+            Err(PosOverflow) => T::pos_infinity(),
         }
     }
 }
@@ -599,8 +599,8 @@ where T: Saturated, E: Into<RangeErrorKind> {
         use self::RangeErrorKind::*;
         match self.map_err(Into::into) {
             Ok(v) => v,
-            Err(NegOverflow(..)) => T::saturated_min(),
-            Err(PosOverflow(..)) => T::saturated_max(),
+            Err(NegOverflow) => T::saturated_min(),
+            Err(PosOverflow) => T::saturated_max(),
         }
     }
 }
