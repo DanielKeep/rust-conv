@@ -11,6 +11,11 @@ The API of this crate is still not entirely decided.
 
 ## Change Log
 
+### v0.3.1
+
+- Change to `unwrap_ok` for better codegen (thanks bluss).
+- Fix for Rust breaking change (code in question was dodgy anyway; thanks m4rw3r).
+
 ### v0.3.0
 
 - Added an `Error` constraint to all `Err` associated types.  This will break any user-defined conversions where the `Err` type does not implement `Error`.
