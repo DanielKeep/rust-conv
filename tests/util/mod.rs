@@ -5,6 +5,12 @@ macro_rules! as_expr {
 macro_rules! check {
     (@ $from:ty, $to:ty=> $(;)*) => {};
 
+    (@ $from:ty, $to:ty=> cident; $($tail:tt)*) => {
+        check!(@ $from, $to=> v: '\x00';);
+        check!(@ $from, $to=> v: '\x01';);
+        check!(@ $from, $to=> $($tail)*);
+    };
+
     (@ $from:ty, $to:ty=> uident; $($tail:tt)*) => {
         check!(@ $from, $to=> v: 0;);
         check!(@ $from, $to=> v: 1;);

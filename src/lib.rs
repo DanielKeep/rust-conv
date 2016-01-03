@@ -11,6 +11,10 @@ The API of this crate is still not entirely decided.
 
 ## Change Log
 
+### v0.3.2
+
+- Added integer ↔ `char` conversions.
+
 ### v0.3.1
 
 - Change to `unwrap_ok` for better codegen (thanks bluss).

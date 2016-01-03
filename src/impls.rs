@@ -424,3 +424,115 @@ mod lang_float_to_int {
     num_conv! { f64=> fan u8, fan u16, fan u32, fan u64 }
     num_conv! { f64=> fan isize, fan usize }
 }
+
+mod lang_char_to_int {
+    use TryFrom;
+    use ValueFrom;
+    use errors::{NoError, PosOverflow};
+
+    impl TryFrom<char> for u32 {
+        type Err = NoError;
+        #[inline]
+        fn try_from(src: char) -> Result<u32, Self::Err> {
+            Ok(src as u32)
+        }
+    }
+
+    impl TryFrom<char> for usize {
+        type Err = NoError;
+        #[inline]
+        fn try_from(src: char) -> Result<usize, Self::Err> {
+            Ok(src as usize)
+        }
+    }
+
+    impl TryFrom<char> for isize {
+        type Err = NoError;
+        #[inline]
+        fn try_from(src: char) -> Result<isize, Self::Err> {
+            Ok(src as isize)
+        }
+    }
+
+    macro_rules! conv_char_to_int {
+        ($($ts:ty),* $(,)*) => {
+            $(
+                impl TryFrom<char> for $ts {
+                    type Err = PosOverflow<char>;
+                    #[inline]
+                    fn try_from(src: char) -> Result<$ts, Self::Err> {
+                        <$ts as ValueFrom<_>>::value_from(src as u32)
+                            .map_err(|_| PosOverflow(src))
+                    }
+                }
+            )*
+        };
+    }
+
+    macro_rules! conv_char_to_int_wide {
+        ($($ts:ty),* $(,)*) => {
+            $(
+                impl TryFrom<char> for $ts {
+                    type Err = NoError;
+                    #[inline]
+                    fn try_from(src: char) -> Result<$ts, Self::Err> {
+                        <$ts as ValueFrom<_>>::value_from(src as u32)
+                    }
+                }
+            )*
+        };
+    }
+
+    conv_char_to_int! { i8, i16, i32, u8, u16 }
+    conv_char_to_int_wide! { i64, u64 }
+}
+
+mod lang_int_to_char {
+    use TryFrom;
+    use ValueFrom;
+    use errors::{NoError, Unrepresentable, UnwrapOk};
+
+    impl TryFrom<u8> for char {
+        type Err = NoError;
+        #[inline]
+        fn try_from(src: u8) -> Result<char, Self::Err> {
+            Ok(src as char)
+        }
+    }
+    impl TryFrom<u16> for char {
+        type Err = Unrepresentable<u16>;
+        #[inline]
+        fn try_from(src: u16) -> Result<char, Self::Err> {
+            TryFrom::try_from(
+                <u32 as ValueFrom<_>>::value_from(src).unwrap_ok()
+            ).map_err(|_| Unrepresentable(src))
+        }
+    }
+
+    impl TryFrom<u32> for char {
+        type Err = Unrepresentable<u32>;
+        #[inline]
+        fn try_from(src: u32) -> Result<char, Self::Err> {
+            ::std::char::from_u32(src).ok_or_else(|| Unrepresentable(src))
+        }
+    }
+
+    macro_rules! conv_int_to_char {
+        ($($ts:ty),* $(,)*) => {
+            $(
+                impl TryFrom<$ts> for char {
+                    type Err = Unrepresentable<$ts>;
+                    #[inline]
+                    fn try_from(src: $ts) -> Result<char, Self::Err> {
+                        <u32 as ValueFrom<_>>::value_from(src)
+                            .map_err(|_| Unrepresentable(src))
+                            .and_then(|usv| TryFrom::try_from(usv)
+                                .map_err(|_| Unrepresentable(src)))
+                    }
+                }
+            )*
+        };
+    }
+
+    conv_int_to_char! { i8, i16, i32, i64, isize, u64, usize }
+}
