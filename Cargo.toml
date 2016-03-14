@@ -16,4 +16,4 @@ exclude = ["update-docs.py"]
 custom_derive = "0.1.2"
 
 [dev-dependencies]
-quickcheck = "0.2.21"
+quickcheck = "0.2.21, < 0.2.25"
