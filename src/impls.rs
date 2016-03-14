@@ -413,6 +413,11 @@ mod lang_int_to_float {
     num_conv! { u16=> w f32, w f64 }
     num_conv! { u32=> nf [, 16_777_216] f32, w f64 }
     num_conv! { u64=> nf [, 16_777_216] f32, nf [, 9_007_199_254_740_992] f64 }
+
+    num_conv! { isize=> nf [+- 16_777_216] f32,
+        #[32] w f64, #[64] nf [+- 9_007_199_254_740_992] f64 }
+    num_conv! { usize=> nf [, 16_777_216] f32,
+        #[32] w f64, #[64] nf [, 9_007_199_254_740_992] f64 }
 }
 
 mod lang_float_to_int {

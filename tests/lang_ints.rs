@@ -343,6 +343,9 @@ fn test_i_to_f() {
     check!(i64, f32=> sident; qv: (+-16_777_216); qa: *;
         v: -16_777_217, !RU; v: 16_777_217, !RO;
     );
+    check!(isize, f32=> sident; qv: (+-16_777_216); qa: *;
+        v: -16_777_217, !RU; v: 16_777_217, !RO;
+    );
 
     check!(u8,  f32=> uident; qv: *; qa: *);
     check!(u16, f32=> uident; qv: *; qa: *);
@@ -352,6 +355,9 @@ fn test_i_to_f() {
     check!(u64, f32=> uident; qv: (, 16_777_216); qa: *;
         v: 16_777_217, !Of;
     );
+    check!(usize, f32=> uident; qv: (, 16_777_216); qa: *;
+        v: 16_777_217, !Of;
+    );
 
     check!(i8,  f64=> sident; qv: *; qa: *);
     check!(i16, f64=> sident; qv: *; qa: *);
@@ -359,6 +365,16 @@ fn test_i_to_f() {
     check!(i64, f64=> sident; qv: (+-9_007_199_254_740_992); qa: *;
         v: -9_007_199_254_740_993, !RU; v: 9_007_199_254_740_993, !RO;
     );
+    for_bitness! {
+        32 {
+            check!(isize, f64=> sident; qv: *; qa: *);
+        }
+        64 {
+            check!(i64, f64=> sident; qv: (+-9_007_199_254_740_992); qa: *;
+                v: -9_007_199_254_740_993, !RU; v: 9_007_199_254_740_993, !RO;
+            );
+        }
+    }
 
     check!(u8,  f64=> uident; qv: *; qa: *);
     check!(u16, f64=> uident; qv: *; qa: *);
@@ -366,4 +382,14 @@ fn test_i_to_f() {
     check!(u64, f64=> uident; qv: (, 9_007_199_254_740_992); qa: *;
         v: 9_007_199_254_740_993, !Of;
     );
+    for_bitness! {
+        32 {
+            check!(usize, f64=> uident; qv: *; qa: *);
+        }
+        64 {
+            check!(u64, f64=> uident; qv: (, 9_007_199_254_740_992); qa: *;
+                v: 9_007_199_254_740_993, !Of;
+            );
+        }
+    }
 }
