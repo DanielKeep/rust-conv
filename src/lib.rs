@@ -5,15 +5,40 @@ The goal with the traits provided here is to be more specific about what generic
 
 In addition, `From`/`Into` requires all conversions to succeed or panic.  All conversion traits in this crate define an associated error type, allowing code to react to failed conversions as appropriate.
 
-# API Stability Notice
+<style type="text/css">
+.link-block { font-family: "Fira Sans"; }
+.link-block > p { display: inline-block; }
+.link-block > p > strong { font-weight: 500; margin-right: 1em; }
+.link-block > ul { display: inline-block; padding: 0; list-style: none; }
+.link-block > ul > li {
+  font-size: 0.8em;
+  background-color: #eee;
+  border: 1px solid #ccc;
+  padding: 0.3em;
+  display: inline-block;
+}
+</style>
+<span></span><div class="link-block">
 
-The API of this crate is still not entirely decided.
+**Links**
+
+* [Latest Release](https://crates.io/crates/scan-rules/)
+* [Latest Docs](https://danielkeep.github.io/rust-scan-rules/doc/scan_rules/index.html)
+* [Repository](https://github.com/DanielKeep/rust-scan-rules)
+
+<span></span></div>
+
+## Compatibility
+
+`conv` is compatible with Rust 1.2 and higher.
 
 ## Change Log
 
 ### v0.3.2
 
 - Added integer ↔ `char` conversions.
+- Added missing `isize`/`usize` → `f32`/`f64` conversions.
+- Fixed the error type of `i64` → `usize` for 64-bit targets.
 
 ### v0.3.1
 
