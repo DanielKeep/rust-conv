@@ -89,7 +89,10 @@ fn test_i32() {
             );
         }
         64 {
-            unimplemented!()
+            check!(i32, isize=> sident; qv: *; qa: *; qaW: *);
+            check!(i32, usize=> uident; qv: +; qa: +; qaW: *;
+                v: -1, !Uf;
+            );
         }
     }
 }
@@ -129,7 +132,11 @@ fn test_i64() {
             );
         }
         64 {
-            unimplemented!();
+            check!(i64, isize=> sident; qv: *; qa: *; qaW: *;
+            );
+            check!(i64, usize=> uident; qv: +; qa: +; qaW: *;
+                v: -1, !Uf;
+            );
         }
     }
 }
@@ -198,7 +205,8 @@ fn test_u32() {
             check!(u32, usize=> uident; qv: *; qa: *; qaW: *);
         }
         64 {
-            unimplemented!();
+            check!(u32, isize=> uident; qv: *; qa: *; qaW: *);
+            check!(u32, usize=> uident; qv: *; qa: *; qaW: *);
         }
     }
 }
@@ -237,7 +245,10 @@ fn test_u64() {
             );
         }
         64 {
-            unimplemented!();
+            check!(u64, isize=> uident; qv: +i64=> qa: +i64=> qaW: *;
+                v: 9_223_372_036_854_775_808, !Of;
+            );
+            check!(u64, usize=> uident; qv: *; qa: *; qaW: *);
         }
     }
 }
@@ -272,7 +283,17 @@ fn test_isize() {
             );
         }
         64 {
-            unimplemented!();
+            check!(isize, i32=> sident; qv: *; qa: *; qaW: *);
+            check!(isize, i64=> sident; qv: *; qa: *; qaW: *);
+            check!(isize, u32=> uident; qv: u32=> qa: u32=> qaW: *;
+                v: -1, !RU; v: 4_294_967_296, !RO;
+            );
+            check!(isize, u64=> uident; qv: +; qa: +; qaW: *;
+                v: -1, !Uf;
+            );
+            check!(isize, usize=> uident; qv: +; qa: +; qaW: *;
+                v: -1, !Uf;
+            );
         }
     }
 }
@@ -301,7 +322,13 @@ fn test_usize() {
             check!(usize, isize=> uident; qv: +isize=> qa: +isize=> qaW: *);
         }
         64 {
-            unimplemented!();
+            check!(usize, i32=> uident; qv: +i32=> qa: +i32=> qaW: *);
+            check!(usize, i64=> uident; qv: +i64=> qa: +i64=> qaW: *);
+            check!(usize, u32=> uident; qv: u32=> qa: u32=> qaW: *;
+                v: 4_294_967_296, !Of;
+            );
+            check!(usize, u64=> uident; qv: *; qa: *; qaW: *);
+            check!(usize, isize=> uident; qv: +isize=> qa: +isize=> qaW: *);
         }
     }
 }

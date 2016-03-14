@@ -343,7 +343,7 @@ mod lang_ints {
     num_conv! { i32=> n i8, n i16, w i64, n+u8, n+u16, w+u32, w+u64 }
     num_conv! { i64=> n i8, n i16, n i32, n+u8, n+u16, n+u32, w+u64 }
     num_conv! { i32=> #[32] e isize, #[64] w isize, w+usize }
-    num_conv! { i64=> #[32] n isize, #[64] e isize, n+usize }
+    num_conv! { i64=> #[32] n isize, #[64] e isize, #[32] n+usize, #[64] w+usize }
 
     num_conv! { u8=> n-i8, w i16, w i32, w i64, w u16, w u32, w u64, w isize, w usize }
     num_conv! { u16=> n-i8, n-i16, w i32, w i64, n-u8, w u32, w u64, w isize, w usize }

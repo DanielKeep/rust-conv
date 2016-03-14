@@ -114,7 +114,8 @@ fn test_c_to_i() {
             check!(char, usize=> try cident;);
         }
         64 {
-            unimplemented!();
+            check!(char, i64=> try cident;);
+            check!(char, u64=> try cident;);
         }
     }
 }
