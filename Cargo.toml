@@ -12,6 +12,9 @@ keywords = ["from", "into", "conversion", "approximation"]
 
 exclude = ["update-docs.py"]
 
+[features]
+no_std = []
+
 [dependencies]
 custom_derive = "0.1.2"
 

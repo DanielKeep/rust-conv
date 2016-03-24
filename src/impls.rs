@@ -361,6 +361,7 @@ mod lang_ints {
     num_conv! { usize=> n-isize }
 }
 
+#[cfg(not(feature = "no_std"))]
 mod lang_floats {
     use {ApproxFrom, ApproxScheme};
     use ValueFrom;
@@ -403,6 +404,7 @@ mod lang_floats {
     }
 }
 
+#[cfg(not(feature = "no_std"))]
 mod lang_int_to_float {
     num_conv! { i8=>  w f32, w f64 }
     num_conv! { i16=> w f32, w f64 }
@@ -420,6 +422,7 @@ mod lang_int_to_float {
         #[32] w f64, #[64] nf [, 9_007_199_254_740_992] f64 }
 }
 
+#[cfg(not(feature = "no_std"))]
 mod lang_float_to_int {
     num_conv! { f32=> fan i8, fan i16, fan i32, fan i64 }
     num_conv! { f32=> fan u8, fan u16, fan u32, fan u64 }
