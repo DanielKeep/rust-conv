@@ -336,8 +336,8 @@ macro_rules! check {
 
     (@ $from:ty, $to:ty=> qa: *; $($tail:tt)*) => {
         {
-            println!("? {} => {}, qa: *", SL!($from), SL!($to));
             extern crate quickcheck;
+            println!("? {} => {}, qa: *", SL!($from), SL!($to));
 
             fn property(v: $from) -> bool {
                 let dst: Result<$to, _> = v.approx_as();

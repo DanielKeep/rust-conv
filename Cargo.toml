@@ -20,3 +20,5 @@ custom_derive = "0.1.2"
 
 [dev-dependencies]
 quickcheck = "0.2.21, < 0.2.25"
+
+winapi = "< 0.2.6" # 0.2.6 is incompatible with Rust < 1.4
