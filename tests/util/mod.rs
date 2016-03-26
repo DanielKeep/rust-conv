@@ -1,3 +1,7 @@
+macro_rules! SL {
+    ($($tts:tt)*) => { stringify!($($tts)*) };
+}
+
 macro_rules! as_expr {
     ($e:expr) => {$e};
 }
@@ -119,6 +123,7 @@ macro_rules! check {
 
     (@ $from:ty, $to:ty=> v: $src:expr, !$dst:expr; $($tail:tt)*) => {
         {
+            println!("? {} => {}, v: {}, !{}", SL!($from), SL!($to), SL!($src), SL!($dst));
             let src: $from = $src;
             let dst: Result<$to, _> = src.value_into();
             assert_eq!(dst, Err($dst(src)));
@@ -128,6 +133,7 @@ macro_rules! check {
 
     (@ $from:ty, $to:ty=> v: $src:expr; $($tail:tt)*) => {
         {
+            println!("? {} => {}, v: {}", SL!($from), SL!($to), SL!($src));
             let src: $from = $src;
             let dst: Result<$to, _> = src.value_into();
             assert_eq!(dst, Ok($src as $to));
@@ -138,6 +144,7 @@ macro_rules! check {
     (@ $from:ty, $to:ty=> qv: *; $($tail:tt)*) => {
         {
             extern crate quickcheck;
+            println!("? {} => {}, qv: *", SL!($from), SL!($to));
 
             fn property(v: $from) -> bool {
                 let dst: Result<$to, _> = v.value_into();
@@ -156,6 +163,7 @@ macro_rules! check {
     (@ $from:ty, $to:ty=> qv: (+-$bound:expr); $($tail:tt)*) => {
         {
             extern crate quickcheck;
+            println!("? {} => {}, qv: (+- {})", SL!($from), SL!($to), SL!($bound));
 
             fn property(v: $from) -> bool {
                 let dst: Result<$to, conv::FloatError<_>> = v.value_into().map_err(From::from);
@@ -180,6 +188,7 @@ macro_rules! check {
     (@ $from:ty, $to:ty=> qv: (, $bound:expr); $($tail:tt)*) => {
         {
             extern crate quickcheck;
+            println!("? {} => {}, qv: (, {})", SL!($from), SL!($to), SL!($bound));
 
             fn property(v: $from) -> bool {
                 let dst: Result<$to, conv::FloatError<_>> = v.value_into().map_err(From::from);
@@ -202,6 +211,7 @@ macro_rules! check {
     (@ $from:ty, $to:ty=> qv: +; $($tail:tt)*) => {
         {
             extern crate quickcheck;
+            println!("? {} => {}, qv: +", SL!($from), SL!($to));
 
             fn property(v: $from) -> bool {
                 let dst: Result<$to, conv::FloatError<_>> = v.value_into().map_err(From::from);
@@ -224,6 +234,7 @@ macro_rules! check {
     (@ $from:ty, $to:ty=> qv: +$max:ty=> $($tail:tt)*) => {
         {
             extern crate quickcheck;
+            println!("? {} => {}, qv: +{}", SL!($from), SL!($to), SL!($max));
 
             fn property(v: $from) -> bool {
                 let dst: Result<$to, conv::FloatError<_>> = v.value_into().map_err(From::from);
@@ -246,6 +257,7 @@ macro_rules! check {
     (@ $from:ty, $to:ty=> qv: $bound:ty=> $($tail:tt)*) => {
         {
             extern crate quickcheck;
+            println!("? {} => {}, qv: {}", SL!($from), SL!($to), SL!($bound));
 
             fn property(v: $from) -> bool {
                 let dst: Result<$to, conv::FloatError<_>> = v.value_into().map_err(From::from);
@@ -270,6 +282,7 @@ macro_rules! check {
     (@ $from:ty, $to:ty=> qv: $min:ty, $max:ty=> $($tail:tt)*) => {
         {
             extern crate quickcheck;
+            println!("? {} => {}, qv: {}, {}", SL!($from), SL!($to), SL!($min), SL!($max));
 
             fn property(v: $from) -> bool {
                 let dst: Result<$to, conv::FloatError<_>> = v.value_into().map_err(From::from);
@@ -293,6 +306,7 @@ macro_rules! check {
 
     (@ $from:ty, $to:ty=> a: $src:expr, !$dst:expr; $($tail:tt)*) => {
         {
+            println!("? {} => {}, a: {}, !{}", SL!($from), SL!($to), SL!($src), SL!($dst));
             let src: $from = $src;
             let dst: Result<$to, _> = src.approx_as();
             assert_eq!(dst, Err($dst(src)));
@@ -302,14 +316,17 @@ macro_rules! check {
 
     (@ $from:ty, $to:ty=> a: $src:expr, $dst:expr; $($tail:tt)*) => {
         {
+            println!("? {} => {}, a: {}, {}", SL!($from), SL!($to), SL!($src), SL!($dst));
             let src: $from = $src;
             let dst: Result<$to, _> = src.approx_as();
             assert_eq!(dst, Ok($dst));
         }
         check!(@ $from, $to=> $($tail)*);
     };
+
     (@ $from:ty, $to:ty=> a: $src:expr; $($tail:tt)*) => {
         {
+            println!("? {} => {}, a: {}", SL!($from), SL!($to), SL!($src));
             let src: $from = $src;
             let dst: Result<$to, _> = src.approx_as();
             assert_eq!(dst, Ok($src as $to));
@@ -319,6 +336,7 @@ macro_rules! check {
 
     (@ $from:ty, $to:ty=> qa: *; $($tail:tt)*) => {
         {
+            println!("? {} => {}, qa: *", SL!($from), SL!($to));
             extern crate quickcheck;
 
             fn property(v: $from) -> bool {
@@ -338,6 +356,7 @@ macro_rules! check {
     (@ $from:ty, $to:ty=> qa: +; $($tail:tt)*) => {
         {
             extern crate quickcheck;
+            println!("? {} => {}, qa: +", SL!($from), SL!($to));
 
             fn property(v: $from) -> bool {
                 let dst: Result<$to, conv::FloatError<_>> = v.approx_as().map_err(From::from);
@@ -360,6 +379,7 @@ macro_rules! check {
     (@ $from:ty, $to:ty=> qa: +$max:ty=> $($tail:tt)*) => {
         {
             extern crate quickcheck;
+            println!("? {} => {}, qa: +{}", SL!($from), SL!($to), SL!($max));
 
             fn property(v: $from) -> bool {
                 let dst: Result<$to, conv::FloatError<_>> = v.approx_as().map_err(From::from);
@@ -382,6 +402,7 @@ macro_rules! check {
     (@ $from:ty, $to:ty=> qa: $bound:ty=> $($tail:tt)*) => {
         {
             extern crate quickcheck;
+            println!("? {} => {}, qa: {}", SL!($from), SL!($to), SL!($bound));
 
             fn property(v: $from) -> bool {
                 let dst: Result<$to, conv::FloatError<_>> = v.approx_as().map_err(From::from);
@@ -406,6 +427,7 @@ macro_rules! check {
     (@ $from:ty, $to:ty=> qaW: *; $($tail:tt)*) => {
         {
             extern crate quickcheck;
+            println!("? {} => {}, qaW: *", SL!($from), SL!($to));
 
             fn property(v: $from) -> bool {
                 let dst: Result<$to, _> = v.approx_as_by::<_, Wrapping>();
@@ -423,6 +445,7 @@ macro_rules! check {
 
     (@ $from:ty, $to:ty=> aRTN: $src:expr, $dst:expr; $($tail:tt)*) => {
         {
+            println!("? {} => {}, aRTN: {}, {}", SL!($from), SL!($to), SL!($src), SL!($dst));
             let src: $from = $src;
             let dst: Result<$to, _> = src.approx_by::<conv::RoundToNearest>();
             assert_eq!(dst, Ok($dst));
@@ -432,6 +455,7 @@ macro_rules! check {
 
     (@ $from:ty, $to:ty=> aRNI: $src:expr, $dst:expr; $($tail:tt)*) => {
         {
+            println!("? {} => {}, aRNI: {}, {}", SL!($from), SL!($to), SL!($src), SL!($dst));
             let src: $from = $src;
             let dst: Result<$to, _> = src.approx_by::<conv::RoundToNegInf>();
             assert_eq!(dst, Ok($dst));
@@ -441,6 +465,7 @@ macro_rules! check {
 
     (@ $from:ty, $to:ty=> aRPI: $src:expr, $dst:expr; $($tail:tt)*) => {
         {
+            println!("? {} => {}, aRPI: {}, {}", SL!($from), SL!($to), SL!($src), SL!($dst));
             let src: $from = $src;
             let dst: Result<$to, _> = src.approx_by::<conv::RoundToPosInf>();
             assert_eq!(dst, Ok($dst));
@@ -450,6 +475,7 @@ macro_rules! check {
 
     (@ $from:ty, $to:ty=> aRTZ: $src:expr, $dst:expr; $($tail:tt)*) => {
         {
+            println!("? {} => {}, aRTZ: {}, {}", SL!($from), SL!($to), SL!($src), SL!($dst));
             let src: $from = $src;
             let dst: Result<$to, _> = src.approx_by::<conv::RoundToZero>();
             assert_eq!(dst, Ok($dst));
