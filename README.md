@@ -9,9 +9,9 @@ In addition, `From`/`Into` provide no facility for a conversion failing, meaning
 
 **Links**
 
-* [Latest Release](https://crates.io/crates/scan-rules/)
-* [Latest Docs](https://danielkeep.github.io/rust-scan-rules/doc/scan_rules/index.html)
-* [Repository](https://github.com/DanielKeep/rust-scan-rules)
+* [Latest Release](https://crates.io/crates/conv/)
+* [Latest Docs](https://danielkeep.github.io/rust-conv/doc/conv/index.html)
+* [Repository](https://github.com/DanielKeep/rust-conv)
 
 ## Compatibility
 
