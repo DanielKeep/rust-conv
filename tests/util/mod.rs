@@ -300,6 +300,14 @@ macro_rules! check {
         check!(@ $from, $to=> $($tail)*);
     };
 
+    (@ $from:ty, $to:ty=> a: $src:expr, $dst:expr; $($tail:tt)*) => {
+        {
+            let src: $from = $src;
+            let dst: Result<$to, _> = src.approx_as();
+            assert_eq!(dst, Ok($dst));
+        }
+        check!(@ $from, $to=> $($tail)*);
+    };
     (@ $from:ty, $to:ty=> a: $src:expr; $($tail:tt)*) => {
         {
             let src: $from = $src;
