@@ -10,7 +10,10 @@ readme = "README.md"
 license = "MIT"
 keywords = ["from", "into", "conversion", "approximation"]
 
-exclude = ["update-docs.py"]
+exclude = [
+    "scripts/*",
+    "update-docs.py",
+]
 
 [dependencies]
 custom_derive = "0.1.2"

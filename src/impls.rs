@@ -105,6 +105,20 @@ macro_rules! approx_dmin_to_dmax_no_nan {
     };
 
     (($($attrs:tt)*), $src:ty, $dst:ident, $scheme:ty, approx: |$src_name:ident| $conv:expr) => {
+        approx_range_no_nan! {
+            ($($attrs)*), $src,
+            $dst, [min_of!($dst) as $src, max_of!($dst) as $src],
+            $scheme, approx: |$src_name| $conv
+        }
+    };
+}
+
+macro_rules! approx_range_no_nan {
+    (($($attrs:tt)*), $src:ty, $dst:ident, [$min:expr, $max:expr], $scheme:ty) => {
+        approx_range_no_nan! { ($($attrs)*), $src, $dst,  [$min, $max], $scheme, approx: |s| s }
+    };
+
+    (($($attrs:tt)*), $src:ty, $dst:ident, [$min:expr, $max:expr], $scheme:ty, approx: |$src_name:ident| $conv:expr) => {
         as_item! {
             $($attrs)*
             impl ::ApproxFrom<$src, $scheme> for $dst {
@@ -115,10 +129,10 @@ macro_rules! approx_dmin_to_dmax_no_nan {
                         return Err(::errors::FloatError::NotANumber(src));
                     }
                     let approx = { let $src_name = src; $conv };
-                    if !(min_of!($dst) as $src <= approx) {
+                    if !($min <= approx) {
                         return Err(::errors::FloatError::NegOverflow(src));
                     }
-                    if !(approx <= max_of!($dst) as $src) {
+                    if !(approx <= $max) {
                         return Err(::errors::FloatError::PosOverflow(src));
                     }
                     Ok(approx as $dst)
@@ -317,6 +331,22 @@ macro_rules! num_conv {
     };
 
     // Approximately narrowing a floating point value *into* a type where the source value is constrained by the given range of values.
+    (@ $src:ty=> ($($attrs:tt)*) fan [$min:expr, $max:expr] $dst:ident, $($tail:tt)*) => {
+        as_item! {
+            approx_range_no_nan! { ($($attrs)*), $src, $dst, [$min, $max],
+                ::DefaultApprox }
+            approx_range_no_nan! { ($($attrs)*), $src, $dst, [$min, $max],
+                ::RoundToNearest, approx: |s| s.round() }
+            approx_range_no_nan! { ($($attrs)*), $src, $dst, [$min, $max],
+                ::RoundToNegInf, approx: |s| s.floor() }
+            approx_range_no_nan! { ($($attrs)*), $src, $dst, [$min, $max],
+                ::RoundToPosInf, approx: |s| s.ceil() }
+            approx_range_no_nan! { ($($attrs)*), $src, $dst, [$min, $max],
+                ::RoundToZero, approx: |s| s.trunc() }
+        }
+        num_conv! { @ $src=> $($tail)* }
+    };
+
     (@ $src:ty=> ($($attrs:tt)*) fan $dst:ident, $($tail:tt)*) => {
         as_item! {
             approx_dmin_to_dmax_no_nan! { ($($attrs)*), $src, $dst, ::DefaultApprox }
@@ -421,13 +451,31 @@ mod lang_int_to_float {
 }
 
 mod lang_float_to_int {
-    num_conv! { f32=> fan i8, fan i16, fan i32, fan i64 }
-    num_conv! { f32=> fan u8, fan u16, fan u32, fan u64 }
-    num_conv! { f32=> fan isize, fan usize }
+    /*
+    We use explicit ranges on narrowing float-to-int conversions because it *turns out* that just because you can cast an integer to a float, this *does not* mean you can cast it back and get the original input.  The non-explicit-range implementation of `fan` *depends* on this, so it was kinda *totally broken* for narrowing conversions.
 
-    num_conv! { f64=> fan i8, fan i16, fan i32, fan i64 }
-    num_conv! { f64=> fan u8, fan u16, fan u32, fan u64 }
-    num_conv! { f64=> fan isize, fan usize }
+    *Yeah.*  That's floating point for you!
+    */
+    num_conv! { f32=> fan i8, fan i16,
+        fan [-2.1474836e9, 2.1474835e9] i32,
+        fan [-9.223372e18, 9.2233715e18] i64 }
+    num_conv! { f32=> fan u8, fan u16,
+        fan [0.0, 4.294967e9] u32,
+        fan [0.0, 1.8446743e19] u64 }
+    num_conv! { f32=>
+        #[32] fan [-2.1474836e9, 2.1474835e9] isize,
+        #[32] fan [0.0, 4.294967e9] usize,
+        #[64] fan [-9.223372e18, 9.2233715e18] isize,
+        #[64] fan [0.0, 1.8446743e19] usize }
+
+    num_conv! { f64=> fan i8, fan i16, fan i32,
+        fan [-9.223372036854776e18, 9.223372036854775e18] i64 }
+    num_conv! { f64=> fan u8, fan u16, fan u32,
+        fan [0.0, 1.844674407370955e19] u64 }
+    num_conv! { f64=>
+        #[32] fan isize, #[32] fan usize,
+        #[64] fan [-9.223372036854776e18, 9.223372036854775e18] isize,
+        #[64] fan [0.0, 1.844674407370955e19] usize }
 }
 
 mod lang_char_to_int {
