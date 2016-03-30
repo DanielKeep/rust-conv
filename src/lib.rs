@@ -204,6 +204,9 @@ fn too_many_errors() -> Result<(), GeneralErrorKind> {
 
 #![deny(missing_docs)]
 
+#![cfg_attr(feature = "no_std", no_std)]
+#[cfg(feature = "no_std")] extern crate core as std;
+
 #[macro_use] extern crate custom_derive;
 
 // Exported macros.
@@ -217,7 +220,17 @@ pub use errors::{
     UnwrapOk, UnwrapOrInf, UnwrapOrInvalid, UnwrapOrSaturate,
 };
 
-use std::error::Error;
+#[cfg(feature = "no_std")]
+/**
+A conversion error. Corresponds to std::error:Error.
+*/
+pub trait Error {
+    /// A short description of the error
+    fn description(&self) -> &str;
+}
+
+#[cfg(not(feature = "no_std"))]
+pub use std::error::Error;
 
 /**
 Publicly re-exports the most generally useful set of items.

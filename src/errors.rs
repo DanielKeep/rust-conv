@@ -5,7 +5,7 @@ In addition, it also defines some extension traits to make working with failable
 */
 
 use std::any::Any;
-use std::error::Error;
+use ::Error;
 use std::fmt::{self, Debug, Display};
 use misc::{Saturated, InvalidSentinel, SignedInfinity};
 
