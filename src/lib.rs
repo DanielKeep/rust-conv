@@ -34,6 +34,10 @@ In addition, `From`/`Into` requires all conversions to succeed or panic.  All co
 
 ## Change Log
 
+### v0.3.3
+
+- Support for `no_std` via the default `std` feature.
+
 ### v0.3.2
 
 - Added integer ↔ `char` conversions.
