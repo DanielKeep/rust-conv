@@ -1,5 +1,7 @@
 language: rust
-script: cargo build --features "$CARGO_FEATURES" --verbose && cargo test --verbose
+script: >
+  cargo build $CARGO_FLAGS --features "$CARGO_FEATURES"
+  && cargo test $CARGO_FLAGS --features "$CARGO_FEATURES"
 rust:
   - 1.2.0
   - 1.3.0
@@ -9,16 +11,16 @@ rust:
   - stable
   - beta
   - nightly
+env:
+  - >
+    CARGO_FLAGS="--verbose --no-default-features"
+    CARGO_FEATURES=std
 matrix:
   allow_failures:
     - rust: nightly
-env:
-  - CARGO_FEATURES=
-matrix:
   include:
     - rust: nightly
-      env:
-      - CARGO_FEATURES=no_std
+      env: CARGO_FEATURES=
 branches:
   except:
     - /^issue-.*$/

@@ -159,6 +159,7 @@ assert_eq!(400u16.approx_by::<Wrapping>(),        Ok::<u8, _>(144u8));
 assert_eq!(400u16.approx_as::<u8>(),              Err(PosOverflow(400)));
 assert_eq!(400u16.approx_as_by::<u8, Wrapping>(), Ok(144));
 
+# #[cfg(feature = "std")] fn std_0() {
 // Integer -> float conversions *can* fail due to limited precision.
 // Once the continuous range of exactly representable integers is exceeded, the
 // provided implementations fail with overflow errors.
@@ -186,6 +187,9 @@ assert_eq!(256.0f32.approx(), Err::<u8, _>(FloatError::PosOverflow(256.0)));
 assert_eq!((-23.0f32).approx_as::<u8>().saturate(), Ok(0));
 assert_eq!(302.0f32.approx_as::<u8>().saturate(), Ok(255u8));
 assert!(std::f32::NAN.approx_as::<u8>().saturate().is_err());
+# }
+# #[cfg(not(feature = "std"))] fn std_0() {}
+# std_0();
 
 // If you really don't care about the specific kind of error, you can just rely
 // on automatic conversion to `GeneralErrorKind`.
@@ -193,7 +197,14 @@ fn too_many_errors() -> Result<(), GeneralErrorKind> {
     assert_eq!({let r: u8 = try!(0u8.value_into()); r},  0u8);
     assert_eq!({let r: u8 = try!(0i8.value_into()); r},  0u8);
     assert_eq!({let r: u8 = try!(0i16.value_into()); r}, 0u8);
+    # #[cfg(feature = "std")] fn std_1() -> Result<(), GeneralErrorKind> {
     assert_eq!({let r: u8 = try!(0.0f32.approx()); r},   0u8);
+    # Ok(())
+    # }
+    # #[cfg(not(feature = "std"))] fn std_1() -> Result<(), GeneralErrorKind> {
+    # Ok(())
+    # }
+    # try!(std_1());
     Ok(())
 }
 # let _ = too_many_errors();
@@ -204,8 +215,8 @@ fn too_many_errors() -> Result<(), GeneralErrorKind> {
 
 #![deny(missing_docs)]
 
-#![cfg_attr(feature = "no_std", no_std)]
-#[cfg(feature = "no_std")] extern crate core as std;
+#![cfg_attr(not(feature = "std"), no_std)]
+#[cfg(not(feature = "std"))] extern crate core as std;
 
 #[macro_use] extern crate custom_derive;
 
@@ -220,16 +231,16 @@ pub use errors::{
     UnwrapOk, UnwrapOrInf, UnwrapOrInvalid, UnwrapOrSaturate,
 };
 
-#[cfg(feature = "no_std")]
+#[cfg(not(feature = "std"))]
 /**
 A conversion error. Corresponds to std::error:Error.
 */
-pub trait Error {
+pub trait Error: core::fmt::Debug + core::fmt::Display + core::any::Any {
     /// A short description of the error
     fn description(&self) -> &str;
 }
 
-#[cfg(not(feature = "no_std"))]
+#[cfg(feature = "std")]
 pub use std::error::Error;
 
 /**

@@ -1,3 +1,4 @@
+#![cfg(feature = "std")]
 extern crate conv;
 
 #[macro_use] mod util;

@@ -36,7 +36,7 @@ pub trait InvalidSentinel {
     fn invalid_sentinel() -> Self;
 }
 
-#[cfg(not(feature = "no_std"))]
+#[cfg(feature = "std")]
 item_for_each! {
     (f32), (f64) => {
         ($ity:ident) => {
@@ -60,7 +60,7 @@ pub trait SignedInfinity {
     fn pos_infinity() -> Self;
 }
 
-#[cfg(not(feature = "no_std"))]
+#[cfg(feature = "std")]
 item_for_each! {
     (f32), (f64) => {
         ($ity:ident) => {

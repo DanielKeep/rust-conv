@@ -16,10 +16,11 @@ exclude = [
 ]
 
 [features]
-no_std = []
+default = ["std"]
+std = ["custom_derive/std"]
 
 [dependencies]
-custom_derive = "0.1.2"
+custom_derive = { version = "0.1.5", default-features = false }
 
 [dev-dependencies]
 quickcheck = "0.2.21, < 0.2.25"

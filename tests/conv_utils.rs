@@ -2,6 +2,7 @@
 
 use conv::prelude::*;
 
+#[cfg(feature = "std")]
 #[test]
 fn test_approx() {
     use conv::DefaultApprox;
@@ -32,6 +33,7 @@ fn test_value() {
     assert_eq!((123u32).value_as::<u8>(), Ok(123));
 }
 
+#[cfg(feature = "std")]
 #[test]
 fn test_whizzo() {
     use conv::errors::Unrepresentable;
