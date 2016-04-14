@@ -1,6 +1,5 @@
-/*!
-This module defines some additional traits not *directly* tied to conversions.
-*/
+//! This module defines some additional traits not *directly* tied to conversions.
+//!
 
 /**
 This trait indicates that values of a type can be logically "saturated".

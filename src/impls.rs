@@ -162,7 +162,7 @@ macro_rules! num_conv {
     (@ $src:ty=> nf  $($tail:tt)*) => { num_conv! { @ $src=> () nf  $($tail)* } };
     (@ $src:ty=> fan $($tail:tt)*) => { num_conv! { @ $src=> () fan $($tail)* } };
 
-    // Exact conversion
+// Exact conversion
     (@ $src:ty=> ($($attrs:tt)*) e $dst:ty, $($tail:tt)*) => {
         as_item! {
             approx_blind! { ($($attrs)*), $src, $dst, ::DefaultApprox }
@@ -180,7 +180,7 @@ macro_rules! num_conv {
         num_conv! { @ $src=> $($tail)* }
     };
 
-    // Narrowing a signed type *into* an unsigned type where the destination type's maximum value is representable by the source type.
+// Narrowing a signed type *into* an unsigned type where the destination type's maximum value is representable by the source type.
     (@ $src:ty=> ($($attrs:tt)*) n+ $dst:ident, $($tail:tt)*) => {
         as_item! {
             approx_z_to_dmax! { ($($attrs)*), $src, $dst, ::DefaultApprox }
@@ -204,7 +204,7 @@ macro_rules! num_conv {
         num_conv! { @ $src=> $($tail)* }
     };
 
-    // Narrowing an unsigned type *into* a type where the destination type's maximum value is representable by the source type.
+// Narrowing an unsigned type *into* a type where the destination type's maximum value is representable by the source type.
     (@ $src:ty=> ($($attrs:tt)*) n- $dst:ident, $($tail:tt)*) => {
         as_item! {
             approx_to_dmax! { ($($attrs)*), $src, $dst, ::DefaultApprox }
@@ -225,7 +225,7 @@ macro_rules! num_conv {
         num_conv! { @ $src=> $($tail)* }
     };
 
-    // Narrowing where the destination type's bounds are representable by the source type.
+// Narrowing where the destination type's bounds are representable by the source type.
     (@ $src:ty=> ($($attrs:tt)*) n $dst:ident, $($tail:tt)*) => {
         as_item! {
             approx_dmin_to_dmax! { ($($attrs)*), $src, $dst, ::DefaultApprox }
@@ -249,7 +249,7 @@ macro_rules! num_conv {
         num_conv! { @ $src=> $($tail)* }
     };
 
-    // Widening a signed type *into* an unsigned type.
+// Widening a signed type *into* an unsigned type.
     (@ $src:ty=> ($($attrs:tt)*) w+ $dst:ident, $($tail:tt)*) => {
         as_item! {
             approx_z_up! { ($($attrs)*), $src, $dst, ::DefaultApprox }
@@ -270,7 +270,7 @@ macro_rules! num_conv {
         num_conv! { @ $src=> $($tail)* }
     };
 
-    // Widening.
+// Widening.
     (@ $src:ty=> ($($attrs:tt)*) w $dst:ident, $($tail:tt)*) => {
         as_item! {
             approx_blind! { ($($attrs)*), $src, $dst, ::DefaultApprox }
@@ -288,7 +288,7 @@ macro_rules! num_conv {
         num_conv! { @ $src=> $($tail)* }
     };
 
-    // Narrowing *into* a floating-point type where the conversion is only exact within a given range.
+// Narrowing *into* a floating-point type where the conversion is only exact within a given range.
     (@ $src:ty=> ($($attrs:tt)*) nf [+- $bound:expr] $dst:ident, $($tail:tt)*) => {
         as_item! {
             approx_blind! { ($($attrs)*), $src, $dst, ::DefaultApprox }
@@ -330,7 +330,7 @@ macro_rules! num_conv {
         num_conv! { @ $src=> $($tail)* }
     };
 
-    // Approximately narrowing a floating point value *into* a type where the source value is constrained by the given range of values.
+// Approximately narrowing a floating point value *into* a type where the source value is constrained by the given range of values.
     (@ $src:ty=> ($($attrs:tt)*) fan [$min:expr, $max:expr] $dst:ident, $($tail:tt)*) => {
         as_item! {
             approx_range_no_nan! { ($($attrs)*), $src, $dst, [$min, $max],
@@ -399,7 +399,8 @@ mod lang_floats {
 
     // f32 -> f64: strictly widening
     impl<Scheme> ApproxFrom<f32, Scheme> for f64
-    where Scheme: ApproxScheme {
+        where Scheme: ApproxScheme
+{
         type Err = NoError;
         #[inline]
         fn approx_from(src: f32) -> Result<f64, Self::Err> {
@@ -454,11 +455,10 @@ mod lang_int_to_float {
 
 #[cfg(feature = "std")]
 mod lang_float_to_int {
-    /*
-    We use explicit ranges on narrowing float-to-int conversions because it *turns out* that just because you can cast an integer to a float, this *does not* mean you can cast it back and get the original input.  The non-explicit-range implementation of `fan` *depends* on this, so it was kinda *totally broken* for narrowing conversions.
-
-    *Yeah.*  That's floating point for you!
-    */
+    // We use explicit ranges on narrowing float-to-int conversions because it *turns out* that just because you can cast an integer to a float, this *does not* mean you can cast it back and get the original input.  The non-explicit-range implementation of `fan` *depends* on this, so it was kinda *totally broken* for narrowing conversions.
+    //
+    // Yeah.*  That's floating point for you!
+    //
     num_conv! { f32=> fan i8, fan i16,
         fan [-2.1474836e9, 2.1474835e9] i32,
         fan [-9.223372e18, 9.2233715e18] i64 }
@@ -559,9 +559,8 @@ mod lang_int_to_char {
         type Err = Unrepresentable<u16>;
         #[inline]
         fn try_from(src: u16) -> Result<char, Self::Err> {
-            TryFrom::try_from(
-                <u32 as ValueFrom<_>>::value_from(src).unwrap_ok()
-            ).map_err(|_| Unrepresentable(src))
+            TryFrom::try_from(<u32 as ValueFrom<_>>::value_from(src).unwrap_ok())
+                .map_err(|_| Unrepresentable(src))
         }
     }
 

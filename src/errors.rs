@@ -1,11 +1,10 @@
-/*!
-This module defines the various error types that can be produced by a failed conversion.
-
-In addition, it also defines some extension traits to make working with failable conversions more ergonomic (see the `Unwrap*` traits).
-*/
+//! This module defines the various error types that can be produced by a failed conversion.
+//!
+//! In addition, it also defines some extension traits to make working with failable conversions more ergonomic (see the `Unwrap*` traits).
+//!
 
 use std::any::Any;
-use ::Error;
+use Error;
 use std::fmt::{self, Debug, Display};
 use misc::{Saturated, InvalidSentinel, SignedInfinity};
 
@@ -225,11 +224,10 @@ macro_rules! IntoInner {
 }
 
 custom_derive!{
-    /**
-    A general error enumeration that subsumes all other conversion errors.
-
-    This exists primarily as a "catch-all" for reliably unifying various different kinds of conversion errors.
-    */
+/// A general error enumeration that subsumes all other conversion errors.
+///
+/// This exists primarily as a "catch-all" for reliably unifying various different kinds of conversion errors.
+///
     #[derive(
         Copy, Clone, Eq, PartialEq, Ord, PartialOrd,
         IntoInner, DummyDebug, FromNoError,
@@ -244,13 +242,13 @@ custom_derive!{
         FromRemap(RangeError(NegOverflow, PosOverflow))
     )]
     pub enum GeneralError<T> {
-        /// Input was too negative for the target type.
+/// Input was too negative for the target type.
         NegOverflow(T),
 
-        /// Input was too positive for the target type.
+/// Input was too positive for the target type.
         PosOverflow(T),
 
-        /// Input was not representable in the target type.
+/// Input was not representable in the target type.
         Unrepresentable(T),
     }
 }
@@ -269,11 +267,10 @@ impl<T> From<FloatError<T>> for GeneralError<T> {
 }
 
 custom_derive! {
-    /**
-    A general error enumeration that subsumes all other conversion errors, but discards all input payloads the errors may be carrying.
-
-    This exists primarily as a "catch-all" for reliably unifying various different kinds of conversion errors, and between different input types.
-    */
+/// A general error enumeration that subsumes all other conversion errors, but discards all input payloads the errors may be carrying.
+///
+/// This exists primarily as a "catch-all" for reliably unifying various different kinds of conversion errors, and between different input types.
+///
     #[derive(
         Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Debug,
         FromNoError,
@@ -290,13 +287,13 @@ custom_derive! {
         FromRemap(GeneralError<T>(NegOverflow, PosOverflow, Unrepresentable))
     )]
     pub enum GeneralErrorKind {
-        /// Input was too negative for the target type.
+/// Input was too negative for the target type.
         NegOverflow,
 
-        /// Input was too positive for the target type.
+/// Input was too positive for the target type.
         PosOverflow,
 
-        /// Input was not representable in the target type.
+/// Input was not representable in the target type.
         Unrepresentable,
     }
 }
@@ -416,11 +413,10 @@ custom_derive! {
 }
 
 custom_derive! {
-    /**
-    Indicates that a conversion failed due to a range error.
-
-    This is a variant of `RangeError` that does not retain the input value which caused the error.  It exists to help unify some utility methods and should not generally be used directly, unless you are targeting the `Unwrap*` traits.
-    */
+/// Indicates that a conversion failed due to a range error.
+///
+/// This is a variant of `RangeError` that does not retain the input value which caused the error.  It exists to help unify some utility methods and should not generally be used directly, unless you are targeting the `Unwrap*` traits.
+///
     #[derive(
         Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Debug,
         FromNoError,
@@ -433,10 +429,10 @@ custom_derive! {
         FromRemap(RangeError<T>(NegOverflow, PosOverflow))
     )]
     pub enum RangeErrorKind {
-        /// Input was too negative for the target type.
+/// Input was too negative for the target type.
         NegOverflow,
 
-        /// Input was too positive for the target type.
+/// Input was too positive for the target type.
         PosOverflow,
     }
 }
@@ -459,7 +455,8 @@ pub trait Saturate {
 }
 
 impl<T, U> Saturate for Result<T, FloatError<U>>
-where T: Saturated {
+    where T: Saturated
+{
     type Output = Result<T, Unrepresentable<U>>;
 
     #[inline]
@@ -469,13 +466,14 @@ where T: Saturated {
             Ok(v) => Ok(v),
             Err(NegOverflow(_)) => Ok(T::saturated_min()),
             Err(PosOverflow(_)) => Ok(T::saturated_max()),
-            Err(NotANumber(v)) => Err(Unrepresentable(v))
+            Err(NotANumber(v)) => Err(Unrepresentable(v)),
         }
     }
 }
 
 impl<T, U> Saturate for Result<T, RangeError<U>>
-where T: Saturated {
+    where T: Saturated
+{
     type Output = Result<T, NoError>;
 
     #[inline]
@@ -484,13 +482,14 @@ where T: Saturated {
         match self {
             Ok(v) => Ok(v),
             Err(NegOverflow(_)) => Ok(T::saturated_min()),
-            Err(PosOverflow(_)) => Ok(T::saturated_max())
+            Err(PosOverflow(_)) => Ok(T::saturated_max()),
         }
     }
 }
 
 impl<T> Saturate for Result<T, RangeErrorKind>
-where T: Saturated {
+    where T: Saturated
+{
     type Output = Result<T, NoError>;
 
     #[inline]
@@ -499,7 +498,7 @@ where T: Saturated {
         match self {
             Ok(v) => Ok(v),
             Err(NegOverflow) => Ok(T::saturated_min()),
-            Err(PosOverflow) => Ok(T::saturated_max())
+            Err(PosOverflow) => Ok(T::saturated_max()),
         }
     }
 }
@@ -566,7 +565,9 @@ pub trait UnwrapOrSaturate {
 }
 
 impl<T, E> UnwrapOrInf for Result<T, E>
-where T: SignedInfinity, E: Into<RangeErrorKind> {
+    where T: SignedInfinity,
+          E: Into<RangeErrorKind>
+{
     type Output = T;
     #[inline]
     fn unwrap_or_inf(self) -> T {
@@ -580,7 +581,8 @@ where T: SignedInfinity, E: Into<RangeErrorKind> {
 }
 
 impl<T, E> UnwrapOrInvalid for Result<T, E>
-where T: InvalidSentinel {
+    where T: InvalidSentinel
+{
     type Output = T;
     #[inline]
     fn unwrap_or_invalid(self) -> T {
@@ -592,7 +594,9 @@ where T: InvalidSentinel {
 }
 
 impl<T, E> UnwrapOrSaturate for Result<T, E>
-where T: Saturated, E: Into<RangeErrorKind> {
+    where T: Saturated,
+          E: Into<RangeErrorKind>
+{
     type Output = T;
     #[inline]
     fn unwrap_or_saturate(self) -> T {

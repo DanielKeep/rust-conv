@@ -1,68 +1,67 @@
-/*!
-This module provides convenience macros to help with implementing the conversion traits.
-
-# `TryFrom!`
-
-```ignore
-macro_rules! TryFrom {
-    (($target:ty) $enum:item) => { ... };
-}
-```
-
-This macro attempts to derive an implementation of the [`TryFrom`](../trait.TryFrom.html) trait.  Specifically, it supports `enum`s consisting entirely of unitary variants, with or without explicit values.  The source type can be any integer type which the variants of the enumeration can be explicitly cast to (*i.e.* using `as`).
-
-If a conversion fails (due to there being no matching variant for the specified integer value `src`), then the conversion returns `Err(Unrepresentable(src))` (see [`Unrepresentable`](../errors/struct.Unrepresentable.html)).
-
-It is compatible with the [`custom_derive!`](https://crates.io/crates/custom_derive) macro.
-
-## Example
-
-Using `custom_derive!`:
-
-```
-#[macro_use] extern crate conv;
-#[macro_use] extern crate custom_derive;
-
-custom_derive! {
-    #[derive(Debug, PartialEq, TryFrom(i32))]
-    enum Colours {
-        Red = 0,
-        Green = 5,
-        Blue
-    }
-}
-
-fn main() {
-    use conv::{TryFrom, Unrepresentable};
-
-    assert_eq!(Colours::try_from(0), Ok(Colours::Red));
-    assert_eq!(Colours::try_from(1), Err(Unrepresentable(1)));
-    assert_eq!(Colours::try_from(5), Ok(Colours::Green));
-    assert_eq!(Colours::try_from(6), Ok(Colours::Blue));
-    assert_eq!(Colours::try_from(7), Err(Unrepresentable(7)));
-}
-```
-
-The above is equivalent to the following:
-
-```
-#[macro_use] extern crate conv;
-
-#[derive(Debug, PartialEq)]
-enum Colours {
-    Red = 0,
-    Green = 5,
-    Blue
-}
-
-TryFrom! { (i32) enum Colours {
-    Red = 0,
-    Green = 5,
-    Blue
-} }
-# fn main() {}
-```
-*/
+//! This module provides convenience macros to help with implementing the conversion traits.
+//!
+//! # `TryFrom!`
+//!
+//! ```ignore
+//! macro_rules! TryFrom {
+//! (($target:ty) $enum:item) => { ... };
+//! }
+//! ```
+//!
+//! This macro attempts to derive an implementation of the [`TryFrom`](../trait.TryFrom.html) trait.  Specifically, it supports `enum`s consisting entirely of unitary variants, with or without explicit values.  The source type can be any integer type which the variants of the enumeration can be explicitly cast to (*i.e.* using `as`).
+//!
+//! If a conversion fails (due to there being no matching variant for the specified integer value `src`), then the conversion returns `Err(Unrepresentable(src))` (see [`Unrepresentable`](../errors/struct.Unrepresentable.html)).
+//!
+//! It is compatible with the [`custom_derive!`](https://crates.io/crates/custom_derive) macro.
+//!
+//! ## Example
+//!
+//! Using `custom_derive!`:
+//!
+//! ```
+//! #[macro_use] extern crate conv;
+//! #[macro_use] extern crate custom_derive;
+//!
+//! custom_derive! {
+//! #[derive(Debug, PartialEq, TryFrom(i32))]
+//! enum Colours {
+//! Red = 0,
+//! Green = 5,
+//! Blue
+//! }
+//! }
+//!
+//! fn main() {
+//! use conv::{TryFrom, Unrepresentable};
+//!
+//! assert_eq!(Colours::try_from(0), Ok(Colours::Red));
+//! assert_eq!(Colours::try_from(1), Err(Unrepresentable(1)));
+//! assert_eq!(Colours::try_from(5), Ok(Colours::Green));
+//! assert_eq!(Colours::try_from(6), Ok(Colours::Blue));
+//! assert_eq!(Colours::try_from(7), Err(Unrepresentable(7)));
+//! }
+//! ```
+//!
+//! The above is equivalent to the following:
+//!
+//! ```
+//! #[macro_use] extern crate conv;
+//!
+//! #[derive(Debug, PartialEq)]
+//! enum Colours {
+//! Red = 0,
+//! Green = 5,
+//! Blue
+//! }
+//!
+//! TryFrom! { (i32) enum Colours {
+//! Red = 0,
+//! Green = 5,
+//! Blue
+//! } }
+//! # fn main() {}
+//! ```
+//!
 
 /**
 See the documentation for the [`macros`](./macros/index.html#tryfrom!) module for details.
