@@ -82,7 +82,7 @@ macro_rules! TryFrom {
     ) => {
         impl $crate::TryFrom<$prim> for $name {
             type Err = $crate::errors::Unrepresentable<$prim>;
-            fn try_from(src: $prim) -> Result<$name, Self::Err> {
+            fn try_from(src: $prim) -> ::std::result::Result<$name, Self::Err> {
                 $(
                     if src == $name::$var_names as $prim {
                         return Ok($name::$var_names);
