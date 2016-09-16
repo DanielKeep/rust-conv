@@ -65,6 +65,16 @@ TryFrom! { (i32) enum Colours {
 */
 
 /**
+This module contains symbols that we need to publicly re-export for macros, but don't want to show up as part of the public API.
+
+This module has **excluded** from semver guarantees.
+*/
+#[doc(hidden)]
+pub mod re_export {
+    pub use ::std::result::Result::{self, Ok};
+}
+
+/**
 See the documentation for the [`macros`](./macros/index.html#tryfrom!) module for details.
 */
 #[macro_export]
@@ -82,10 +92,10 @@ macro_rules! TryFrom {
     ) => {
         impl $crate::TryFrom<$prim> for $name {
             type Err = $crate::errors::Unrepresentable<$prim>;
-            fn try_from(src: $prim) -> ::std::result::Result<$name, Self::Err> {
+            fn try_from(src: $prim) -> $crate::macros::re_export::Result<$name, Self::Err> {
                 $(
                     if src == $name::$var_names as $prim {
-                        return Ok($name::$var_names);
+                        return $crate::macros::re_export::Ok($name::$var_names);
                     }
                 )*
                 Err($crate::errors::Unrepresentable(src))
